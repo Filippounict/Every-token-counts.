@@ -1,0 +1,6 @@
+{
+  "name": "Every Token Counts — LLM Inference Energy & Accuracy Poster Lab",
+  "description": "Scientific poster workbench, reproducible Ollama + CodeCarbon experimental protocol, and statistical analysis suite studying input/output token lengths, output limits, and reasoning mode energy-accuracy trade-offs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

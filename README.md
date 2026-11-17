@@ -31,6 +31,8 @@ An empirical research project and interactive scientific conference poster study
 4. **Fernandez et al. (2025)** — *"Energy Considerations of Large Language Model Inference and Efficiency Optimizations"*, ACL 2025, pp. 32556–32569.  
    Explains why parallel prompt prefill is compute-bound while autoregressive token decoding is sequential and memory-bandwidth-bound, driving higher per-token energy on output tokens.
 
+Detailed working notes, exact SOTA baselines, and the 5 planned extensions are in [`docs/SOTA_NOTES.md`](docs/SOTA_NOTES.md).
+
 ---
 
 ## 3. Repository Structure

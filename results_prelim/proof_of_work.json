@@ -1,0 +1,120 @@
+{
+  "created_at_utc": "2026-11-18T15:27:11Z",
+  "finished_at_utc": "2026-11-18T15:39:39Z",
+  "duration_sec": 747.44,
+  "mode": "preliminary",
+  "dry_run": false,
+  "model": "qwen3:1.7b",
+  "country_iso": "DEU",
+  "total_inferences": 75,
+  "hardware": {
+    "os": "Windows 10",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "python_version": "3.10.11"
+  },
+  "files": {
+    "results_csv": "experiment_results.csv",
+    "results_csv_sha256": "ca98bae69ce610929568254b2f2257602a3bccbc32bf51f4d885310d80d965eb",
+    "raw_codecarbon_csv": "emissions_raw.csv",
+    "raw_codecarbon_csv_sha256": "29519c0fbddc95a0ab17d38a8f9d01f4994821f4d3fe39883d27242c0357efd2"
+  },
+  "sample_verified_outputs": [
+    {
+      "run_id": "rq2a_10",
+      "timestamp": "2026-11-18T15:29:25Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_1",
+      "expected_answer": "18",
+      "response_preview": "Let's break down the problem step by step: ### Step 1: Total eggs laid per day Janet's ducks lay **16 eggs per day",
+      "correct": false,
+      "energy_mwh": 17.26
+    },
+    {
+      "run_id": "rq2a_11",
+      "timestamp": "2026-11-18T15:29:30Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_1",
+      "expected_answer": "18",
+      "response_preview": "Let's break down the problem step by step: ### Step 1: Total eggs laid per day Janet's ducks lay **16 eggs per day**. ### Step 2: Eggs used ...",
+      "correct": false,
+      "energy_mwh": 22.96
+    },
+    {
+      "run_id": "rq2a_12",
+      "timestamp": "2026-11-18T15:29:39Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_1",
+      "expected_answer": "18",
+      "response_preview": "Let's break down the problem step by step: ### Step 1: Total eggs laid per day Janet's ducks lay **16 eggs per day**. ### Step 2: Eggs used ...",
+      "correct": false,
+      "energy_mwh": 46.46
+    },
+    {
+      "run_id": "rq2a_13",
+      "timestamp": "2026-11-18T15:29:51Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_1",
+      "expected_answer": "18",
+      "response_preview": "Let's break down the problem step by step: ### Step 1: Total eggs laid per day Janet's ducks lay **16 eggs per day**. ### Step 2: Eggs used ...",
+      "correct": true,
+      "energy_mwh": 66.52
+    },
+    {
+      "run_id": "rq2w_14",
+      "timestamp": "2026-11-18T15:29:56Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_1",
+      "expected_answer": "18",
+      "response_preview": "Janet sells 16 - 3 - 4 = 9 eggs. 9 * 2 = 18. Final answer: 18.",
+      "correct": true,
+      "energy_mwh": 19.45
+    },
+    {
+      "run_id": "rq2w_15",
+      "timestamp": "2026-11-18T15:30:02Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_1",
+      "expected_answer": "18",
+      "response_preview": "Janet lays 16 eggs/day. Eats 3, uses 4 \u2192 9 eggs left. Sells 16 - 9 = 7 eggs. Makes 7 \u00d7 $2 = $14. Answer: $\\boxed{14}$",
+      "correct": false,
+      "energy_mwh": 27.97
+    },
+    {
+      "run_id": "rq2a_16",
+      "timestamp": "2026-11-18T15:30:06Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_2",
+      "expected_answer": "3",
+      "response_preview": "We are told that a robe takes: - **2 bolts of blue fiber** - **Half that much white fiber**, which is $ \\frac{1}{",
+      "correct": false,
+      "energy_mwh": 15.87
+    },
+    {
+      "run_id": "rq2a_17",
+      "timestamp": "2026-11-18T15:30:11Z",
+      "model": "qwen3:1.7b",
+      "phase": "rq2_output_limits",
+      "thinking_mode": "off",
+      "prompt_id": "gsm_2",
+      "expected_answer": "3",
+      "response_preview": "We are given: - A robe takes **2 bolts of blue fiber**. - It takes **half that much white fiber**, which is $ \\frac{1}{2} \\times 2 = 1 $ bol...",
+      "correct": false,
+      "energy_mwh": 23.78
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "total_inferences": 75,
+  "idle_power_w": 18.31,
+  "active_power_w": 24.34,
+  "measured_compute_share_pct": 59.0,
+  "estimated_ram_share_pct": 41.0,
+  "rq1": {
+    "input_mwh_per_token": 0.0753,
+    "output_mwh_per_token": 0.3754,
+    "output_to_input_ratio": 4.99
+  },
+  "rq2a_sweet_spot": {
+    "limit": 256,
+    "accuracy_pct": 83.3,
+    "avg_mwh": 39.94
+  },
+  "rq2b_input_quality": [
+    {
+      "context_level": "short",
+      "avg_input_tokens": 55.0,
+      "accuracy_pct": 83.3,
+      "avg_mwh": 33.0
+    },
+    {
+      "context_level": "medium",
+      "avg_input_tokens": 353.0,
+      "accuracy_pct": 83.3,
+      "avg_mwh": 52.82
+    },
+    {
+      "context_level": "long",
+      "avg_input_tokens": 1039.0,
+      "accuracy_pct": 83.3,
+      "avg_mwh": 103.88
+    }
+  ],
+  "rq3_thinking": {
+    "off": {
+      "label": "Direct (think=False)",
+      "accuracy_pct": 83.3,
+      "correct": 5,
+      "total": 6,
+      "avg_output_tokens": 112.3,
+      "avg_mwh": 41.6,
+      "mwh_per_correct": 49.91
+    },
+    "on": {
+      "label": "Thinking (think=True)",
+      "accuracy_pct": 66.7,
+      "correct": 4,
+      "total": 6,
+      "avg_output_tokens": 476.3,
+      "avg_mwh": 178.34,
+      "mwh_per_correct": 267.52
+    },
+    "extra_mwh": 136.74,
+    "energy_multiplier": 4.29,
+    "accuracy_gain_pct": -16.6,
+    "accuracy_gain_per_extra_wh": -121.4
+  },
+  "regional_co2_gco2eq": {
+    "SWE": 0.1393,
+    "DEU": 1.4708,
+    "IND": 2.7482
+  }
+}

@@ -1,0 +1,77 @@
+run_id,timestamp,model,phase,dataset,prompt_id,context_level,thinking_mode,limit_type,max_tokens_limit,input_tokens,output_tokens,latency_sec,energy_wh,correct,cpu_energy_wh,gpu_energy_wh,ram_energy_wh,emissions_gco2eq,expected_answer,response_preview
+idle_0,2026-11-18T15:26:52Z,idle,idle_baseline,IdleBaseline,idle_2s,none,off,unlimited,0,0,0,2.0,0.004722,1,0.001389,0.0,0.003333,0.001794,n/a,Idle sleep baseline (no model running)
+rq1_1,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_64_32_r1,none,off,num_predict,32,63,32,1.742,0.01588,1,0.012977,0.0,0.002903,0.006034,n/a,[DRY-RUN] Final answer: n/a
+rq1_2,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_64_128_r1,none,off,num_predict,128,63,128,5.435,0.049395,1,0.040337,0.0,0.009058,0.01877,n/a,[DRY-RUN] Final answer: n/a
+rq1_3,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_64_256_r1,none,off,num_predict,256,63,256,10.358,0.09408,1,0.076817,0.0,0.017263,0.03575,n/a,[DRY-RUN] Final answer: n/a
+rq1_4,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_256_32_r1,none,off,num_predict,32,255,32,2.753,0.025053,1,0.020465,0.0,0.004588,0.00952,n/a,[DRY-RUN] Final answer: n/a
+rq1_5,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_256_128_r1,none,off,num_predict,128,255,128,6.445,0.058567,1,0.047825,0.0,0.010742,0.022255,n/a,[DRY-RUN] Final answer: n/a
+rq1_6,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_256_256_r1,none,off,num_predict,256,255,256,11.368,0.103252,1,0.084305,0.0,0.018947,0.039236,n/a,[DRY-RUN] Final answer: n/a
+rq1_7,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_1024_32_r1,none,off,num_predict,32,1023,32,6.795,0.061742,1,0.050417,0.0,0.011325,0.023462,n/a,[DRY-RUN] Final answer: n/a
+rq1_8,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_1024_128_r1,none,off,num_predict,128,1023,128,10.487,0.095255,1,0.077777,0.0,0.017478,0.036197,n/a,[DRY-RUN] Final answer: n/a
+rq1_9,2026-11-18T15:26:52Z,qwen3:1.7b,rq1_sweep,SyntheticSweep,sweep_1024_256_r1,none,off,num_predict,256,1023,256,15.41,0.13994,1,0.114257,0.0,0.025683,0.053177,n/a,[DRY-RUN] Final answer: n/a
+rq2a_10,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_1,short,off,num_predict,32,60,32,1.727,0.015738,1,0.01286,0.0,0.002878,0.00598,18,[DRY-RUN] Final answer: 18
+rq2a_11,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_1,short,off,num_predict,64,60,64,2.957,0.026908,1,0.02198,0.0,0.004928,0.010225,18,[DRY-RUN] Final answer: 18
+rq2a_12,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_1,short,off,num_predict,128,60,84,3.727,0.033892,1,0.02768,0.0,0.006212,0.012879,18,[DRY-RUN] Final answer: 18
+rq2a_13,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_1,short,off,num_predict,256,60,84,3.727,0.033892,1,0.02768,0.0,0.006212,0.012879,18,[DRY-RUN] Final answer: 18
+rq2w_14,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_1,short,off,word_limit,15,67,84,3.763,0.034225,1,0.027953,0.0,0.006272,0.013005,18,[DRY-RUN] Final answer: 18
+rq2w_15,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_1,short,off,word_limit,60,67,84,3.763,0.034225,1,0.027953,0.0,0.006272,0.013005,18,[DRY-RUN] Final answer: 18
+rq2a_16,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_2,short,off,num_predict,32,43,32,1.637,0.014925,1,0.012197,0.0,0.002728,0.005672,3,[DRY-RUN] Final answer: 3
+rq2a_17,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_2,short,off,num_predict,64,43,64,2.868,0.026097,1,0.021317,0.0,0.00478,0.009917,3,[DRY-RUN] Final answer: 3
+rq2a_18,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_2,short,off,num_predict,128,43,84,3.637,0.033079,1,0.027017,0.0,0.006062,0.01257,3,[DRY-RUN] Final answer: 3
+rq2a_19,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_2,short,off,num_predict,256,43,84,3.637,0.033079,1,0.027017,0.0,0.006062,0.01257,3,[DRY-RUN] Final answer: 3
+rq2w_20,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_2,short,off,word_limit,15,49,84,3.669,0.033366,1,0.027251,0.0,0.006115,0.012679,3,[DRY-RUN] Final answer: 3
+rq2w_21,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_2,short,off,word_limit,60,49,84,3.669,0.033366,1,0.027251,0.0,0.006115,0.012679,3,[DRY-RUN] Final answer: 3
+rq2a_22,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_3,short,off,num_predict,32,55,32,1.7,0.015498,1,0.012665,0.0,0.002833,0.005889,70000,[DRY-RUN] Final answer: 70000
+rq2a_23,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_3,short,off,num_predict,64,55,64,2.931,0.02667,1,0.021785,0.0,0.004885,0.010135,70000,[DRY-RUN] Final answer: 70000
+rq2a_24,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_3,short,off,num_predict,128,55,84,3.7,0.033652,1,0.027485,0.0,0.006167,0.012788,70000,[DRY-RUN] Final answer: 70000
+rq2a_25,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_3,short,off,num_predict,256,55,84,3.7,0.033652,1,0.027485,0.0,0.006167,0.012788,70000,[DRY-RUN] Final answer: 70000
+rq2w_26,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_3,short,off,word_limit,15,62,84,3.737,0.033986,1,0.027758,0.0,0.006228,0.012915,70000,[DRY-RUN] Final answer: 70000
+rq2w_27,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,GSM8K,gsm_3,short,off,word_limit,60,62,84,3.737,0.033986,1,0.027758,0.0,0.006228,0.012915,70000,[DRY-RUN] Final answer: 70000
+rq2a_28,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_1,short,off,num_predict,32,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,au,[DRY-RUN] Final answer: au
+rq2a_29,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_1,short,off,num_predict,64,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,au,[DRY-RUN] Final answer: au
+rq2a_30,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_1,short,off,num_predict,128,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,au,[DRY-RUN] Final answer: au
+rq2a_31,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_1,short,off,num_predict,256,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,au,[DRY-RUN] Final answer: au
+rq2w_32,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_1,short,off,word_limit,15,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,au,[DRY-RUN] Final answer: au
+rq2w_33,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_1,short,off,word_limit,60,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,au,[DRY-RUN] Final answer: au
+rq2a_34,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_2,short,off,num_predict,32,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,mars,[DRY-RUN] Final answer: mars
+rq2a_35,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_2,short,off,num_predict,64,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,mars,[DRY-RUN] Final answer: mars
+rq2a_36,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_2,short,off,num_predict,128,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,mars,[DRY-RUN] Final answer: mars
+rq2a_37,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_2,short,off,num_predict,256,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,mars,[DRY-RUN] Final answer: mars
+rq2w_38,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_2,short,off,word_limit,15,33,22,1.2,0.010957,1,0.008957,0.0,0.002,0.004164,mars,[DRY-RUN] Final answer: mars
+rq2w_39,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_2,short,off,word_limit,60,33,22,1.2,0.010957,1,0.008957,0.0,0.002,0.004164,mars,[DRY-RUN] Final answer: mars
+rq2a_40,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_3,short,off,num_predict,32,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,canberra,[DRY-RUN] Final answer: canberra
+rq2a_41,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_3,short,off,num_predict,64,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,canberra,[DRY-RUN] Final answer: canberra
+rq2a_42,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_3,short,off,num_predict,128,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,canberra,[DRY-RUN] Final answer: canberra
+rq2a_43,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_3,short,off,num_predict,256,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,canberra,[DRY-RUN] Final answer: canberra
+rq2w_44,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_3,short,off,word_limit,15,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,canberra,[DRY-RUN] Final answer: canberra
+rq2w_45,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_output_limits,TriviaQA,triv_3,short,off,word_limit,60,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,canberra,[DRY-RUN] Final answer: canberra
+rq2in_46,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_1,short,off,num_predict,256,64,84,3.748,0.034083,1,0.027836,0.0,0.006247,0.012952,18,[DRY-RUN] Final answer: 18
+rq2in_47,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_1,medium,off,num_predict,256,353,84,5.269,0.047889,1,0.039107,0.0,0.008782,0.018198,18,[DRY-RUN] Final answer: 18
+rq2in_48,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_1,long,off,num_predict,256,1012,84,8.737,0.07937,1,0.064808,0.0,0.014562,0.030161,18,[DRY-RUN] Final answer: 18
+rq2in_49,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_2,short,off,num_predict,256,47,84,3.658,0.03327,1,0.027173,0.0,0.006097,0.012643,3,[DRY-RUN] Final answer: 3
+rq2in_50,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_2,medium,off,num_predict,256,336,84,5.179,0.047076,1,0.038444,0.0,0.008632,0.017889,3,[DRY-RUN] Final answer: 3
+rq2in_51,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_2,long,off,num_predict,256,994,84,8.642,0.078509,1,0.064106,0.0,0.014403,0.029833,3,[DRY-RUN] Final answer: 3
+rq2in_52,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_3,short,off,num_predict,256,59,84,3.721,0.033843,1,0.027641,0.0,0.006202,0.01286,70000,[DRY-RUN] Final answer: 70000
+rq2in_53,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_3,medium,off,num_predict,256,348,84,5.242,0.047649,1,0.038912,0.0,0.008737,0.018107,70000,[DRY-RUN] Final answer: 70000
+rq2in_54,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,GSM8K,gsm_3,long,off,num_predict,256,1007,84,8.711,0.079131,1,0.064613,0.0,0.014518,0.03007,70000,[DRY-RUN] Final answer: 70000
+rq2in_55,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_1,short,off,num_predict,256,24,22,1.152,0.010526,1,0.008606,0.0,0.00192,0.004,au,[DRY-RUN] Final answer: au
+rq2in_56,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_1,medium,off,num_predict,256,313,22,2.674,0.024334,1,0.019877,0.0,0.004457,0.009247,au,[DRY-RUN] Final answer: au
+rq2in_57,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_1,long,off,num_predict,256,972,22,6.142,0.055815,1,0.045578,0.0,0.010237,0.02121,au,[DRY-RUN] Final answer: au
+rq2in_58,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_2,short,off,num_predict,256,31,22,1.189,0.010861,1,0.008879,0.0,0.001982,0.004127,mars,[DRY-RUN] Final answer: mars
+rq2in_59,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_2,medium,off,num_predict,256,319,22,2.705,0.024619,1,0.020111,0.0,0.004508,0.009355,mars,[DRY-RUN] Final answer: mars
+rq2in_60,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_2,long,off,num_predict,256,978,22,6.174,0.056102,1,0.045812,0.0,0.01029,0.021319,mars,[DRY-RUN] Final answer: mars
+rq2in_61,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_3,short,off,num_predict,256,24,22,1.152,0.010526,1,0.008606,0.0,0.00192,0.004,canberra,[DRY-RUN] Final answer: canberra
+rq2in_62,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_3,medium,off,num_predict,256,313,22,2.674,0.024334,1,0.019877,0.0,0.004457,0.009247,canberra,[DRY-RUN] Final answer: canberra
+rq2in_63,2026-11-18T15:26:52Z,qwen3:1.7b,rq2_input_quality,TriviaQA,triv_3,long,off,num_predict,256,972,22,6.142,0.055815,1,0.045578,0.0,0.010237,0.02121,canberra,[DRY-RUN] Final answer: canberra
+rq3_64,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,GSM8K,gsm_1,short,off,num_predict,256,60,84,3.727,0.033892,1,0.02768,0.0,0.006212,0.012879,18,[DRY-RUN] Final answer: 18
+rq3_65,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,GSM8K,gsm_2,short,off,num_predict,256,43,84,3.637,0.033079,1,0.027017,0.0,0.006062,0.01257,3,[DRY-RUN] Final answer: 3
+rq3_66,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,GSM8K,gsm_3,short,off,num_predict,256,55,84,3.7,0.033652,1,0.027485,0.0,0.006167,0.012788,70000,[DRY-RUN] Final answer: 70000
+rq3_67,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,TriviaQA,triv_1,short,off,num_predict,256,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,au,[DRY-RUN] Final answer: au
+rq3_68,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,TriviaQA,triv_2,short,off,num_predict,256,27,22,1.168,0.01067,1,0.008723,0.0,0.001947,0.004055,mars,[DRY-RUN] Final answer: mars
+rq3_69,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,TriviaQA,triv_3,short,off,num_predict,256,20,22,1.131,0.010335,1,0.00845,0.0,0.001885,0.003927,canberra,[DRY-RUN] Final answer: canberra
+rq3_70,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,GSM8K,gsm_1,short,on,num_predict,512,60,280,11.265,0.102315,1,0.08354,0.0,0.018775,0.03888,18,[think: 840 chars] [DRY-RUN] Final answer: 18
+rq3_71,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,GSM8K,gsm_2,short,on,num_predict,512,43,280,11.176,0.101504,1,0.082877,0.0,0.018627,0.038572,3,[think: 840 chars] [DRY-RUN] Final answer: 3
+rq3_72,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,GSM8K,gsm_3,short,on,num_predict,512,55,280,11.239,0.102077,1,0.083345,0.0,0.018732,0.038789,70000,[think: 840 chars] [DRY-RUN] Final answer: 70000
+rq3_73,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,TriviaQA,triv_1,short,on,num_predict,512,20,140,5.67,0.05153,1,0.04208,0.0,0.00945,0.019581,au,[think: 420 chars] [DRY-RUN] Final answer: au
+rq3_74,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,TriviaQA,triv_2,short,on,num_predict,512,27,140,5.707,0.051865,1,0.042353,0.0,0.009512,0.019709,mars,[think: 420 chars] [DRY-RUN] Final answer: mars
+rq3_75,2026-11-18T15:26:52Z,qwen3:1.7b,rq3_thinking,TriviaQA,triv_3,short,on,num_predict,512,20,140,5.67,0.05153,1,0.04208,0.0,0.00945,0.019581,canberra,[think: 420 chars] [DRY-RUN] Final answer: canberra

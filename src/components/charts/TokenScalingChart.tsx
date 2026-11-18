@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import type { LinearRegressionResult, ScalingPoint } from '../../types/experiment';
+import type { LinearTrendResult, ScalingPoint } from '../../types/experiment';
 
 interface TokenScalingChartProps {
   id?: string;
   inputCurve: ScalingPoint[];
   outputCurve: ScalingPoint[];
-  inputRegression: LinearRegressionResult;
-  outputRegression: LinearRegressionResult;
+  inputTrend: LinearTrendResult;
+  outputTrend: LinearTrendResult;
   slopeRatio: number;
 }
 
@@ -14,12 +14,12 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
   id = 'fig1-token-scaling-svg',
   inputCurve,
   outputCurve,
-  inputRegression,
-  outputRegression,
+  inputTrend,
+  outputTrend,
   slopeRatio,
 }) => {
   const [hovered, setHovered] = useState<{
-    series: 'Input (Prefill)' | 'Output (Decode)';
+    series: 'Input (reading prompt)' | 'Output (writing answer)';
     tokens: number;
     energyMwh: number;
     latencySec: number;
@@ -42,8 +42,8 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
     10,
   ];
 
-  const maxX = Math.max(...allTokens) * 1.05;
-  const maxY = Math.max(...allEnergyMwh) * 1.12;
+  const maxX = Math.max(...allTokens) * 1.08;
+  const maxY = Math.max(...allEnergyMwh) * 1.15;
 
   const xScale = (t: number) => pad.left + (t / maxX) * plotW;
   const yScale = (mwh: number) => pad.top + plotH - (mwh / maxY) * plotH;
@@ -56,8 +56,8 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
   const xTicks = [0, Math.round(maxX * 0.25), Math.round(maxX * 0.5), Math.round(maxX * 0.75), Math.round(maxX)];
   const yTicks = [0, maxY * 0.25, maxY * 0.5, maxY * 0.75, maxY];
 
-  const inSlopeMwh = inputRegression.slope * 1000;
-  const outSlopeMwh = outputRegression.slope * 1000;
+  const inSlopeMwh = inputTrend.slope * 1000;
+  const outSlopeMwh = outputTrend.slope * 1000;
 
   return (
     <div className="relative">
@@ -66,7 +66,7 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-auto block select-none"
         role="img"
-        aria-label="RQ1 Line chart comparing input token prefill energy versus output token decode energy in milliwatt-hours"
+        aria-label="Line chart comparing energy used as input prompt length grows versus generated output length in milliwatt-hours"
       >
         <rect x="0" y="0" width={width} height={height} fill="#FFFFFF" />
 
@@ -124,7 +124,7 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
           fontWeight="600"
           fontFamily="Public Sans, sans-serif"
         >
-          Token Count (Input Prompt vs. Generated Output)
+          Number of Tokens (Input Prompt vs. Output Answer)
         </text>
         <text
           x={14}
@@ -153,14 +153,14 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
             key={`in-${pt.tokens}`}
             cx={xScale(pt.tokens)}
             cy={yScale(pt.energyWh * 1000)}
-            r={4}
+            r={4.2}
             fill="#1D4ED8"
             stroke="#FFFFFF"
             strokeWidth="1.2"
             className="cursor-pointer"
             onMouseEnter={() =>
               setHovered({
-                series: 'Input (Prefill)',
+                series: 'Input (reading prompt)',
                 tokens: pt.tokens,
                 energyMwh: pt.energyWh * 1000,
                 latencySec: pt.latencySec,
@@ -182,7 +182,7 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
             className="cursor-pointer"
             onMouseEnter={() =>
               setHovered({
-                series: 'Output (Decode)',
+                series: 'Output (writing answer)',
                 tokens: pt.tokens,
                 energyMwh: pt.energyWh * 1000,
                 latencySec: pt.latencySec,
@@ -192,19 +192,19 @@ export const TokenScalingChart: React.FC<TokenScalingChartProps> = ({
           />
         ))}
 
-        {/* Legend + Slope callout box */}
-        <g transform={`translate(${pad.left + 10}, ${pad.top + 4})`}>
-          <rect x="0" y="0" width="234" height="54" rx="4" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
+        {/* Plain-English Legend Box */}
+        <g transform={`translate(${width - pad.right - 224}, ${pad.top + 4})`}>
+          <rect x="0" y="0" width="220" height="54" rx="4" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
           <rect x="8" y="9" width="10" height="10" fill="#B91C1C" />
-          <text x="24" y="18" fill="#0F172A" fontSize="9.5" fontWeight="600" fontFamily="Public Sans, sans-serif">
-            Output (Decode): {outSlopeMwh.toFixed(3)} mWh/tok (R²={outputRegression.rSquared.toFixed(2)})
+          <text x="24" y="18" fill="#0F172A" fontSize="9.3" fontWeight="600" fontFamily="Public Sans, sans-serif">
+            Output tokens: {outSlopeMwh.toFixed(3)} mWh / token
           </text>
           <circle cx="13" cy="31" r="4.5" fill="#1D4ED8" />
-          <text x="24" y="34" fill="#0F172A" fontSize="9.5" fontWeight="600" fontFamily="Public Sans, sans-serif">
-            Input (Prefill): {inSlopeMwh.toFixed(3)} mWh/tok (R²={inputRegression.rSquared.toFixed(2)})
+          <text x="24" y="34" fill="#0F172A" fontSize="9.3" fontWeight="600" fontFamily="Public Sans, sans-serif">
+            Input tokens: {inSlopeMwh.toFixed(3)} mWh / token
           </text>
           <text x="8" y="48" fill="#B91C1C" fontSize="9" fontWeight="700" fontFamily="IBM Plex Mono, monospace">
-            Decode / Prefill Slope Ratio: {slopeRatio > 0 ? `${slopeRatio.toFixed(1)}×` : '—'}
+            Output costs {slopeRatio > 0 ? `${slopeRatio.toFixed(1)}×` : '—'} more per token
           </text>
         </g>
       </svg>

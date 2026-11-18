@@ -1,30 +1,72 @@
-export type DatasetName = 'GSM8K' | 'MATH-500' | 'TriviaQA' | 'SyntheticSweep';
-
-export type ThinkingMode = 'off' | 'on';
+export type DatasetName = 'GSM8K' | 'TriviaQA' | 'MATH-500' | 'SyntheticSweep' | 'IdleBaseline';
 
 export type LimitType = 'num_predict' | 'word_limit' | 'unlimited';
 
-export type ExperimentPhase = 'rq1_sweep' | 'rq2_limits' | 'rq3_thinking';
+export type ContextLevel = 'short' | 'medium' | 'long' | 'none';
+
+export type ExperimentPhase =
+  | 'idle_baseline'
+  | 'rq1_sweep'
+  | 'rq2_output_limits'
+  | 'rq2_input_quality'
+  | 'rq3_model_compare';
 
 export interface ExperimentRow {
   runId: string;
+  timestamp?: string;
+  model: string;
   phase: ExperimentPhase;
   dataset: DatasetName;
-  difficulty: number; // 1-5 for MATH-500, 1 for TriviaQA, 2 for GSM8K, 0 for Synthetic
   promptId: string;
-  thinkingMode: ThinkingMode;
+  contextLevel: ContextLevel;
   limitType: LimitType;
-  maxTokensLimit: number; // e.g., 32, 64, 128, 256, 512, 1024
+  maxTokensLimit: number; // e.g., 32, 64, 128, 256, or word count for word_limit
   inputTokens: number;
   outputTokens: number;
-  thinkingTokens: number;
-  answerTokens: number;
   latencySec: number;
   energyWh: number;
   correct: boolean;
+  cpuEnergyWh?: number;
+  gpuEnergyWh?: number;
+  ramEnergyWh?: number;
+  emissionsGco2eq?: number;
+  expectedAnswer?: string;
+  responsePreview?: string;
 }
 
-export interface LinearRegressionResult {
+export interface ProofOfWorkManifest {
+  created_at_utc?: string;
+  duration_sec?: number;
+  mode?: string;
+  dry_run?: boolean;
+  primary_model?: string;
+  compare_model?: string;
+  country_iso?: string;
+  total_inferences?: number;
+  hardware?: {
+    os?: string;
+    machine?: string;
+    processor?: string;
+    python_version?: string;
+  };
+  files?: {
+    results_csv?: string;
+    results_csv_sha256?: string;
+    raw_codecarbon_csv?: string;
+    raw_codecarbon_csv_sha256?: string | null;
+  };
+}
+
+export interface HardwareEnergyBreakdown {
+  hasComponents: boolean;
+  measuredComputeSharePct: number; // (CPU + GPU) / Total during inference
+  estimatedRamSharePct: number; // Constant RAM model / Total during inference
+  idlePowerW: number | null;
+  idleRamPowerW: number | null;
+  inferencePowerW: number;
+}
+
+export interface LinearTrendResult {
   slope: number; // Wh per token
   intercept: number; // Wh
   rSquared: number;
@@ -45,68 +87,80 @@ export interface HeatmapCell {
   count: number;
 }
 
-export interface ParetoPoint {
+export interface OutputCapPoint {
   limit: number;
   label: string;
   limitType: LimitType;
   energyWh: number;
   accuracyPct: number;
   tokensGenerated: number;
-  whPerCorrect: number;
-  isKnee: boolean;
-  marginalGainAccPerWh: number | null;
+  whPerCorrect: number | null;
+  isSweetSpot: boolean;
 }
 
-export interface McNemarResult {
-  n11: number; // Both OFF and ON correct
-  n10: number; // OFF correct, ON wrong
-  n01: number; // OFF wrong, ON correct
-  n00: number; // Both wrong
-  totalPairs: number;
-  discordantTotal: number;
-  method: 'exact_binomial' | 'chi2_edwards';
-  chiSquare: number | null;
-  pValue: number;
-  significantAt05: boolean;
-  oddsRatio: number | null;
-  cohensG: number;
-  accOffPct: number;
-  accOnPct: number;
-  deltaAccPct: number;
-}
-
-export interface ThinkingTaskSummary {
+export interface InputQualitySummary {
+  level: 'short' | 'medium' | 'long';
   label: string;
   count: number;
-  accOffPct: number;
-  accOnPct: number;
-  energyOffWh: number;
-  energyOnWh: number;
-  whPerCorrectOff: number | null;
-  whPerCorrectOn: number | null;
-  extraAccPerExtraWh: number | null;
-  avgTokensOff: number;
-  avgTokensOn: number;
+  avgInputTokens: number;
+  avgOutputTokens: number;
+  accuracyPct: number;
+  correctCount: number;
+  avgEnergyWh: number;
+  whPerCorrect: number | null;
+  avgLatencySec: number;
+}
+
+export interface ModelComparisonSummary {
+  model: string;
+  count: number;
+  correctCount: number;
+  accuracyPct: number;
+  avgInputTokens: number;
+  avgOutputTokens: number;
+  avgEnergyWh: number;
+  whPerCorrect: number | null;
+  avgLatencySec: number;
+}
+
+export interface ProofTraceSample {
+  runId: string;
+  timestamp: string;
+  model: string;
+  phase: ExperimentPhase;
+  dataset: DatasetName;
+  promptId: string;
+  conditionLabel: string;
+  inputTokens: number;
+  outputTokens: number;
+  energyMwh: number;
+  expectedAnswer: string;
+  responsePreview: string;
+  correct: boolean;
 }
 
 export interface AggregatedPosterData {
   totalRuns: number;
-  modelName: string;
+  modelsTested: string[];
+  primaryModel: string;
+  hardwareBreakdown: HardwareEnergyBreakdown;
   rq1InputCurve: ScalingPoint[];
   rq1OutputCurve: ScalingPoint[];
-  rq1InputRegression: LinearRegressionResult;
-  rq1OutputRegression: LinearRegressionResult;
+  rq1InputTrend: LinearTrendResult;
+  rq1OutputTrend: LinearTrendResult;
   outputToInputSlopeRatio: number;
   heatmapInputBins: number[];
   heatmapOutputBins: number[];
   heatmapCells: HeatmapCell[];
-  rq2ParetoCurve: ParetoPoint[];
-  rq2WordLimitCurve: ParetoPoint[];
-  kneePoint: ParetoPoint | null;
-  rq3ByDataset: ThinkingTaskSummary[];
-  rq3ByDifficulty: ThinkingTaskSummary[];
-  mcNemarOverall: McNemarResult;
-  mcNemarByDataset: Record<string, McNemarResult>;
+  rq2OutputCapCurve: OutputCapPoint[];
+  rq2WordLimitCurve: OutputCapPoint[];
+  sweetSpot: OutputCapPoint | null;
+  rq2InputQuality: InputQualitySummary[];
+  inputQualityDropPct: number; // short accuracy - long accuracy
+  rq3ModelComparison: ModelComparisonSummary[];
+  proofTraces: ProofTraceSample[];
+  firstTimestamp: string | null;
+  lastTimestamp: string | null;
 }
 
 export interface PosterMetadata {

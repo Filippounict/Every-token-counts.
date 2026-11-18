@@ -16,14 +16,13 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const navItems: Array<{ id: ActiveTab; label: string }> = [
     { id: 'poster', label: 'Scientific Poster' },
-    { id: 'method', label: 'Method & Python Kit' },
-    { id: 'literature', label: 'Literature & Stats' },
+    { id: 'method', label: 'Method & Fast Run Kit' },
+    { id: 'literature', label: 'Literature & Proof' },
   ];
 
   return (
     <header className="no-print sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200">
       <div className="max-w-[1440px] mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-8">
-        {/* Zone 1: Brand Wordmark (single text element) */}
         <a
           href="#top"
           onClick={(e) => {
@@ -35,7 +34,6 @@ export const Header: React.FC<HeaderProps> = ({
           TokenWatts Research
         </a>
 
-        {/* Zone 2: Concise single-line navigation links */}
         <nav aria-label="Primary workspace navigation" className="flex items-center gap-3 sm:gap-6 overflow-x-auto">
           {navItems.map((item) => {
             const active = activeTab === item.id;
@@ -57,7 +55,6 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </nav>
 
-        {/* Zone 3: Single primary action */}
         <div className="shrink-0">
           <button
             type="button"

@@ -1,21 +1,26 @@
 import type {
   AggregatedPosterData,
+  ContextLevel,
   DatasetName,
   ExperimentPhase,
   ExperimentRow,
+  HardwareEnergyBreakdown,
   HeatmapCell,
+  InputQualitySummary,
   LimitType,
-  LinearRegressionResult,
-  McNemarResult,
-  ParetoPoint,
+  LinearTrendResult,
+  ModelComparisonSummary,
+  OutputCapPoint,
+  ProofTraceSample,
   ScalingPoint,
-  ThinkingMode,
-  ThinkingTaskSummary,
 } from '../types/experiment';
 
-export function computeLinearRegression(
+/**
+ * Computes a simple straight-line trend (slope = extra Wh per extra token).
+ */
+export function computeLinearTrend(
   points: Array<{ x: number; y: number }>
-): LinearRegressionResult {
+): LinearTrendResult {
   if (points.length < 2) {
     return { slope: 0, intercept: points[0]?.y ?? 0, rSquared: 0 };
   }
@@ -52,143 +57,13 @@ export function computeLinearRegression(
   return { slope, intercept, rSquared };
 }
 
-function logGamma(z: number): number {
-  const g = 7;
-  const c = [
-    0.99999999999980993,
-    676.5203681218851,
-    -1259.1392167224028,
-    771.32342877765313,
-    -176.61502916214059,
-    12.507343278686905,
-    -0.13857109526572012,
-    9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ];
-  if (z < 0.5) {
-    return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
-  }
-  z -= 1;
-  let x = c[0];
-  for (let i = 1; i < g + 2; i++) {
-    x += c[i] / (z + i);
-  }
-  const t = z + g + 0.5;
-  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
-}
-
-function chi2SurvivalOneDof(x: number): number {
-  if (x <= 0) return 1;
-  // For df=1, survival function P(chi2_1 >= x) = erfc(sqrt(x/2))
-  return erfcApprox(Math.sqrt(x / 2));
-}
-
-function erfcApprox(x: number): number {
-  // Abramowitz and Stegun 7.1.26 approximation (max error 1.5e-7)
-  const t = 1 / (1 + 0.3275911 * Math.abs(x));
-  const poly =
-    t *
-    (0.254829592 +
-      t *
-        (-0.284496736 +
-          t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
-  const res = poly * Math.exp(-x * x);
-  return x >= 0 ? res : 2 - res;
-}
-
-function logFactorial(n: number): number {
-  if (n <= 1) return 0;
-  return logGamma(n + 1);
-}
-
-export function exactBinomialTwoSidedP(k: number, n: number): number {
-  if (n === 0) return 1;
-  const halfN = Math.floor(n / 2);
-  const kMin = Math.min(k, n - k);
-  let cdf = 0;
-  const logHalfPow = -n * Math.LN2;
-  const logNfact = logFactorial(n);
-  for (let i = 0; i <= kMin; i++) {
-    const logBinom = logNfact - logFactorial(i) - logFactorial(n - i);
-    cdf += Math.exp(logBinom + logHalfPow);
-  }
-  if (kMin === halfN && n % 2 === 0) {
-    return Math.min(1, 2 * cdf - Math.exp(logNfact - 2 * logFactorial(halfN) + logHalfPow));
-  }
-  return Math.min(1, 2 * cdf);
-}
-
-export function computeMcNemarFromCounts(
-  n11: number,
-  n10: number,
-  n01: number,
-  n00: number
-): McNemarResult {
-  const totalPairs = n11 + n10 + n01 + n00;
-  const discordantTotal = n10 + n01;
-
-  const accOffPct = totalPairs > 0 ? ((n11 + n10) / totalPairs) * 100 : 0;
-  const accOnPct = totalPairs > 0 ? ((n11 + n01) / totalPairs) * 100 : 0;
-  const deltaAccPct = accOnPct - accOffPct;
-
-  let method: 'exact_binomial' | 'chi2_edwards' = 'chi2_edwards';
-  let chiSquare: number | null = null;
-  let pValue = 1;
-
-  if (discordantTotal === 0) {
-    method = 'exact_binomial';
-    pValue = 1;
-  } else if (discordantTotal < 25) {
-    method = 'exact_binomial';
-    pValue = exactBinomialTwoSidedP(Math.min(n10, n01), discordantTotal);
-  } else {
-    method = 'chi2_edwards';
-    const numerator = Math.max(0, Math.abs(n10 - n01) - 1);
-    chiSquare = (numerator * numerator) / discordantTotal;
-    pValue = chi2SurvivalOneDof(chiSquare);
-  }
-
-  const oddsRatio = n10 > 0 ? n01 / n10 : n01 > 0 ? Infinity : null;
-  const cohensG = discordantTotal > 0 ? Math.max(n01, n10) / discordantTotal - 0.5 : 0;
-
-  return {
-    n11,
-    n10,
-    n01,
-    n00,
-    totalPairs,
-    discordantTotal,
-    method,
-    chiSquare,
-    pValue,
-    significantAt05: pValue < 0.05,
-    oddsRatio,
-    cohensG,
-    accOffPct,
-    accOnPct,
-    deltaAccPct,
-  };
-}
-
-export function computeMcNemar(
-  pairs: Array<{ offCorrect: boolean; onCorrect: boolean }>
-): McNemarResult {
-  let n11 = 0;
-  let n10 = 0;
-  let n01 = 0;
-  let n00 = 0;
-
-  for (const pair of pairs) {
-    if (pair.offCorrect && pair.onCorrect) n11++;
-    else if (pair.offCorrect && !pair.onCorrect) n10++;
-    else if (!pair.offCorrect && pair.onCorrect) n01++;
-    else n00++;
-  }
-
-  return computeMcNemarFromCounts(n11, n10, n01, n00);
-}
-
-export function detectParetoKnee(
+/**
+ * Plain-English sweet spot rule:
+ * Finds the smallest output cap that is already within `tolerancePct` (default 2%)
+ * of the highest accuracy observed. Beyond this cap, extra tokens cost more energy
+ * without improving accuracy meaningfully.
+ */
+export function findAccuracySweetSpot(
   points: Array<{
     limit: number;
     label: string;
@@ -196,65 +71,21 @@ export function detectParetoKnee(
     energyWh: number;
     accuracyPct: number;
     tokensGenerated: number;
-    whPerCorrect: number;
-  }>
-): ParetoPoint[] {
+    whPerCorrect: number | null;
+  }>,
+  tolerancePct: number = 2.0
+): OutputCapPoint[] {
   if (points.length === 0) return [];
-  const sorted = [...points].sort((a, b) => a.energyWh - b.energyWh);
+  const sorted = [...points].sort((a, b) => a.limit - b.limit);
+  const maxAcc = Math.max(...sorted.map((p) => p.accuracyPct));
 
-  const enriched: ParetoPoint[] = sorted.map((pt, idx) => {
-    let marginal: number | null = null;
-    if (idx > 0) {
-      const prev = sorted[idx - 1];
-      const dE = pt.energyWh - prev.energyWh;
-      const dAcc = pt.accuracyPct - prev.accuracyPct;
-      marginal = dE > 1e-9 ? dAcc / dE : null;
-    }
-    return {
-      ...pt,
-      isKnee: false,
-      marginalGainAccPerWh: marginal,
-    };
-  });
+  let sweetIdx = sorted.findIndex((p) => p.accuracyPct >= maxAcc - tolerancePct);
+  if (sweetIdx === -1) sweetIdx = sorted.length - 1;
 
-  if (enriched.length < 3) {
-    if (enriched.length > 0) enriched[enriched.length - 1].isKnee = true;
-    return enriched;
-  }
-
-  // Normalize (energyWh, accuracyPct) to [0, 1] x [0, 1] and find max perpendicular distance
-  // above the chord connecting first and last points (standard Kneedle elbow method)
-  const minE = enriched[0].energyWh;
-  const maxE = enriched[enriched.length - 1].energyWh;
-  const minA = Math.min(...enriched.map((p) => p.accuracyPct));
-  const maxA = Math.max(...enriched.map((p) => p.accuracyPct));
-
-  const spanE = Math.max(1e-9, maxE - minE);
-  const spanA = Math.max(1e-9, maxA - minA);
-
-  const x1 = (enriched[0].energyWh - minE) / spanE;
-  const y1 = (enriched[0].accuracyPct - minA) / spanA;
-  const x2 = (enriched[enriched.length - 1].energyWh - minE) / spanE;
-  const y2 = (enriched[enriched.length - 1].accuracyPct - minA) / spanA;
-
-  const chordLen = Math.hypot(x2 - x1, y2 - y1) || 1;
-
-  let bestIdx = 0;
-  let bestDist = -Infinity;
-
-  for (let i = 1; i < enriched.length - 1; i++) {
-    const xi = (enriched[i].energyWh - minE) / spanE;
-    const yi = (enriched[i].accuracyPct - minA) / spanA;
-    // Signed perpendicular distance above the chord
-    const signedDist = ((x2 - x1) * (yi - y1) - (y2 - y1) * (xi - x1)) / chordLen;
-    if (signedDist > bestDist) {
-      bestDist = signedDist;
-      bestIdx = i;
-    }
-  }
-
-  enriched[bestIdx].isKnee = true;
-  return enriched;
+  return sorted.map((pt, idx) => ({
+    ...pt,
+    isSweetSpot: idx === sweetIdx,
+  }));
 }
 
 function splitCsvLine(line: string): string[] {
@@ -264,7 +95,12 @@ function splitCsvLine(line: string): string[] {
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
     if (ch === '"') {
-      inQuotes = !inQuotes;
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
     } else if (ch === ',' && !inQuotes) {
       result.push(current.trim());
       current = '';
@@ -274,6 +110,25 @@ function splitCsvLine(line: string): string[] {
   }
   result.push(current.trim());
   return result;
+}
+
+function mapPhase(rawPhase: string): ExperimentPhase {
+  switch (rawPhase) {
+    case 'idle_baseline':
+      return 'idle_baseline';
+    case 'rq1_sweep':
+      return 'rq1_sweep';
+    case 'rq2_output_limits':
+    case 'rq2_limits':
+      return 'rq2_output_limits';
+    case 'rq2_input_quality':
+      return 'rq2_input_quality';
+    case 'rq3_model_compare':
+    case 'rq3_thinking':
+      return 'rq3_model_compare';
+    default:
+      return 'rq2_output_limits';
+  }
 }
 
 export function parseExperimentCsv(csvText: string): ExperimentRow[] {
@@ -289,7 +144,7 @@ export function parseExperimentCsv(csvText: string): ExperimentRow[] {
   const headers = splitCsvLine(lines[0]).map((h) => h.toLowerCase());
   const idx = (name: string) => headers.indexOf(name);
 
-  const required = ['phase', 'dataset', 'prompt_id', 'thinking_mode', 'input_tokens', 'output_tokens', 'energy_wh', 'correct'];
+  const required = ['phase', 'dataset', 'prompt_id', 'input_tokens', 'output_tokens', 'energy_wh', 'correct'];
   for (const col of required) {
     if (idx(col) === -1) {
       throw new Error(`Missing required CSV column: "${col}"`);
@@ -300,53 +155,75 @@ export function parseExperimentCsv(csvText: string): ExperimentRow[] {
 
   for (let i = 1; i < lines.length; i++) {
     const cols = splitCsvLine(lines[i]);
-    if (cols.length < headers.length) continue;
+    if (cols.length < Math.min(headers.length, required.length)) continue;
 
-    const rawDataset = cols[idx('dataset')];
-    const dataset: DatasetName =
-      rawDataset === 'GSM8K' || rawDataset === 'MATH-500' || rawDataset === 'TriviaQA' || rawDataset === 'SyntheticSweep'
-        ? rawDataset
-        : 'GSM8K';
-
-    const rawPhase = cols[idx('phase')];
-    const phase: ExperimentPhase =
-      rawPhase === 'rq1_sweep' || rawPhase === 'rq2_limits' || rawPhase === 'rq3_thinking'
-        ? rawPhase
-        : 'rq3_thinking';
-
-    const rawMode = cols[idx('thinking_mode')].toLowerCase();
-    const thinkingMode: ThinkingMode = rawMode === 'on' || rawMode === 'true' || rawMode === '1' ? 'on' : 'off';
-
-    const rawLimitType = idx('limit_type') !== -1 ? cols[idx('limit_type')] : 'num_predict';
-    const limitType: LimitType =
-      rawLimitType === 'word_limit' || rawLimitType === 'unlimited' ? rawLimitType : 'num_predict';
+    const getStr = (colName: string, fallback = '') => {
+      const colIdx = idx(colName);
+      return colIdx !== -1 && colIdx < cols.length ? cols[colIdx] : fallback;
+    };
 
     const parseNum = (colName: string, fallback = 0) => {
-      const colIdx = idx(colName);
-      if (colIdx === -1) return fallback;
-      const val = Number(cols[colIdx]);
+      const raw = getStr(colName, '');
+      if (raw === '') return fallback;
+      const val = Number(raw);
       return Number.isFinite(val) ? val : fallback;
     };
 
-    const rawCorrect = cols[idx('correct')].toLowerCase();
+    const parseOptionalNum = (colName: string): number | undefined => {
+      const raw = getStr(colName, '');
+      if (raw === '') return undefined;
+      const val = Number(raw);
+      return Number.isFinite(val) ? val : undefined;
+    };
+
+    const rawDataset = getStr('dataset', 'GSM8K');
+    const dataset: DatasetName =
+      rawDataset === 'GSM8K' ||
+      rawDataset === 'MATH-500' ||
+      rawDataset === 'TriviaQA' ||
+      rawDataset === 'SyntheticSweep' ||
+      rawDataset === 'IdleBaseline'
+        ? rawDataset
+        : 'GSM8K';
+
+    const phase = mapPhase(getStr('phase', ''));
+
+    const rawContext = getStr('context_level', 'none').toLowerCase();
+    const contextLevel: ContextLevel =
+      rawContext === 'short' || rawContext === 'medium' || rawContext === 'long'
+        ? rawContext
+        : 'none';
+
+    const rawLimitType = getStr('limit_type', 'num_predict');
+    const limitType: LimitType =
+      rawLimitType === 'word_limit' || rawLimitType === 'unlimited' ? rawLimitType : 'num_predict';
+
+    const rawCorrect = getStr('correct', '0').toLowerCase();
     const correct = rawCorrect === '1' || rawCorrect === 'true' || rawCorrect === 'yes';
 
+    const model = getStr('model', '') || 'qwen2.5:3b';
+
     rows.push({
-      runId: idx('run_id') !== -1 ? cols[idx('run_id')] : `row_${i}`,
+      runId: getStr('run_id', `row_${i}`),
+      timestamp: getStr('timestamp', '') || undefined,
+      model,
       phase,
       dataset,
-      difficulty: parseNum('difficulty', 1),
-      promptId: cols[idx('prompt_id')],
-      thinkingMode,
+      promptId: getStr('prompt_id', `p_${i}`),
+      contextLevel,
       limitType,
-      maxTokensLimit: parseNum('max_tokens_limit', 512),
+      maxTokensLimit: parseNum('max_tokens_limit', 256),
       inputTokens: parseNum('input_tokens', 0),
       outputTokens: parseNum('output_tokens', 0),
-      thinkingTokens: parseNum('thinking_tokens', 0),
-      answerTokens: parseNum('answer_tokens', parseNum('output_tokens', 0)),
       latencySec: parseNum('latency_sec', 0),
       energyWh: parseNum('energy_wh', 0),
       correct,
+      cpuEnergyWh: parseOptionalNum('cpu_energy_wh'),
+      gpuEnergyWh: parseOptionalNum('gpu_energy_wh'),
+      ramEnergyWh: parseOptionalNum('ram_energy_wh'),
+      emissionsGco2eq: parseOptionalNum('emissions_gco2eq'),
+      expectedAnswer: getStr('expected_answer', '') || undefined,
+      responsePreview: getStr('response_preview', '') || undefined,
     });
   }
 
@@ -357,95 +234,53 @@ export function parseExperimentCsv(csvText: string): ExperimentRow[] {
   return rows;
 }
 
-function summarizeThinkingGroup(label: string, rows: ExperimentRow[]): ThinkingTaskSummary {
-  const offRows = rows.filter((r) => r.thinkingMode === 'off');
-  const onRows = rows.filter((r) => r.thinkingMode === 'on');
-
-  const avg = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-
-  const offCorrect = offRows.filter((r) => r.correct).length;
-  const onCorrect = onRows.filter((r) => r.correct).length;
-
-  const accOffPct = offRows.length ? (offCorrect / offRows.length) * 100 : 0;
-  const accOnPct = onRows.length ? (onCorrect / onRows.length) * 100 : 0;
-
-  const totalEnergyOff = offRows.reduce((s, r) => s + r.energyWh, 0);
-  const totalEnergyOn = onRows.reduce((s, r) => s + r.energyWh, 0);
-
-  const energyOffWh = avg(offRows.map((r) => r.energyWh));
-  const energyOnWh = avg(onRows.map((r) => r.energyWh));
-
-  const whPerCorrectOff = offCorrect > 0 ? totalEnergyOff / offCorrect : null;
-  const whPerCorrectOn = onCorrect > 0 ? totalEnergyOn / onCorrect : null;
-
-  const deltaEnergy = energyOnWh - energyOffWh;
-  const deltaAcc = accOnPct - accOffPct;
-  const extraAccPerExtraWh = deltaEnergy > 1e-6 ? deltaAcc / deltaEnergy : null;
-
-  return {
-    label,
-    count: Math.max(offRows.length, onRows.length),
-    accOffPct,
-    accOnPct,
-    energyOffWh,
-    energyOnWh,
-    whPerCorrectOff,
-    whPerCorrectOn,
-    extraAccPerExtraWh,
-    avgTokensOff: avg(offRows.map((r) => r.outputTokens)),
-    avgTokensOn: avg(onRows.map((r) => r.outputTokens)),
-  };
-}
-
-function pairThinkingRows(rows: ExperimentRow[]): Array<{ offCorrect: boolean; onCorrect: boolean }> {
-  const byKey = new Map<string, { off?: boolean; on?: boolean }>();
-  for (const r of rows) {
-    const key = `${r.dataset}::${r.promptId}`;
-    const existing = byKey.get(key) ?? {};
-    if (r.thinkingMode === 'off') existing.off = r.correct;
-    else existing.on = r.correct;
-    byKey.set(key, existing);
-  }
-  const pairs: Array<{ offCorrect: boolean; onCorrect: boolean }> = [];
-  for (const entry of byKey.values()) {
-    if (typeof entry.off === 'boolean' && typeof entry.on === 'boolean') {
-      pairs.push({ offCorrect: entry.off, onCorrect: entry.on });
-    }
-  }
-  return pairs;
-}
-
 export function aggregateExperimentData(
   rows: ExperimentRow[],
   datasetFilter: string = 'ALL',
-  modelName: string = 'Qwen3-1.7B (Ollama Q4_K_M)'
+  defaultModelName: string = 'qwen2.5:3b'
 ): AggregatedPosterData {
-  // RQ1 Sweep (uses rq1_sweep rows; falls back to all rows if no dedicated sweep exists)
-  const sweepRows = rows.filter((r) => r.phase === 'rq1_sweep');
+  const idleRows = rows.filter((r) => r.phase === 'idle_baseline');
+  const inferenceRows = rows.filter((r) => r.phase !== 'idle_baseline');
 
-  // Group input sweep (where output is held around baseline <= 128 or lowest output bin)
+  const modelsTested = [...new Set(inferenceRows.map((r) => r.model).filter(Boolean))];
+  const primaryModel = modelsTested[0] ?? defaultModelName;
+
+  // ------------------------------------------------------------------
+  // RQ1: Input Length vs. Output Length Energy Scaling
+  // ------------------------------------------------------------------
+  const sweepRows = inferenceRows.filter((r) => r.phase === 'rq1_sweep');
+
   const minOutInSweep = sweepRows.length
     ? Math.min(...sweepRows.map((r) => r.maxTokensLimit))
+    : 32;
+  const minInInSweep = sweepRows.length
+    ? Math.min(...sweepRows.map((r) => r.inputTokens))
     : 64;
 
   const inputSweepMap = new Map<number, { energySum: number; latSum: number; count: number }>();
   const outputSweepMap = new Map<number, { energySum: number; latSum: number; count: number }>();
 
-  const minInInSweep = sweepRows.length
-    ? Math.min(...sweepRows.map((r) => r.inputTokens))
-    : 64;
+  const nearestBin = (val: number, bins: number[]) => {
+    for (const b of bins) {
+      if (val <= b * 1.2) return b;
+    }
+    return bins[bins.length - 1];
+  };
+
+  const stdInBins = [64, 128, 256, 512, 1024, 2048];
+  const stdOutBins = [32, 64, 128, 256, 512];
 
   for (const r of sweepRows) {
     if (r.maxTokensLimit === minOutInSweep || r.outputTokens <= minOutInSweep + 16) {
-      const bucket = r.inputTokens;
+      const bucket = nearestBin(r.inputTokens, stdInBins);
       const cur = inputSweepMap.get(bucket) ?? { energySum: 0, latSum: 0, count: 0 };
       cur.energySum += r.energyWh;
       cur.latSum += r.latencySec;
       cur.count += 1;
       inputSweepMap.set(bucket, cur);
     }
-    if (r.inputTokens <= minInInSweep + 32) {
-      const bucket = r.outputTokens;
+    if (r.inputTokens <= minInInSweep + 40) {
+      const bucket = nearestBin(r.outputTokens, stdOutBins);
       const cur = outputSweepMap.get(bucket) ?? { energySum: 0, latSum: 0, count: 0 };
       cur.energySum += r.energyWh;
       cur.latSum += r.latencySec;
@@ -472,36 +307,27 @@ export function aggregateExperimentData(
       count: v.count,
     }));
 
-  const rq1InputRegression = computeLinearRegression(
+  const rq1InputTrend = computeLinearTrend(
     rq1InputCurve.map((p) => ({ x: p.tokens, y: p.energyWh }))
   );
-  const rq1OutputRegression = computeLinearRegression(
+  const rq1OutputTrend = computeLinearTrend(
     rq1OutputCurve.map((p) => ({ x: p.tokens, y: p.energyWh }))
   );
 
   const outputToInputSlopeRatio =
-    rq1InputRegression.slope > 1e-9
-      ? rq1OutputRegression.slope / rq1InputRegression.slope
-      : 0;
+    rq1InputTrend.slope > 1e-9 ? rq1OutputTrend.slope / rq1InputTrend.slope : 0;
 
-  // Heatmap from rq1_sweep (discrete input bins x output bins)
+  // 2D Input x Output Heatmap
   const inputBinSet = new Set<number>();
   const outputBinSet = new Set<number>();
-  const heatmapBucket = new Map<string, { energySum: number; correctSum: number; count: number; inBin: number; outBin: number }>();
-
-  const nearestPow2Bin = (val: number, bins: number[]) => {
-    for (const b of bins) {
-      if (val <= b * 1.15) return b;
-    }
-    return bins[bins.length - 1];
-  };
-
-  const stdInBins = [64, 128, 256, 512, 1024, 2048];
-  const stdOutBins = [32, 64, 128, 256, 512];
+  const heatmapBucket = new Map<
+    string,
+    { energySum: number; correctSum: number; count: number; inBin: number; outBin: number }
+  >();
 
   for (const r of sweepRows) {
-    const inBin = nearestPow2Bin(r.inputTokens, stdInBins);
-    const outBin = nearestPow2Bin(r.outputTokens, stdOutBins);
+    const inBin = nearestBin(r.inputTokens, stdInBins);
+    const outBin = nearestBin(r.outputTokens, stdOutBins);
     inputBinSet.add(inBin);
     outputBinSet.add(outBin);
     const key = `${inBin}x${outBin}`;
@@ -528,14 +354,16 @@ export function aggregateExperimentData(
     count: v.count,
   }));
 
-  // RQ2 Output Limits (filtered by dataset if selected)
-  const rq2Rows = rows.filter(
+  // ------------------------------------------------------------------
+  // RQ2a: Output Limits & Sweet Spot
+  // ------------------------------------------------------------------
+  const rq2OutRows = inferenceRows.filter(
     (r) =>
-      r.phase === 'rq2_limits' &&
+      r.phase === 'rq2_output_limits' &&
       (datasetFilter === 'ALL' || r.dataset === datasetFilter)
   );
 
-  const buildPareto = (subset: ExperimentRow[], lType: LimitType) => {
+  const buildOutputCurve = (subset: ExperimentRow[], lType: LimitType) => {
     const map = new Map<number, ExperimentRow[]>();
     for (const r of subset.filter((x) => x.limitType === lType)) {
       const arr = map.get(r.maxTokensLimit) ?? [];
@@ -550,7 +378,7 @@ export function aggregateExperimentData(
         const avgE = totalE / list.length;
         const accPct = (totalCorrect / list.length) * 100;
         const avgTok = list.reduce((s, x) => s + x.outputTokens, 0) / list.length;
-        const whPerCorrect = totalCorrect > 0 ? totalE / totalCorrect : avgE * list.length;
+        const whPerCorrect = totalCorrect > 0 ? totalE / totalCorrect : null;
         return {
           limit,
           label: lType === 'word_limit' ? `${limit} words` : `${limit} tok`,
@@ -561,59 +389,201 @@ export function aggregateExperimentData(
           whPerCorrect,
         };
       });
-    return detectParetoKnee(rawPts);
+    return findAccuracySweetSpot(rawPts);
   };
 
-  const rq2ParetoCurve = buildPareto(rq2Rows, 'num_predict');
-  const rq2WordLimitCurve = buildPareto(rq2Rows, 'word_limit');
-  const kneePoint = rq2ParetoCurve.find((p) => p.isKnee) ?? null;
+  const rq2OutputCapCurve = buildOutputCurve(rq2OutRows, 'num_predict');
+  const rq2WordLimitCurve = buildOutputCurve(rq2OutRows, 'word_limit');
+  const sweetSpot = rq2OutputCapCurve.find((p) => p.isSweetSpot) ?? null;
 
-  // RQ3 Thinking ON vs OFF
-  const rq3Rows = rows.filter(
+  // ------------------------------------------------------------------
+  // RQ2b: Input Length vs. Output Quality (Short vs. Medium vs. Long)
+  // ------------------------------------------------------------------
+  const rq2InRows = inferenceRows.filter(
     (r) =>
-      r.phase === 'rq3_thinking' &&
+      r.phase === 'rq2_input_quality' &&
       (datasetFilter === 'ALL' || r.dataset === datasetFilter)
   );
 
-  const datasetsPresent = (['TriviaQA', 'GSM8K', 'MATH-500'] as const).filter((d) =>
-    rq3Rows.some((r) => r.dataset === d)
-  );
-  const rq3ByDataset = datasetsPresent.map((d) =>
-    summarizeThinkingGroup(d, rq3Rows.filter((r) => r.dataset === d))
+  const levelMeta: Array<{ level: 'short' | 'medium' | 'long'; label: string }> = [
+    { level: 'short', label: 'Short (~60 tok)' },
+    { level: 'medium', label: 'Medium (~300 tok)' },
+    { level: 'long', label: 'Long (~1000 tok)' },
+  ];
+
+  const rq2InputQuality: InputQualitySummary[] = levelMeta
+    .map(({ level, label }) => {
+      const list = rq2InRows.filter((r) => r.contextLevel === level);
+      if (list.length === 0) return null;
+      const correctCount = list.filter((r) => r.correct).length;
+      const totalE = list.reduce((s, r) => s + r.energyWh, 0);
+      return {
+        level,
+        label,
+        count: list.length,
+        avgInputTokens: list.reduce((s, r) => s + r.inputTokens, 0) / list.length,
+        avgOutputTokens: list.reduce((s, r) => s + r.outputTokens, 0) / list.length,
+        accuracyPct: (correctCount / list.length) * 100,
+        correctCount,
+        avgEnergyWh: totalE / list.length,
+        whPerCorrect: correctCount > 0 ? totalE / correctCount : null,
+        avgLatencySec: list.reduce((s, r) => s + r.latencySec, 0) / list.length,
+      };
+    })
+    .filter((x): x is InputQualitySummary => x !== null);
+
+  const shortRow = rq2InputQuality.find((x) => x.level === 'short');
+  const longRow = rq2InputQuality.find((x) => x.level === 'long');
+  const inputQualityDropPct =
+    shortRow && longRow ? shortRow.accuracyPct - longRow.accuracyPct : 0;
+
+  // ------------------------------------------------------------------
+  // RQ3: Model Comparison (Does the Model Change Energy & Output?)
+  // ------------------------------------------------------------------
+  const rq3Rows = inferenceRows.filter(
+    (r) =>
+      r.phase === 'rq3_model_compare' &&
+      (datasetFilter === 'ALL' || r.dataset === datasetFilter)
   );
 
-  const mathRows = rq3Rows.filter((r) => r.dataset === 'MATH-500');
-  const rq3ByDifficulty = [1, 2, 3, 4, 5]
-    .filter((lvl) => mathRows.some((r) => r.difficulty === lvl))
-    .map((lvl) =>
-      summarizeThinkingGroup(`Level ${lvl}`, mathRows.filter((r) => r.difficulty === lvl))
-    );
-
-  const mcNemarOverall = computeMcNemar(pairThinkingRows(rq3Rows));
-  const mcNemarByDataset: Record<string, McNemarResult> = {};
-  for (const d of datasetsPresent) {
-    mcNemarByDataset[d] = computeMcNemar(
-      pairThinkingRows(rq3Rows.filter((r) => r.dataset === d))
-    );
+  const modelGroups = new Map<string, ExperimentRow[]>();
+  for (const r of rq3Rows) {
+    const list = modelGroups.get(r.model) ?? [];
+    list.push(r);
+    modelGroups.set(r.model, list);
   }
 
+  const rq3ModelComparison: ModelComparisonSummary[] = [...modelGroups.entries()]
+    .map(([model, list]) => {
+      const correctCount = list.filter((r) => r.correct).length;
+      const totalE = list.reduce((s, r) => s + r.energyWh, 0);
+      return {
+        model,
+        count: list.length,
+        correctCount,
+        accuracyPct: (correctCount / list.length) * 100,
+        avgInputTokens: list.reduce((s, r) => s + r.inputTokens, 0) / list.length,
+        avgOutputTokens: list.reduce((s, r) => s + r.outputTokens, 0) / list.length,
+        avgEnergyWh: totalE / list.length,
+        whPerCorrect: correctCount > 0 ? totalE / correctCount : null,
+        avgLatencySec: list.reduce((s, r) => s + r.latencySec, 0) / list.length,
+      };
+    })
+    .sort((a, b) => a.avgEnergyWh - b.avgEnergyWh);
+
+  // ------------------------------------------------------------------
+  // Hardware Breakdown (Idle Baseline + CPU/GPU vs. Constant RAM)
+  // ------------------------------------------------------------------
+  const componentRows = inferenceRows.filter(
+    (r) => typeof r.cpuEnergyWh === 'number' && typeof r.ramEnergyWh === 'number'
+  );
+  const hasComponents = componentRows.length > 0;
+
+  let measuredComputeSharePct = 0;
+  let estimatedRamSharePct = 0;
+  if (hasComponents) {
+    const totalCompWh = componentRows.reduce((s, r) => s + r.energyWh, 0);
+    const computeWh = componentRows.reduce(
+      (s, r) => s + (r.cpuEnergyWh ?? 0) + (r.gpuEnergyWh ?? 0),
+      0
+    );
+    const ramWh = componentRows.reduce((s, r) => s + (r.ramEnergyWh ?? 0), 0);
+    if (totalCompWh > 0) {
+      measuredComputeSharePct = (computeWh / totalCompWh) * 100;
+      estimatedRamSharePct = (ramWh / totalCompWh) * 100;
+    }
+  }
+
+  const infSec = inferenceRows.reduce((s, r) => s + r.latencySec, 0);
+  const infWh = inferenceRows.reduce((s, r) => s + r.energyWh, 0);
+  const inferencePowerW = infSec > 0 ? (infWh * 3600) / infSec : 0;
+
+  let idlePowerW: number | null = null;
+  let idleRamPowerW: number | null = null;
+  if (idleRows.length > 0) {
+    const idleSec = idleRows.reduce((s, r) => s + r.latencySec, 0);
+    const idleWh = idleRows.reduce((s, r) => s + r.energyWh, 0);
+    if (idleSec > 0) {
+      idlePowerW = (idleWh * 3600) / idleSec;
+      const idleRamWh = idleRows.reduce((s, r) => s + (r.ramEnergyWh ?? 0), 0);
+      if (idleRows.some((r) => typeof r.ramEnergyWh === 'number')) {
+        idleRamPowerW = (idleRamWh * 3600) / idleSec;
+      }
+    }
+  }
+
+  const hardwareBreakdown: HardwareEnergyBreakdown = {
+    hasComponents,
+    measuredComputeSharePct,
+    estimatedRamSharePct,
+    idlePowerW,
+    idleRamPowerW,
+    inferencePowerW,
+  };
+
+  // ------------------------------------------------------------------
+  // Proof-of-Work Sample Traces (Verifiable Q&A outputs from the CSV)
+  // ------------------------------------------------------------------
+  const verifiableRows = inferenceRows.filter(
+    (r) =>
+      (r.phase === 'rq2_output_limits' ||
+        r.phase === 'rq2_input_quality' ||
+        r.phase === 'rq3_model_compare') &&
+      (datasetFilter === 'ALL' || r.dataset === datasetFilter)
+  );
+
+  const proofTraces: ProofTraceSample[] = verifiableRows.slice(0, 24).map((r) => {
+    let conditionLabel = `${r.maxTokensLimit} tok cap`;
+    if (r.phase === 'rq2_input_quality') {
+      conditionLabel = `${r.contextLevel} input`;
+    } else if (r.phase === 'rq3_model_compare') {
+      conditionLabel = `model test`;
+    } else if (r.limitType === 'word_limit') {
+      conditionLabel = `max ${r.maxTokensLimit} words`;
+    }
+    return {
+      runId: r.runId,
+      timestamp: r.timestamp ?? '—',
+      model: r.model,
+      phase: r.phase,
+      dataset: r.dataset,
+      promptId: r.promptId,
+      conditionLabel,
+      inputTokens: r.inputTokens,
+      outputTokens: r.outputTokens,
+      energyMwh: r.energyWh * 1000,
+      expectedAnswer: r.expectedAnswer ?? '—',
+      responsePreview: r.responsePreview ?? '(run locally to capture raw model answer)',
+      correct: r.correct,
+    };
+  });
+
+  const timestamps = rows
+    .map((r) => r.timestamp)
+    .filter((t): t is string => Boolean(t))
+    .sort();
+
   return {
-    totalRuns: rows.length,
-    modelName,
+    totalRuns: inferenceRows.length,
+    modelsTested,
+    primaryModel,
+    hardwareBreakdown,
     rq1InputCurve,
     rq1OutputCurve,
-    rq1InputRegression,
-    rq1OutputRegression,
+    rq1InputTrend,
+    rq1OutputTrend,
     outputToInputSlopeRatio,
     heatmapInputBins,
     heatmapOutputBins,
     heatmapCells,
-    rq2ParetoCurve,
+    rq2OutputCapCurve,
     rq2WordLimitCurve,
-    kneePoint,
-    rq3ByDataset,
-    rq3ByDifficulty,
-    mcNemarOverall,
-    mcNemarByDataset,
+    sweetSpot,
+    rq2InputQuality,
+    inputQualityDropPct,
+    rq3ModelComparison,
+    proofTraces,
+    firstTimestamp: timestamps[0] ?? null,
+    lastTimestamp: timestamps[timestamps.length - 1] ?? null,
   };
 }

@@ -5,63 +5,15 @@ export interface LiteraturePaper {
   authors: string;
   venue: string;
   year: number;
+  topicTag: 'Energy' | 'Input Length & Quality' | 'Model Size & Quality';
   hardwareAndTool: string;
   modelsAndDatasets: string;
-  keyEmpiricalFindings: string[];
-  connectionToOurRQs: string;
+  keyFindings: string[];
+  whyItMattersForUs: string;
   bibtex: string;
 }
 
 export const LITERATURE_PAPERS: LiteraturePaper[] = [
-  {
-    id: 'samsi2023',
-    shortCite: 'Samsi et al. (2023)',
-    title: 'From Words to Watts: Benchmarking the Energy Costs of Large Language Model Inference',
-    authors: 'Siddharth Samsi, Dan Zhao, Joseph McDonald, Baolin Li, Adam Michaleas, Michael Jones, William Bergeron, Jeremy Kepner, Devesh Tiwari, Vijay Gadepally',
-    venue: 'IEEE High Performance Extreme Computing Conference (HPEC) · arXiv:2310.03003v1',
-    year: 2023,
-    hardwareAndTool: 'MIT SuperCloud (NVIDIA V100 32GB & A100 80GB GPUs), nvidia-smi (100ms) & NVIDIA DCGM',
-    modelsAndDatasets: 'LLaMA 7B, 13B, 65B · Alpaca (52k instructions) & GSM8K (8.5k math problems), 4,096 sampled prompts',
-    keyEmpiricalFindings: [
-      'LLaMA 65B inference consumes ~3–4 Joules per decoded output token and ~300 W to 1 kW across 8–32 V100 shards.',
-      'Dataset complexity changes token lengths and throughput: GSM8K math prompts produce different decoded token dynamics than Alpaca instruction prompts.',
-      'Capping A100 GPU power from 250 W to 175 W (-30%) reduces total inference energy by 23.21% with only a 6.7% latency increase.',
-      'GPU memory utilization during sharded 65B inference remains low (23%–27% on A100s) even at 95%–98% SM utilization.',
-    ],
-    connectionToOurRQs:
-      'Establishes energy-per-token and energy-per-response metrics, proves task type (GSM8K math vs. general text) drives token count and energy, and motivates hardware-efficient local inference.',
-    bibtex: `@inproceedings{samsi2023words,
-  title={From Words to Watts: Benchmarking the Energy Costs of Large Language Model Inference},
-  author={Samsi, Siddharth and Zhao, Dan and McDonald, Joseph and Li, Baolin and Michaleas, Adam and Jones, Michael and Bergeron, William and Kepner, Jeremy and Tiwari, Devesh and Gadepally, Vijay},
-  booktitle={2023 IEEE High Performance Extreme Computing Conference (HPEC)},
-  pages={1--9},
-  year={2023}
-}`,
-  },
-  {
-    id: 'zadenoori2025',
-    shortCite: 'Zadenoori et al. (2025)',
-    title: 'Does Model Size Matter? A Comparison of Small and Large Language Models for Requirements Classification',
-    authors: 'Mohammad Amin Zadenoori, Vincenzo De Martino, Jacek Dabrowski, Xavier Franch, Alessio Ferrari',
-    venue: 'arXiv:2510.21443v1 [cs.SE]',
-    year: 2025,
-    hardwareAndTool: 'Local server (Intel i9-13900K, 128 GB RAM, RTX 4090) for SLMs vs. commercial APIs for LLMs; Scheirer-Ray-Hare & Mann-Whitney U tests',
-    modelsAndDatasets: '5 SLMs (7B–8B: Qwen2-7B, Falcon3-7B, Granite-3.2-8B, Ministral-8B, Llama-3-8B) vs. 3 LLMs (GPT-5, Grok-4, Claude-4) · PROMISE, PROMISE Reclass, SecReq',
-    keyEmpiricalFindings: [
-      'Proprietary LLMs lead SLMs by only 2% average F1 (0.818 vs. 0.793), a difference that is NOT statistically significant (Scheirer-Ray-Hare H = 1.09, p = 0.296).',
-      'Dataset characteristics have a large, statistically significant effect on accuracy (H = 17.53, p < 0.001, η²_H = 0.63) — task difficulty matters far more than model size.',
-      'SLMs can outperform 100–300× larger LLMs on specific metrics (e.g., Qwen2-7B & Falcon3-7B reach 0.96 recall on PROMISE Reclass).',
-      'Local SLMs eliminate cloud data-sharing risks and lower operational costs while enabling reproducible controlled runs (temperature = 0, 3-run majority voting).',
-    ],
-    connectionToOurRQs:
-      'Justifies studying a small, locally deployable SLM (Qwen3-1.7B via Ollama) rather than cloud LLMs, and demonstrates pairing non-parametric significance testing with task-difficulty stratification.',
-    bibtex: `@article{zadenoori2025does,
-  title={Does Model Size Matter? A Comparison of Small and Large Language Models for Requirements Classification},
-  author={Zadenoori, Mohammad Amin and De Martino, Vincenzo and D{\\k{a}}browski, Jacek and Franch, Xavier and Ferrari, Alessio},
-  journal={arXiv preprint arXiv:2510.21443},
-  year={2025}
-}`,
-  },
   {
     id: 'unesco2025',
     shortCite: 'UNESCO & UCL (2025)',
@@ -69,16 +21,16 @@ export const LITERATURE_PAPERS: LiteraturePaper[] = [
     authors: 'Leona Verdadero, Ivana Drobnjak, Hristijan Bosilkovski, Zekun Wu, Emma Fischer, Maria Perez-Ortiz',
     venue: 'UNESCO / University College London Policy & Empirical Report (CI/DIT/2025/ER/01 Rev.)',
     year: 2025,
-    hardwareAndTool: 'RTX 3090 Ti (24 GB) & Intel i9-12900K · CodeCarbon for energy/CO₂ + BERTScore for semantic quality',
-    modelsAndDatasets: 'Llama-3.1-8B-Instruct (Unquantized, BNBQ, GPTQ, AWQ) & task-specific SLMs · XSum, SamSum, Opus, Flores, SciQ, SQuAD',
-    keyEmpiricalFindings: [
-      'Strategy 2 ("Say more with less"): Halving input prompt length (400 → 200 words) cuts energy by only 5% (1.031 → 0.980 kWh / 1,000 queries), whereas halving output response length (400 → 200 words) cuts energy by 54% (1.031 → 0.476 kWh).',
-      'Reducing output from 400 to 100 words cuts energy by 76% (1.031 → 0.248 kWh / 1,000 queries) because each output token attends to all prior tokens.',
-      'Quantization reduces inference energy by 22% (BNBQ), 35% (GPTQ), and 44% (AWQ) while maintaining accuracy (~70.5% to 71.2% on summarization).',
-      'Task-specific SLMs consume 15–50× less energy (up to 90% savings) than general-purpose 8B models on targeted tasks.',
+    topicTag: 'Energy',
+    hardwareAndTool: 'RTX 3090 Ti & Intel i9-12900K · CodeCarbon for energy/CO₂',
+    modelsAndDatasets: 'Llama-3.1-8B & small task-specific models · XSum, SamSum, SciQ, SQuAD',
+    keyFindings: [
+      'Cutting input prompt length in half (400 → 200 words) saved only 5% energy.',
+      'Cutting output answer length in half (400 → 200 words) saved 54% energy; cutting to 100 words saved 76%.',
+      'Smaller task-specific models used 15–50× less energy than larger general models.',
     ],
-    connectionToOurRQs:
-      'Directly motivates RQ1 (comparing input vs. output length impact using CodeCarbon) and RQ2 (testing concise output limits and `"answer in N words"` instructions without degrading accuracy).',
+    whyItMattersForUs:
+      'Directly motivates RQ1 (output length dominates energy far more than input length) and RQ2a (asking for concise answers with token or word caps).',
     bibtex: `@techreport{unesco2025smarter,
   title={Smarter, Smaller, Stronger: Resource-Efficient Generative AI \\& the Future of Digital Transformation},
   author={Verdadero, Leona and Drobnjak, Ivana and Bosilkovski, Hristijan and Wu, Zekun and Fischer, Emma and P{\\'e}rez-Ortiz, Mar{\\'\\i}a},
@@ -94,16 +46,16 @@ export const LITERATURE_PAPERS: LiteraturePaper[] = [
     authors: 'Jared Fernandez, Clara Na, Vashisth Tiwari, Yonatan Bisk, Sasha Luccioni, Emma Strubell',
     venue: 'Proceedings of ACL 2025 (Volume 1: Long Papers), pp. 32556–32569',
     year: 2025,
-    hardwareAndTool: 'NVIDIA A100 80GB, RTX A6000 & A6000 Ada · NVML via CodeCarbon (mean of 3 runs after warmup)',
-    modelsAndDatasets: 'Llama-3.1-8B, Qwen-1.5-32B, OLMo-1B/7B, OLMoE-1B-7B, DeepSeek-R1-Distill-Qwen-32B · IMDB, WMT-14, CNN-DM, Wikitext-2, BurstGPT, Azure Chat/Code',
-    keyEmpiricalFindings: [
-      'Prefill (input processing) is parallel and compute-bound, scaling sub-linearly at small sequence lengths.',
-      'Autoregressive Decoding (output generation) is sequential and memory-bound, scaling linearly with output token length even at batch size 1 and short outputs.',
-      'Output generation dominates total workload energy except for short-output tasks like 1-token classification.',
-      'Using an input×output token binning strategy + vLLM CUDA graphs + continuous batching cuts energy up to 73.0% on BurstGPT and 72.18% on Azure Conversation.',
+    topicTag: 'Energy',
+    hardwareAndTool: 'NVIDIA A100 & A6000 GPUs · CodeCarbon (averaged over 3 runs after warmup)',
+    modelsAndDatasets: 'Llama-3.1-8B, Qwen-1.5-32B, OLMo-1B/7B · BurstGPT, Azure Chat, WMT-14',
+    keyFindings: [
+      'Reading the input prompt happens all at once (in parallel), so each input token is relatively cheap.',
+      'Writing the output happens one token at a time, so energy grows steadily and quickly with every extra output token.',
+      'Across real chat workloads, output length is the main driver of total query energy.',
     ],
-    connectionToOurRQs:
-      'Provides the mechanistic prefill vs. decode physics for RQ1, the 2D input×output binning heatmap methodology, and the CodeCarbon 3-run + warmup protocol.',
+    whyItMattersForUs:
+      'Explains in simple hardware terms why output tokens cost more energy than input tokens (RQ1) and gives us the warmup + grid sweep method.',
     bibtex: `@inproceedings{fernandez2025energy,
   title={Energy Considerations of Large Language Model Inference and Efficiency Optimizations},
   author={Fernandez, Jared and Na, Clara and Tiwari, Vashisth and Bisk, Yonatan and Luccioni, Sasha and Strubell, Emma},
@@ -112,34 +64,133 @@ export const LITERATURE_PAPERS: LiteraturePaper[] = [
   year={2025}
 }`,
   },
+  {
+    id: 'levy2024',
+    shortCite: 'Levy et al. (ACL 2024)',
+    title: 'Same Task, More Tokens: the Impact of Input Length on the Reasoning Performance of Large Language Models',
+    authors: 'Mosh Levy, Alon Jacoby, Yoav Goldberg',
+    venue: 'Proceedings of ACL 2024 (Outstanding Paper Award)',
+    year: 2024,
+    topicTag: 'Input Length & Quality',
+    hardwareAndTool: 'FLenQA flexible-length reasoning benchmark (250 to 3,000+ input tokens)',
+    modelsAndDatasets: 'Multiple LLMs tested on the exact same reasoning task padded with extra text',
+    keyFindings: [
+      'Even when the actual question stays 100% identical, adding extra text to the input makes reasoning accuracy drop steadily.',
+      'Accuracy drops long before the model hits its advertised maximum context window (often well before 3,000 tokens).',
+      'This drop happens no matter what kind of padding is added or where the real facts are placed.',
+    ],
+    whyItMattersForUs:
+      'Directly motivates RQ2b: long input prompts do NOT just waste energy — they can actively hurt answer quality on the exact same task.',
+    bibtex: `@inproceedings{levy2024same,
+  title={Same Task, More Tokens: the Impact of Input Length on the Reasoning Performance of Large Language Models},
+  author={Levy, Mosh and Jacoby, Alon and Goldberg, Yoav},
+  booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year={2024}
+}`,
+  },
+  {
+    id: 'liu2024',
+    shortCite: 'Liu et al. (TACL 2024)',
+    title: 'Lost in the Middle: How Language Models Use Long Contexts',
+    authors: 'Nelson F. Liu, Kevin Lin, John Hewitt, Ashwin Paranjape, Michele Bevilacqua, Fabio Petroni, Percy Liang',
+    venue: 'Transactions of the Association for Computational Linguistics (TACL), Vol. 12, 2024',
+    year: 2024,
+    topicTag: 'Input Length & Quality',
+    hardwareAndTool: 'Multi-document question answering & key-value lookup across long prompts',
+    modelsAndDatasets: 'Open and closed long-context models tested with relevant facts at start, middle, or end',
+    keyFindings: [
+      'Models answer best when the key information is at the very beginning or very end of a prompt, and worst when it sits in the middle.',
+      'As total input length grows, overall answer accuracy drops across the board — even for models advertised as "long-context".',
+      'Stuffing unnecessary context into a prompt increases errors and hallucinations while adding extra compute work.',
+    ],
+    whyItMattersForUs:
+      'Reinforces RQ2b: keeping prompts short and focused improves BOTH energy efficiency and answer quality.',
+    bibtex: `@article{liu2024lost,
+  title={Lost in the Middle: How Language Models Use Long Contexts},
+  author={Liu, Nelson F. and Lin, Kevin and Hewitt, John and Paranjape, Ashwin and Bevilacqua, Michele and Petroni, Fabio and Liang, Percy},
+  journal={Transactions of the Association for Computational Linguistics},
+  volume={12},
+  pages={157--173},
+  year={2024}
+}`,
+  },
+  {
+    id: 'samsi2023',
+    shortCite: 'Samsi et al. (2023)',
+    title: 'From Words to Watts: Benchmarking the Energy Costs of Large Language Model Inference',
+    authors: 'Siddharth Samsi, Dan Zhao, Joseph McDonald, Baolin Li, Adam Michaleas, Michael Jones, William Bergeron, Jeremy Kepner, Devesh Tiwari, Vijay Gadepally',
+    venue: 'IEEE High Performance Extreme Computing Conference (HPEC) · arXiv:2310.03003',
+    year: 2023,
+    topicTag: 'Model Size & Quality',
+    hardwareAndTool: 'NVIDIA V100 & A100 GPUs · nvidia-smi & NVIDIA DCGM',
+    modelsAndDatasets: 'LLaMA 7B, 13B, 65B · Alpaca & GSM8K math problems',
+    keyFindings: [
+      'Larger models consume much more energy per token (3–4 Joules/token on 65B) than smaller models.',
+      'The type of task (e.g., GSM8K math vs. open chat) changes both how many tokens the model writes and how much energy it uses.',
+      'Establishes energy per token and energy per answer as core ways to measure LLM footprint.',
+    ],
+    whyItMattersForUs:
+      'Motivates RQ3 (testing how model size changes energy and output length) and supports using GSM8K math problems as a verifiable task.',
+    bibtex: `@inproceedings{samsi2023words,
+  title={From Words to Watts: Benchmarking the Energy Costs of Large Language Model Inference},
+  author={Samsi, Siddharth and Zhao, Dan and McDonald, Joseph and Li, Baolin and Michaleas, Adam and Jones, Michael and Bergeron, William and Kepner, Jeremy and Tiwari, Devesh and Gadepally, Vijay},
+  booktitle={2023 IEEE High Performance Extreme Computing Conference (HPEC)},
+  pages={1--9},
+  year={2023}
+}`,
+  },
+  {
+    id: 'zadenoori2025',
+    shortCite: 'Zadenoori et al. (2025)',
+    title: 'Does Model Size Matter? A Comparison of Small and Large Language Models for Requirements Classification',
+    authors: 'Mohammad Amin Zadenoori, Vincenzo De Martino, Jacek Dabrowski, Xavier Franch, Alessio Ferrari',
+    venue: 'arXiv:2510.21443 [cs.SE]',
+    year: 2025,
+    topicTag: 'Model Size & Quality',
+    hardwareAndTool: 'Local workstation (SLMs) vs. commercial cloud APIs (LLMs)',
+    modelsAndDatasets: '5 Small Language Models (7B–8B) vs. 3 Large Cloud Models on classification tasks',
+    keyFindings: [
+      'Large cloud models beat small local models by only ~2% on average — a small gap compared to the huge difference in size.',
+      'The specific task and dataset had a much bigger impact on accuracy than model size alone.',
+      'Running small models locally is private, reproducible (temperature = 0), and much cheaper in energy and cost.',
+    ],
+    whyItMattersForUs:
+      'Justifies testing small local models via Ollama and motivates RQ3: comparing a tiny model (0.5B) against a slightly larger local model (3B) to check the real accuracy vs. energy trade-off.',
+    bibtex: `@article{zadenoori2025does,
+  title={Does Model Size Matter? A Comparison of Small and Large Language Models for Requirements Classification},
+  author={Zadenoori, Mohammad Amin and De Martino, Vincenzo and D{\\k{a}}browski, Jacek and Franch, Xavier and Ferrari, Alessio},
+  journal={arXiv preprint arXiv:2510.21443},
+  year={2025}
+}`,
+  },
 ];
 
 export const RESEARCH_QUESTIONS = [
   {
-    id: 'Overarching RQ',
+    id: 'Main Question',
     question:
-      'How do input and output length affect the energy and quality of LLM responses, and where is the point beyond which extra tokens add energy but no quality?',
-    source: 'Project Overarching Question (TU Berlin ISE)',
+      'How do input length, output length, and model choice affect the energy and answer quality of small local LLMs — and where do extra tokens stop helping?',
+    source: 'Every Token Counts · Course Project Scope',
   },
   {
-    id: 'RQ1',
+    id: 'RQ1 · Energy',
     question:
-      'How does energy grow with input length and with output length for a small local model, and which of the two matters more?',
-    hypothesis:
-      'H1: Energy scales significantly steeper per output token than per input token because prefill runs in parallel (compute-bound) while autoregressive decoding runs sequentially (memory-bound).',
+      'How does energy grow with input length vs. output length, and which one costs more per token?',
+    expectation:
+      'Output tokens should cost much more energy per token than input tokens, because reading input runs in parallel while writing output happens one token at a time (UNESCO & UCL 2025; Fernandez et al. 2025).',
   },
   {
-    id: 'RQ2',
+    id: 'RQ2 · Quality',
     question:
-      'How do output limits (max_tokens / num_predict, "answer in N words") affect accuracy on a task with verifiable answers?',
-    hypothesis:
-      'H2: Accuracy rises sharply with output budget up to a task-specific saturation knee (~128–256 tokens), after which extra tokens increase Wh/query with negligible accuracy gain.',
+      'How do output caps (num_predict, word limits) AND longer input prompts affect accuracy — and what is the sweet spot?',
+    expectation:
+      'Very short output caps cut off answers and hurt accuracy until a plateau ("sweet spot"), while stuffing extra text into the input raises energy AND can lower accuracy (Levy et al. 2024; Liu et al. 2024).',
   },
   {
-    id: 'RQ3',
+    id: 'RQ3 · Model Effect',
     question:
-      'How much energy does reasoning ("thinking") mode add compared with a direct answer, and how much accuracy does it buy per extra Wh?',
-    hypothesis:
-      'H3: Thinking mode multiplies energy by 3–6×; it yields statistically significant McNemar accuracy gains on multi-step math (GSM8K / MATH-500 L2–L4) but wastes energy on simple factual recall (TriviaQA).',
+      'Does switching the local model (e.g., qwen2.5:0.5b vs. qwen2.5:3b) change energy, output length, and accuracy on the same questions?',
+    expectation:
+      'A larger local model uses more energy per query, but may achieve higher accuracy — so we compare both total energy (mWh) and energy per correct answer (mWh/correct) (Samsi et al. 2023; Zadenoori et al. 2025).',
   },
 ];

@@ -6,17 +6,17 @@ import { MethodGuideView } from './components/MethodGuideView';
 import { LiteratureStatsView } from './components/LiteratureStatsView';
 import { buildPilotCalibrationRows } from './data/pilotBaselineData';
 import { aggregateExperimentData, parseExperimentCsv } from './utils/statistics';
-import type { ExperimentRow, PosterMetadata } from './types/experiment';
+import type { ExperimentRow, PosterMetadata, ProofOfWorkManifest } from './types/experiment';
 
 const DEFAULT_METADATA: PosterMetadata = {
-  title: 'Every Token Counts: Energy, Output Limits, and Reasoning Trade-offs in Local LLM Inference',
+  title: 'Every Token Counts: How Input Length, Output Length, and Model Choice Affect Local LLM Energy & Quality',
   subtitle:
-    'Empirical evaluation of input vs. output token scaling, accuracy saturation knees, and thinking mode cost-effectiveness using Ollama and CodeCarbon.',
-  authors: 'Your Name / Research Group',
+    'Measured locally with Ollama and CodeCarbon — comparing input vs. output energy, output length sweet spots, long-input quality loss, and small model trade-offs with full Proof-of-Work logs.',
+  authors: 'Your Name / Student Group',
   affiliation: 'Information Systems Engineering · Local Green AI Lab',
   courseContext: 'Scientific Research Poster · 2026',
-  hardwareLabel: 'Local Laptop (16 GB RAM, CPU / CodeCarbon Offline)',
-  modelLabel: 'Qwen3-1.7B (Ollama Q4_K_M)',
+  hardwareLabel: 'Local Laptop (16 GB RAM, AC Power / CodeCarbon Machine Mode)',
+  modelLabel: 'qwen2.5:0.5b vs. qwen2.5:3b (Ollama)',
 };
 
 export default function App() {
@@ -24,11 +24,12 @@ export default function App() {
   const [datasetFilter, setDatasetFilter] = useState<string>('ALL');
   const [customRows, setCustomRows] = useState<ExperimentRow[] | null>(null);
   const [customFileName, setCustomFileName] = useState<string>('');
+  const [proofManifest, setProofManifest] = useState<ProofOfWorkManifest | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<PosterMetadata>(DEFAULT_METADATA);
 
-  const pilotRows = useMemo(() => buildPilotCalibrationRows(), []);
-  const activeRows = customRows ?? pilotRows;
+  const previewRows = useMemo(() => buildPilotCalibrationRows(), []);
+  const activeRows = customRows ?? previewRows;
 
   const aggregated = useMemo(
     () => aggregateExperimentData(activeRows, datasetFilter, metadata.modelLabel),
@@ -46,9 +47,23 @@ export default function App() {
     }
   };
 
+  const handleUploadProofJson = (jsonText: string, _fileName: string) => {
+    try {
+      const parsed = JSON.parse(jsonText) as ProofOfWorkManifest;
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('Invalid proof_of_work.json object.');
+      }
+      setProofManifest(parsed);
+      setUploadError(null);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Unable to parse proof_of_work.json.');
+    }
+  };
+
   const handleResetPilotData = () => {
     setCustomRows(null);
     setCustomFileName('');
+    setProofManifest(null);
     setUploadError(null);
   };
 
@@ -63,7 +78,7 @@ export default function App() {
 
   const dataSourceLabel = customRows
     ? `Source: ${customFileName}`
-    : 'Source: Pilot Calibration Baseline (Literature-Grounded)';
+    : 'Source: Example Preliminary Preview';
 
   return (
     <div id="top" className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
@@ -81,6 +96,8 @@ export default function App() {
           datasetFilter={datasetFilter}
           onChangeDatasetFilter={setDatasetFilter}
           onUploadCsv={handleUploadCsv}
+          onUploadProofJson={handleUploadProofJson}
+          proofManifest={proofManifest}
           onResetPilotData={handleResetPilotData}
           uploadError={uploadError}
           metadata={metadata}
@@ -95,16 +112,23 @@ export default function App() {
             metadata={metadata}
             isCustomData={Boolean(customRows)}
             datasetFilter={datasetFilter}
+            proofManifest={proofManifest}
           />
         )}
         {activeTab === 'method' && <MethodGuideView />}
-        {activeTab === 'literature' && <LiteratureStatsView />}
+        {activeTab === 'literature' && (
+          <LiteratureStatsView
+            data={aggregated}
+            isCustomData={Boolean(customRows)}
+            proofManifest={proofManifest}
+          />
+        )}
       </main>
 
       <footer className="no-print border-t border-slate-200 bg-white mt-10">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
-          <span>Every Token Counts · Local LLM Energy & Accuracy Study (Ollama + CodeCarbon)</span>
-          <span>Grounded in Samsi et al. (2023), Zadenoori et al. (2025), UNESCO & UCL (2025), Fernandez et al. (2025)</span>
+          <span>Every Token Counts · Local LLM Energy &amp; Quality Study (Ollama + CodeCarbon)</span>
+          <span>Grounded in UNESCO &amp; UCL (2025), Fernandez et al. (2025), Levy et al. (2024), Liu et al. (2024), Samsi et al. (2023), Zadenoori et al. (2025)</span>
         </div>
       </footer>
     </div>

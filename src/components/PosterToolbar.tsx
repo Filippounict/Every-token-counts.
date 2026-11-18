@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Upload, RotateCcw, Download, SlidersHorizontal } from 'lucide-react';
-import type { PosterMetadata } from '../types/experiment';
+import { Upload, RotateCcw, Download, SlidersHorizontal, ShieldCheck } from 'lucide-react';
+import type { PosterMetadata, ProofOfWorkManifest } from '../types/experiment';
 
 interface PosterToolbarProps {
   dataSourceLabel: string;
@@ -9,6 +9,8 @@ interface PosterToolbarProps {
   datasetFilter: string;
   onChangeDatasetFilter: (filter: string) => void;
   onUploadCsv: (csvText: string, fileName: string) => void;
+  onUploadProofJson: (jsonText: string, fileName: string) => void;
+  proofManifest: ProofOfWorkManifest | null;
   onResetPilotData: () => void;
   uploadError: string | null;
   metadata: PosterMetadata;
@@ -22,22 +24,24 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
   datasetFilter,
   onChangeDatasetFilter,
   onUploadCsv,
+  onUploadProofJson,
+  proofManifest,
   onResetPilotData,
   uploadError,
   metadata,
   onUpdateMetadata,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const proofInputRef = useRef<HTMLInputElement>(null);
   const [showMetaEditor, setShowMetaEditor] = useState(false);
 
   const filters = [
     { id: 'ALL', label: 'All Tasks' },
-    { id: 'GSM8K', label: 'GSM8K' },
-    { id: 'MATH-500', label: 'MATH-500' },
-    { id: 'TriviaQA', label: 'TriviaQA' },
+    { id: 'GSM8K', label: 'GSM8K (Math)' },
+    { id: 'TriviaQA', label: 'TriviaQA (Facts)' },
   ];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -50,18 +54,39 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
     e.target.value = '';
   };
 
+  const handleProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        onUploadProofJson(reader.result, file.name);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   return (
     <section
       aria-label="Poster workspace controls"
       className="no-print bg-white border-b border-slate-200"
     >
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
-        {/* Data source status (clean unboxed text) */}
         <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
           <span className="font-semibold text-slate-900">{dataSourceLabel}</span>
           <span aria-hidden="true">·</span>
           <span className="font-mono tabular-nums">{totalRuns} logged inferences</span>
-          {isCustomData && (
+          {proofManifest && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="inline-flex items-center gap-1 text-teal-800 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Proof JSON attached</span>
+              </span>
+            </>
+          )}
+          {(isCustomData || proofManifest) && (
             <>
               <span aria-hidden="true">·</span>
               <button
@@ -70,17 +95,16 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
                 className="inline-flex items-center gap-1 text-teal-700 font-medium hover:underline cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Restore Pilot Baseline</span>
+                <span>Restore Example Preview</span>
               </button>
             </>
           )}
         </div>
 
-        {/* Dataset filter segmented control + CSV upload + Poster metadata toggle */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <div
             role="group"
-            aria-label="Filter poster charts by dataset"
+            aria-label="Filter poster charts by task"
             className="flex items-center gap-1 p-1 bg-slate-100 rounded-md border border-slate-200"
           >
             {filters.map((f) => {
@@ -104,21 +128,38 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
           </div>
 
           <input
-            ref={fileInputRef}
+            ref={csvInputRef}
             type="file"
             accept=".csv,text/csv"
-            onChange={handleFileChange}
+            onChange={handleCsvChange}
             className="hidden"
-            aria-label="Upload local CodeCarbon experiment CSV"
+            aria-label="Upload local experiment results CSV"
+          />
+          <input
+            ref={proofInputRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={handleProofChange}
+            className="hidden"
+            aria-label="Upload proof_of_work.json file"
           />
 
           <button
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => csvInputRef.current?.click()}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-800 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5 text-teal-700" aria-hidden="true" />
             <span>Import Local CSV</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => proofInputRef.current?.click()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
+            <span>Attach Proof JSON</span>
           </button>
 
           <a
@@ -145,7 +186,7 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
       {uploadError && (
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-3">
           <p role="alert" className="text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
-            CSV Import Error: {uploadError}
+            Import Error: {uploadError}
           </p>
         </div>
       )}
@@ -181,7 +222,7 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
               />
             </label>
             <label className="block text-xs font-medium text-slate-700">
-              Model Under Test
+              Models Tested
               <input
                 type="text"
                 value={metadata.modelLabel}
@@ -190,7 +231,7 @@ export const PosterToolbar: React.FC<PosterToolbarProps> = ({
               />
             </label>
             <label className="block text-xs font-medium text-slate-700">
-              Local Hardware & OS
+              Local Hardware &amp; OS
               <input
                 type="text"
                 value={metadata.hardwareLabel}

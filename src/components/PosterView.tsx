@@ -1,18 +1,19 @@
 import React from 'react';
 import { Download } from 'lucide-react';
-import type { AggregatedPosterData, PosterMetadata } from '../types/experiment';
+import type { AggregatedPosterData, PosterMetadata, ProofOfWorkManifest } from '../types/experiment';
 import { downloadSvgById } from '../utils/svgExport';
 import { PipelineDiagramSvg } from './charts/PipelineDiagramSvg';
 import { TokenScalingChart } from './charts/TokenScalingChart';
 import { EnergyHeatmapChart } from './charts/EnergyHeatmapChart';
 import { ParetoKneeChart } from './charts/ParetoKneeChart';
-import { ThinkingModeChart } from './charts/ThinkingModeChart';
+import { InputQualityChart } from './charts/InputQualityChart';
 
 interface PosterViewProps {
   data: AggregatedPosterData;
   metadata: PosterMetadata;
   isCustomData: boolean;
   datasetFilter: string;
+  proofManifest: ProofOfWorkManifest | null;
 }
 
 export const PosterView: React.FC<PosterViewProps> = ({
@@ -20,15 +21,23 @@ export const PosterView: React.FC<PosterViewProps> = ({
   metadata,
   isCustomData,
   datasetFilter,
+  proofManifest,
 }) => {
-  const overallMc = data.mcNemarOverall;
+  const models = data.rq3ModelComparison;
+  const smallModel = models[0] ?? null;
+  const largerModel = models[models.length - 1] ?? null;
+  const hasTwoModels = models.length >= 2 && smallModel && largerModel;
 
-  // Compute overall RQ3 average energy ratio (Thinking ON / Thinking OFF)
-  const totalOffWh = data.rq3ByDataset.reduce((s, r) => s + r.energyOffWh, 0);
-  const totalOnWh = data.rq3ByDataset.reduce((s, r) => s + r.energyOnWh, 0);
-  const thinkingEnergyRatio = totalOffWh > 0 ? totalOnWh / totalOffWh : 0;
+  const modelEnergyRatio =
+    hasTwoModels && smallModel.avgEnergyWh > 0
+      ? largerModel.avgEnergyWh / smallModel.avgEnergyWh
+      : 0;
+  const modelAccDiff = hasTwoModels
+    ? largerModel.accuracyPct - smallModel.accuracyPct
+    : 0;
 
-  const formatP = (p: number) => (p < 0.0001 ? '< 0.0001' : p.toFixed(4));
+  // Compact Proof-of-Work sample (show up to 4 varied verified Q&A rows right on the poster)
+  const posterProofRows = data.proofTraces.slice(0, 4);
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6">
@@ -41,8 +50,8 @@ export const PosterView: React.FC<PosterViewProps> = ({
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-4xl">
               <p className="text-xs font-mono tracking-wider uppercase text-teal-300">
-                {metadata.courseContext} · {isCustomData ? 'Empirical Local Measurement' : 'Literature-Calibrated Pilot Baseline'}
-                {datasetFilter !== 'ALL' ? ` · Filter: ${datasetFilter}` : ''}
+                {metadata.courseContext} · {isCustomData ? 'Real Local Measurement' : 'Example Preliminary Preview'}
+                {datasetFilter !== 'ALL' ? ` · Task: ${datasetFilter}` : ''}
               </p>
               <h1 className="mt-1.5 font-display text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-balance">
                 {metadata.title}
@@ -54,44 +63,52 @@ export const PosterView: React.FC<PosterViewProps> = ({
             <div className="text-left sm:text-right text-xs text-slate-300 space-y-1 shrink-0">
               <p className="font-semibold text-white text-sm">{metadata.authors}</p>
               <p>{metadata.affiliation}</p>
-              <p className="font-mono text-teal-300">{metadata.modelLabel}</p>
-              <p className="font-mono text-slate-400">{metadata.hardwareLabel}</p>
+              <p className="font-mono text-teal-300">
+                {data.modelsTested.length > 0 ? data.modelsTested.join(' vs. ') : metadata.modelLabel}
+              </p>
+              <p className="font-mono text-slate-400">
+                {proofManifest?.hardware?.os
+                  ? `${proofManifest.hardware.os} (${proofManifest.hardware.machine ?? ''}) · CodeCarbon`
+                  : metadata.hardwareLabel}
+              </p>
             </div>
           </div>
 
-          {/* 4-Column Key Empirical Metrics Strip */}
+          {/* 4-Column Plain-English Key Findings Strip */}
           <div className="mt-4 pt-4 border-t border-slate-700/80 grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="bg-slate-800/80 border border-slate-700 rounded px-3 py-2">
-              <div className="text-[11px] text-slate-300">Decode vs. Prefill Slope (RQ1)</div>
+              <div className="text-[11px] text-slate-300">Output vs. Input Cost (RQ1)</div>
               <div className="mt-0.5 font-mono tabular-nums text-lg font-bold text-white">
                 {data.outputToInputSlopeRatio > 0 ? `${data.outputToInputSlopeRatio.toFixed(1)}×` : '—'}
-                <span className="ml-1.5 text-xs font-normal text-slate-300">per output token</span>
+                <span className="ml-1.5 text-xs font-normal text-slate-300">more per output token</span>
               </div>
             </div>
             <div className="bg-slate-800/80 border border-slate-700 rounded px-3 py-2">
-              <div className="text-[11px] text-slate-300">Saturation Knee Point (RQ2)</div>
+              <div className="text-[11px] text-slate-300">Output Sweet Spot (RQ2a)</div>
               <div className="mt-0.5 font-mono tabular-nums text-lg font-bold text-teal-300">
-                {data.kneePoint ? `${data.kneePoint.limit} tokens` : '—'}
+                {data.sweetSpot ? `${data.sweetSpot.limit} tokens` : '—'}
                 <span className="ml-1.5 text-xs font-normal text-slate-300">
-                  {data.kneePoint ? `(${data.kneePoint.accuracyPct.toFixed(1)}% acc)` : ''}
+                  {data.sweetSpot ? `(${data.sweetSpot.accuracyPct.toFixed(0)}% acc)` : ''}
                 </span>
               </div>
             </div>
             <div className="bg-slate-800/80 border border-slate-700 rounded px-3 py-2">
-              <div className="text-[11px] text-slate-300">Thinking Mode Energy Overhead (RQ3)</div>
+              <div className="text-[11px] text-slate-300">Long Input Effect (RQ2b)</div>
               <div className="mt-0.5 font-mono tabular-nums text-lg font-bold text-amber-300">
-                {thinkingEnergyRatio > 0 ? `${thinkingEnergyRatio.toFixed(1)}×` : '—'}
-                <span className="ml-1.5 text-xs font-normal text-slate-300">
-                  ({overallMc.deltaAccPct >= 0 ? '+' : ''}{overallMc.deltaAccPct.toFixed(1)}% acc)
-                </span>
+                {data.rq2InputQuality.length >= 2
+                  ? `${data.inputQualityDropPct > 0 ? '-' : '+'}${Math.abs(data.inputQualityDropPct).toFixed(0)}%`
+                  : '—'}
+                <span className="ml-1.5 text-xs font-normal text-slate-300">acc (Short → Long)</span>
               </div>
             </div>
             <div className="bg-slate-800/80 border border-slate-700 rounded px-3 py-2">
-              <div className="text-[11px] text-slate-300">McNemar Paired Test (Overall)</div>
+              <div className="text-[11px] text-slate-300">Model Effect (RQ3)</div>
               <div className="mt-0.5 font-mono tabular-nums text-lg font-bold text-white">
-                p {formatP(overallMc.pValue)}
+                {hasTwoModels
+                  ? `${modelAccDiff >= 0 ? '+' : ''}${modelAccDiff.toFixed(0)}% acc`
+                  : '—'}
                 <span className="ml-1.5 text-xs font-normal text-teal-300">
-                  {overallMc.significantAt05 ? 'Significant (α=0.05)' : 'Not sig. (α=0.05)'}
+                  {modelEnergyRatio > 0 ? `(${modelEnergyRatio.toFixed(1)}× energy)` : ''}
                 </span>
               </div>
             </div>
@@ -102,7 +119,10 @@ export const PosterView: React.FC<PosterViewProps> = ({
         {!isCustomData && (
           <div className="bg-amber-50 border-b border-amber-200 px-6 py-2 text-xs text-amber-950 flex flex-wrap items-center justify-between gap-2">
             <span>
-              <strong>Calibration Baseline Active:</strong> Showing literature-grounded pilot data modeled for Qwen3-1.7B on a 16 GB laptop. Run <code className="font-mono bg-amber-100 px-1 rounded">run_experiment.py</code> locally and click <strong>Import Local CSV</strong> above to populate the poster with your hardware measurements.
+              <strong>Example Preview Active:</strong> Run{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">python run_experiment.py --preliminary</code>{' '}
+              on your laptop (~3–5 min) to generate your own real results + Proof-of-Work, then click{' '}
+              <strong>Import Local CSV</strong> above.
             </span>
           </div>
         )}
@@ -111,72 +131,82 @@ export const PosterView: React.FC<PosterViewProps> = ({
         <div className="poster-grid-3col grid grid-cols-1 lg:grid-cols-3 gap-5 p-5 bg-slate-50/70">
           {/* ==================== COLUMN 1 ==================== */}
           <div className="space-y-4">
-            {/* Section 1: Research Questions & Motivation */}
+            {/* Section 1: Motivation & Research Questions */}
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900 pb-2 border-b border-slate-200">
-                01. Motivation & Research Questions
+                01. Motivation &amp; Research Questions
               </h2>
               <p className="mt-2.5 text-xs leading-relaxed text-slate-700">
-                While training large language models (LLMs) receives broad attention, real-world <strong>inference</strong> accounts for 60%–90% of AI energy demand once deployed [1, 4]. Small Language Models (SLMs) run privately on local laptops with competitive accuracy [2], yet every input and output token consumes measurable energy [3].
+                Every token sent to or written by a language model uses electricity [1, 2]. Longer prompts and longer answers do not only raise energy use — extra prompt text can also distract the model and lower answer quality [3, 4], while choosing a different local model changes both speed and accuracy [5, 6].
               </p>
               <div className="mt-3 bg-slate-50 border border-slate-200 rounded p-2.5">
                 <p className="text-[11px] font-semibold text-teal-800 uppercase tracking-wide">
-                  Overarching Research Question
+                  Main Research Question
                 </p>
                 <p className="mt-1 text-xs font-medium text-slate-900 leading-snug">
-                  How do input and output length affect the energy and quality of LLM responses, and where is the point beyond which extra tokens add energy but no quality?
+                  How do input length, output length, and model choice affect energy and answer quality, and where do extra tokens stop helping?
                 </p>
               </div>
               <dl className="mt-3 space-y-2 text-xs">
                 <div>
-                  <dt className="font-bold text-slate-900">RQ1 (Token Scaling):</dt>
-                  <dd className="text-slate-700">How does energy grow with input length vs. output length for a small local model, and which matters more?</dd>
+                  <dt className="font-bold text-slate-900">RQ1 (Input vs. Output Energy):</dt>
+                  <dd className="text-slate-700">Does energy grow faster with input length or output length, and which matters more?</dd>
                 </div>
                 <div>
-                  <dt className="font-bold text-slate-900">RQ2 (Output Caps & Knee):</dt>
-                  <dd className="text-slate-700">How do output limits (<code className="font-mono text-[11px]">num_predict</code>, "answer in N words") affect accuracy on verifiable tasks?</dd>
+                  <dt className="font-bold text-slate-900">RQ2 (Length vs. Answer Quality):</dt>
+                  <dd className="text-slate-700">How do output caps (<code className="font-mono text-[11px]">num_predict</code>, word limits) and longer inputs affect accuracy, and where is the sweet spot?</dd>
                 </div>
                 <div>
-                  <dt className="font-bold text-slate-900">RQ3 (Reasoning Cost):</dt>
-                  <dd className="text-slate-700">How much energy does reasoning ("thinking") mode add vs. a direct answer, and how much accuracy does it buy per extra Wh?</dd>
+                  <dt className="font-bold text-slate-900">RQ3 (Model Choice):</dt>
+                  <dd className="text-slate-700">Does switching between two small local models change energy, answer length, and accuracy on the same questions?</dd>
                 </div>
               </dl>
             </section>
 
-            {/* Section 2: Literature Foundation */}
+            {/* Section 2: Literature Foundation (6 Verified Papers) */}
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900 pb-2 border-b border-slate-200">
-                02. Grounding in Prior Literature
+                02. What Prior Studies Found
               </h2>
               <div className="mt-2.5 overflow-x-auto">
                 <table className="w-full text-[11px] border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 text-left text-slate-500">
                       <th className="py-1.5 pr-2 font-semibold">Study</th>
-                      <th className="py-1.5 pr-2 font-semibold">Tool / Scope</th>
-                      <th className="py-1.5 font-semibold">Key Finding</th>
+                      <th className="py-1.5 pr-2 font-semibold">Focus</th>
+                      <th className="py-1.5 font-semibold">Main Finding</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
                     <tr>
-                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Samsi et al. [1]</td>
-                      <td className="py-1.5 pr-2">DCGM · LLaMA 7–65B</td>
-                      <td className="py-1.5">3–4 J/token; task type (GSM8K vs. Alpaca) alters energy & tokens.</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Zadenoori et al. [2]</td>
-                      <td className="py-1.5 pr-2">5 SLMs vs. 3 LLMs</td>
-                      <td className="py-1.5">SLMs trail LLMs by only 2% F1 (p=0.296); dataset drives accuracy.</td>
-                    </tr>
-                    <tr>
-                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">UNESCO & UCL [3]</td>
-                      <td className="py-1.5 pr-2">CodeCarbon · Llama-8B</td>
+                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">UNESCO &amp; UCL [1]</td>
+                      <td className="py-1.5 pr-2">Energy</td>
                       <td className="py-1.5">Halving input saves 5% energy; halving output saves 54%.</td>
                     </tr>
                     <tr>
-                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Fernandez et al. [4]</td>
-                      <td className="py-1.5 pr-2">CodeCarbon · ACL '25</td>
-                      <td className="py-1.5">Parallel prefill is compute-bound; sequential decode scales linearly.</td>
+                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Fernandez et al. [2]</td>
+                      <td className="py-1.5 pr-2">Energy</td>
+                      <td className="py-1.5">Reading input runs in parallel; writing output runs token-by-token.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Levy et al. [3]</td>
+                      <td className="py-1.5 pr-2">Input quality</td>
+                      <td className="py-1.5">Adding extra text to the same task lowers reasoning accuracy.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Liu et al. [4]</td>
+                      <td className="py-1.5 pr-2">Input quality</td>
+                      <td className="py-1.5">Facts placed in the middle of long inputs are often missed.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Samsi et al. [5]</td>
+                      <td className="py-1.5 pr-2">Model size</td>
+                      <td className="py-1.5">Larger models use more energy per token; tasks change output length.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1.5 pr-2 font-semibold text-slate-900 whitespace-nowrap">Zadenoori et al. [6]</td>
+                      <td className="py-1.5 pr-2">Model size</td>
+                      <td className="py-1.5">Small local models stay within ~2% of huge cloud models on focused tasks.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -187,11 +217,11 @@ export const PosterView: React.FC<PosterViewProps> = ({
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
                 <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900">
-                  03. Experimental Pipeline & Setup
+                  03. How We Run &amp; Measure It
                 </h2>
                 <button
                   type="button"
-                  onClick={() => downloadSvgById('fig-pipeline-svg', 'fig0_experimental_pipeline.svg')}
+                  onClick={() => downloadSvgById('fig-pipeline-svg', 'fig0_experiment_steps.svg')}
                   className="no-print inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
                   title="Download Pipeline Diagram SVG"
                 >
@@ -203,12 +233,20 @@ export const PosterView: React.FC<PosterViewProps> = ({
                 <PipelineDiagramSvg id="fig-pipeline-svg" />
               </div>
               <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px] border-t border-slate-100 pt-2.5">
-                <div><span className="text-slate-500">Model:</span> <strong className="font-mono text-slate-900">qwen3:1.7b</strong></div>
-                <div><span className="text-slate-500">Serving:</span> <strong className="text-slate-900">Ollama Local API</strong></div>
-                <div><span className="text-slate-500">Sampling:</span> <strong className="font-mono text-slate-900">temp=0, seed=42</strong></div>
-                <div><span className="text-slate-500">Metering:</span> <strong className="text-slate-900">CodeCarbon Offline</strong></div>
-                <div><span className="text-slate-500">Benchmarks:</span> <strong className="text-slate-900">GSM8K, MATH-500, TriviaQA</strong></div>
-                <div><span className="text-slate-500">Controls:</span> <strong className="text-slate-900">2 warmup, 0.5s cooldown</strong></div>
+                <div><span className="text-slate-500">Models:</span> <strong className="font-mono text-slate-900">{data.modelsTested.join(', ') || 'qwen2.5:3b, 0.5b'}</strong></div>
+                <div><span className="text-slate-500">Runtime:</span> <strong className="text-slate-900">Ollama Python client</strong></div>
+                <div><span className="text-slate-500">Settings:</span> <strong className="font-mono text-slate-900">temp=0, seed=42</strong></div>
+                <div><span className="text-slate-500">Meter:</span> <strong className="text-slate-900">CodeCarbon (machine mode)</strong></div>
+                <div><span className="text-slate-500">Tasks:</span> <strong className="text-slate-900">GSM8K math, TriviaQA facts</strong></div>
+                <div><span className="text-slate-500">Controls:</span> <strong className="text-slate-900">5s idle, warmup, AC power</strong></div>
+                {data.hardwareBreakdown.hasComponents && (
+                  <div className="col-span-2 pt-1 border-t border-slate-100 text-[10.5px] text-slate-600 font-mono tabular-nums">
+                    Split: <strong className="text-slate-900">{data.hardwareBreakdown.measuredComputeSharePct.toFixed(0)}% CPU/GPU</strong> vs. <strong className="text-slate-700">{data.hardwareBreakdown.estimatedRamSharePct.toFixed(0)}% est. RAM</strong>
+                    {data.hardwareBreakdown.idlePowerW !== null && (
+                      <span> · Idle: {data.hardwareBreakdown.idlePowerW.toFixed(1)} W vs. Active: {data.hardwareBreakdown.inferencePowerW.toFixed(1)} W</span>
+                    )}
+                  </div>
+                )}
               </div>
             </section>
           </div>
@@ -219,11 +257,11 @@ export const PosterView: React.FC<PosterViewProps> = ({
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
                 <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900">
-                  04. RQ1: Input vs. Output Energy Scaling
+                  04. RQ1: Input vs. Output Energy
                 </h2>
                 <button
                   type="button"
-                  onClick={() => downloadSvgById('fig1-token-scaling-svg', 'fig1_rq1_token_scaling.svg')}
+                  onClick={() => downloadSvgById('fig1-token-scaling-svg', 'fig1_input_vs_output_energy.svg')}
                   className="no-print inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
                   title="Download Figure 1 SVG"
                 >
@@ -236,17 +274,17 @@ export const PosterView: React.FC<PosterViewProps> = ({
                   id="fig1-token-scaling-svg"
                   inputCurve={data.rq1InputCurve}
                   outputCurve={data.rq1OutputCurve}
-                  inputRegression={data.rq1InputRegression}
-                  outputRegression={data.rq1OutputRegression}
+                  inputTrend={data.rq1InputTrend}
+                  outputTrend={data.rq1OutputTrend}
                   slopeRatio={data.outputToInputSlopeRatio}
                 />
               </div>
               <p className="mt-2 text-xs text-slate-700 leading-relaxed">
-                <strong>Fig. 1 Finding:</strong> Output generation costs{' '}
+                <strong>Fig. 1 Finding:</strong> Writing output tokens costs{' '}
                 <span className="font-mono font-semibold text-red-700">
-                  {data.outputToInputSlopeRatio > 0 ? `${data.outputToInputSlopeRatio.toFixed(1)}×` : 'substantially'}
+                  {data.outputToInputSlopeRatio > 0 ? `${data.outputToInputSlopeRatio.toFixed(1)}×` : 'much'}
                 </span>{' '}
-                more energy per token than input prompt processing. Prompt prefill evaluates tokens in parallel, whereas autoregressive decoding reads model weights and the KV-cache sequentially for every generated token [3, 4].
+                more energy per token than reading input tokens. The model reads the whole prompt in parallel, but writes each output token one by one [1, 2].
               </p>
             </section>
 
@@ -254,11 +292,11 @@ export const PosterView: React.FC<PosterViewProps> = ({
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
                 <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900">
-                  05. Energy Matrix (Input × Output Tokens)
+                  05. RQ1: Input × Output Energy Grid
                 </h2>
                 <button
                   type="button"
-                  onClick={() => downloadSvgById('fig2-heatmap-svg', 'fig2_energy_heatmap.svg')}
+                  onClick={() => downloadSvgById('fig2-heatmap-svg', 'fig2_energy_grid.svg')}
                   className="no-print inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
                   title="Download Figure 2 SVG"
                 >
@@ -275,19 +313,19 @@ export const PosterView: React.FC<PosterViewProps> = ({
                 />
               </div>
               <p className="mt-2 text-xs text-slate-700 leading-relaxed">
-                <strong>Fig. 2 Finding:</strong> Moving vertically along the output axis increases mWh far faster than moving horizontally along the input axis, confirming that output length dominates total query energy.
+                <strong>Fig. 2 Finding:</strong> Moving upward (longer answers) raises energy much faster than moving right (longer prompts), showing that output length is the main driver of energy.
               </p>
             </section>
 
-            {/* Section 6: RQ2 Output Limits & Saturation Knee */}
+            {/* Section 6: RQ2a Output Limits & Sweet Spot */}
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
                 <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900">
-                  06. RQ2: Output Limits & Saturation Knee
+                  06. RQ2a: Output Limits &amp; Sweet Spot
                 </h2>
                 <button
                   type="button"
-                  onClick={() => downloadSvgById('fig3-pareto-knee-svg', 'fig3_rq2_pareto_knee.svg')}
+                  onClick={() => downloadSvgById('fig3-output-caps-svg', 'fig3_output_sweet_spot.svg')}
                   className="no-print inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
                   title="Download Figure 3 SVG"
                 >
@@ -297,33 +335,33 @@ export const PosterView: React.FC<PosterViewProps> = ({
               </div>
               <div className="mt-2.5">
                 <ParetoKneeChart
-                  id="fig3-pareto-knee-svg"
-                  tokenLimitCurve={data.rq2ParetoCurve}
+                  id="fig3-output-caps-svg"
+                  tokenLimitCurve={data.rq2OutputCapCurve}
                   wordLimitCurve={data.rq2WordLimitCurve}
-                  kneePoint={data.kneePoint}
+                  sweetSpot={data.sweetSpot}
                 />
               </div>
               <p className="mt-2 text-xs text-slate-700 leading-relaxed">
-                <strong>Fig. 3 Finding:</strong> Truncating too early (<code className="font-mono text-[11px]">32–64</code> tokens) cuts off math steps and hurts accuracy. Accuracy saturates at the <strong>Kneedle elbow</strong> (
+                <strong>Fig. 3 Finding:</strong> Very small caps (<code className="font-mono text-[11px]">32–64</code> tokens) cut off math steps and hurt accuracy. Accuracy reaches its <strong>sweet spot</strong> at{' '}
                 <span className="font-mono font-semibold text-red-700">
-                  {data.kneePoint ? `${data.kneePoint.limit} tokens` : '—'}
-                </span>
-                ); higher limits spend extra Wh with zero accuracy gain.
+                  {data.sweetSpot ? `${data.sweetSpot.limit} tokens` : '—'}
+                </span>{' '}
+                (smallest cap within 2% of top accuracy); larger limits spend extra energy with no quality gain.
               </p>
             </section>
           </div>
 
           {/* ==================== COLUMN 3 ==================== */}
           <div className="space-y-4">
-            {/* Section 7: RQ3 Thinking Mode */}
+            {/* Section 7: RQ2b Input Length vs. Output Quality */}
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
                 <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900">
-                  07. RQ3: Thinking Mode vs. Direct Answer
+                  07. RQ2b: Does Longer Input Hurt Quality?
                 </h2>
                 <button
                   type="button"
-                  onClick={() => downloadSvgById('fig4-thinking-mode-svg', 'fig4_rq3_thinking_mode.svg')}
+                  onClick={() => downloadSvgById('fig4-input-quality-svg', 'fig4_input_length_quality.svg')}
                   className="no-print inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 cursor-pointer"
                   title="Download Figure 4 SVG"
                 >
@@ -332,83 +370,104 @@ export const PosterView: React.FC<PosterViewProps> = ({
                 </button>
               </div>
               <div className="mt-2.5">
-                <ThinkingModeChart
-                  id="fig4-thinking-mode-svg"
-                  byDataset={data.rq3ByDataset}
-                  byDifficulty={data.rq3ByDifficulty}
-                />
+                <InputQualityChart id="fig4-input-quality-svg" rows={data.rq2InputQuality} />
               </div>
               <p className="mt-2 text-xs text-slate-700 leading-relaxed">
-                <strong>Fig. 4 Finding:</strong> Enabling reasoning (<code className="font-mono text-[11px]">think=true</code>) improves accuracy on multi-step math (GSM8K & MATH-500 L2–L4), but multiplies energy per correct answer on simple factual lookups (TriviaQA) where direct answers already succeed.
+                <strong>Fig. 4 Finding:</strong> Asking the <em>exact same questions</em> inside longer background text raises energy AND causes accuracy to drop — matching <strong>Levy et al. [3]</strong> and <strong>Liu et al. [4]</strong>. Keeping prompts short helps both energy and quality.
               </p>
             </section>
 
-            {/* Section 8: McNemar Paired Test Table */}
+            {/* Section 8: RQ3 Model Comparison + Proof-of-Work Evidence */}
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900 pb-2 border-b border-slate-200">
-                08. McNemar Paired Test & Efficiency Table
+                08. RQ3: Model Choice &amp; Proof-of-Work Log
               </h2>
               <div className="mt-2.5 overflow-x-auto">
                 <table className="w-full text-[11px] font-mono tabular-nums border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 text-left text-slate-500 font-sans">
-                      <th className="py-1.5 pr-2 font-semibold">Dataset</th>
-                      <th className="py-1.5 pr-2 font-semibold text-right">Off%</th>
-                      <th className="py-1.5 pr-2 font-semibold text-right">On%</th>
-                      <th className="py-1.5 pr-2 font-semibold text-right">n₀₁ / n₁₀</th>
-                      <th className="py-1.5 pr-2 font-semibold text-right">p-value</th>
-                      <th className="py-1.5 font-semibold text-right">Sig.</th>
+                      <th className="py-1.5 pr-2 font-semibold">Local Model</th>
+                      <th className="py-1.5 pr-2 font-semibold text-right">Acc</th>
+                      <th className="py-1.5 pr-2 font-semibold text-right">Avg Out</th>
+                      <th className="py-1.5 pr-2 font-semibold text-right">Avg mWh</th>
+                      <th className="py-1.5 font-semibold text-right">mWh/Corr</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {Object.entries(data.mcNemarByDataset).map(([ds, res]) => (
-                      <tr key={ds}>
-                        <td className="py-1.5 pr-2 font-sans font-semibold text-slate-900">{ds}</td>
-                        <td className="py-1.5 pr-2 text-right">{res.accOffPct.toFixed(1)}</td>
-                        <td className="py-1.5 pr-2 text-right text-teal-700 font-semibold">{res.accOnPct.toFixed(1)}</td>
-                        <td className="py-1.5 pr-2 text-right text-slate-600">{res.n01} / {res.n10}</td>
-                        <td className="py-1.5 pr-2 text-right">{formatP(res.pValue)}</td>
-                        <td className={`py-1.5 text-right font-sans font-semibold ${res.significantAt05 ? 'text-teal-700' : 'text-slate-500'}`}>
-                          {res.significantAt05 ? 'Yes*' : 'No'}
+                    {models.map((m) => (
+                      <tr key={m.model}>
+                        <td className="py-1.5 pr-2 font-semibold text-slate-900">{m.model}</td>
+                        <td className="py-1.5 pr-2 text-right text-teal-700 font-semibold">
+                          {m.accuracyPct.toFixed(0)}% ({m.correctCount}/{m.count})
+                        </td>
+                        <td className="py-1.5 pr-2 text-right text-slate-600">{Math.round(m.avgOutputTokens)} tok</td>
+                        <td className="py-1.5 pr-2 text-right">{(m.avgEnergyWh * 1000).toFixed(1)}</td>
+                        <td className="py-1.5 text-right font-semibold text-slate-900">
+                          {m.whPerCorrect !== null ? (m.whPerCorrect * 1000).toFixed(1) : '—'}
                         </td>
                       </tr>
                     ))}
-                    <tr className="bg-slate-50 font-semibold border-t border-slate-300">
-                      <td className="py-1.5 pr-2 font-sans text-slate-900">Overall</td>
-                      <td className="py-1.5 pr-2 text-right">{overallMc.accOffPct.toFixed(1)}</td>
-                      <td className="py-1.5 pr-2 text-right text-teal-700">{overallMc.accOnPct.toFixed(1)}</td>
-                      <td className="py-1.5 pr-2 text-right">{overallMc.n01} / {overallMc.n10}</td>
-                      <td className="py-1.5 pr-2 text-right">{formatP(overallMc.pValue)}</td>
-                      <td className={`py-1.5 text-right font-sans ${overallMc.significantAt05 ? 'text-teal-700' : 'text-slate-600'}`}>
-                        {overallMc.significantAt05 ? 'Yes*' : 'No'}
-                      </td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
-              <p className="mt-2 text-[11px] text-slate-600 leading-snug">
-                <em>n₀₁</em> = wrong in Direct, fixed by Thinking; <em>n₁₀</em> = right in Direct, broken by Thinking. Exact binomial test used when discordant pairs &lt; 25, Edwards continuity-corrected χ² otherwise (*α = 0.05).
+              <p className="mt-1.5 text-[11px] text-slate-600 leading-snug">
+                Model choice changes both answer length and accuracy: smaller models are much cheaper per query, while larger local models get more math answers right [5, 6].
               </p>
+
+              {/* Proof-of-Work Verification Snippet */}
+              <div className="mt-3 pt-2.5 border-t border-slate-200">
+                <div className="flex items-center justify-between gap-2 text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">
+                  <span>Proof-of-Work · Sample Logged Outputs</span>
+                  {proofManifest?.files?.results_csv_sha256 && (
+                    <span className="font-mono text-[10px] text-teal-700">
+                      SHA256: {proofManifest.files.results_csv_sha256.slice(0, 10)}…
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1.5 space-y-1.5">
+                  {posterProofRows.map((tr) => (
+                    <div
+                      key={tr.runId}
+                      className="text-[10.5px] bg-slate-50 border border-slate-200 rounded px-2 py-1.5 leading-snug"
+                    >
+                      <div className="flex items-center justify-between gap-2 font-mono text-[10px] text-slate-600">
+                        <span>
+                          <strong className="text-slate-900">{tr.promptId}</strong> · {tr.model} · {tr.conditionLabel}
+                        </span>
+                        <span className={tr.correct ? 'text-teal-700 font-bold' : 'text-red-700 font-bold'}>
+                          {tr.correct ? 'PASS' : 'FAIL'} · {tr.energyMwh.toFixed(1)} mWh
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-slate-700 truncate" title={tr.responsePreview}>
+                        Out: "{tr.responsePreview}" <span className="text-slate-500">(Expected: {tr.expectedAnswer})</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </section>
 
-            {/* Section 9: Conclusions, Validity & References */}
+            {/* Section 9: Takeaways, Limits & References */}
             <section className="bg-white border border-slate-200 rounded-md p-4">
               <h2 className="font-display text-sm font-bold uppercase tracking-wide text-slate-900 pb-2 border-b border-slate-200">
-                09. Conclusions, Threats to Validity & References
+                09. Takeaways, Limits &amp; References
               </h2>
               <ul className="mt-2 text-xs text-slate-700 space-y-1.5 list-disc pl-4">
-                <li><strong>Control Output Length First:</strong> Because decode energy per token is far higher than prefill, capping output near the saturation knee saves energy without losing accuracy.</li>
-                <li><strong>Route Thinking by Difficulty:</strong> Use Direct mode for factual queries (TriviaQA) and reserve Thinking mode for medium/hard reasoning (GSM8K, MATH-500).</li>
-                <li><strong>Threats to Validity:</strong> CodeCarbon estimates package energy via TDP/RAPL rather than a wall-plug power meter; laptop thermal throttling is mitigated via 0.5s cooldowns and warmup exclusions; tested on 1 model family (Qwen3-1.7B).</li>
+                <li><strong>Cap Output Near the Sweet Spot:</strong> Output tokens drive energy most; setting a sensible limit saves energy with zero accuracy loss.</li>
+                <li><strong>Keep Inputs Short &amp; Clean:</strong> Extra prompt text adds energy AND can hurt accuracy on the exact same question [3, 4].</li>
+                <li><strong>Match Model Size to Task:</strong> Tiny models handle easy facts cheaply; step up to a larger local model only when needed for math.</li>
+                <li><strong>Measurement Limits:</strong> CodeCarbon runs in <code className="font-mono text-[11px]">machine</code> mode to track Ollama (background apps closed). CPU/GPU use hardware counters while RAM is a constant estimate (checked via our idle baseline). CodeCarbon only measures local hardware (cloud APIs need estimators like EcoLogits), and CO₂ depends strongly on local grid electricity (SWE vs. DEU vs. IND).</li>
               </ul>
 
               <div className="mt-3 pt-2.5 border-t border-slate-200">
                 <h3 className="text-[11px] font-bold uppercase tracking-wide text-slate-500">References</h3>
-                <ol className="mt-1.5 space-y-1 text-[10.5px] leading-snug text-slate-600 list-decimal pl-4">
-                  <li>Samsi et al., "From Words to Watts: Benchmarking the Energy Costs of LLM Inference," IEEE HPEC, 2023.</li>
-                  <li>Zadenoori et al., "Does Model Size Matter? A Comparison of Small and Large Language Models for Requirements Classification," arXiv:2510.21443, 2025.</li>
-                  <li>UNESCO & UCL, "Smarter, Smaller, Stronger: Resource-Efficient Generative AI & the Future of Digital Transformation," 2025.</li>
-                  <li>Fernandez et al., "Energy Considerations of Large Language Model Inference and Efficiency Optimizations," ACL, pp. 32556–32569, 2025.</li>
+                <ol className="mt-1.5 space-y-0.5 text-[10px] leading-snug text-slate-600 list-decimal pl-4">
+                  <li>UNESCO &amp; UCL, "Smarter, Smaller, Stronger: Resource-Efficient Generative AI," 2025.</li>
+                  <li>Fernandez et al., "Energy Considerations of LLM Inference," ACL, 2025.</li>
+                  <li>Levy, Jacoby &amp; Goldberg, "Same Task, More Tokens: Impact of Input Length on Reasoning," ACL, 2024.</li>
+                  <li>Liu et al., "Lost in the Middle: How Language Models Use Long Contexts," TACL, 2024.</li>
+                  <li>Samsi et al., "From Words to Watts: Energy Costs of LLM Inference," IEEE HPEC, 2023.</li>
+                  <li>Zadenoori et al., "Does Model Size Matter? Small vs. Large LMs," arXiv:2510.21443, 2025.</li>
                 </ol>
               </div>
             </section>

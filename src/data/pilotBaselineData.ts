@@ -1,19 +1,19 @@
 import type { ExperimentRow } from '../types/experiment';
 
 /**
- * Generates a deterministic, physics-consistent pilot calibration dataset
- * modeled for Qwen3-1.7B (Q4_K_M) running locally via Ollama on an Intel/AMD 16GB RAM laptop
- * (~25W sustained package power measured via CodeCarbon).
+ * Generates a small, transparent example preview dataset shaped identically to
+ * `python run_experiment.py --preliminary` (1 idle check + 75 inferences)
+ * comparing `qwen2.5:3b` and `qwen2.5:0.5b` (the course tutorial models).
  *
- * Strictly labeled in the UI as "Literature-Calibrated Pilot Baseline" until the user
- * uploads their own local `experiment_results.csv` from `run_experiment.py`.
+ * Clearly labeled in the UI as "Example Preview" until you run `--preliminary`
+ * (~3-5 min) on your own laptop and import your real `experiment_results.csv`.
  */
 export function buildPilotCalibrationRows(): ExperimentRow[] {
   const rows: ExperimentRow[] = [];
   let runCounter = 1;
 
-  // Deterministic pseudo-random generator (Mulberry32) so values never jump on reload
-  let seed = 20250420;
+  // Deterministic RNG so preview numbers stay stable on page reload
+  let seed = 20260410;
   const rand = () => {
     seed |= 0;
     seed = (seed + 0x6d2b79f5) | 0;
@@ -22,195 +22,302 @@ export function buildPilotCalibrationRows(): ExperimentRow[] {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 
-  // Physics-based local CPU inference energy model (~26W active laptop CPU TDP):
-  // Prefill (input) is parallelized: ~160 tokens/sec -> ~0.045 mWh/input_token
-  // Decode (output) is memory-bandwidth bound: ~22 tokens/sec -> ~0.340 mWh/output_token (~7.5x higher per token!)
-  // Plus KV-cache context penalty: 0.000018 mWh * input * output / 1000
-  const modelEnergyWh = (inTok: number, outTok: number, noiseAmp = 0.03) => {
-    const prefillWh = 0.0018 + inTok * 0.000046;
-    const decodeWh = outTok * 0.000345;
-    const kvCrossWh = (inTok * outTok) * 0.000000055;
-    const noise = 1 + (rand() - 0.5) * noiseAmp;
-    return Number(((prefillWh + decodeWh + kvCrossWh) * noise).toFixed(5));
+  const makeTime = (offsetSec: number) => {
+    const base = Date.UTC(2026, 4, 10, 10, 0, 0) + offsetSec * 1000;
+    return new Date(base).toISOString().replace('.000Z', 'Z');
   };
 
-  const modelLatencySec = (inTok: number, outTok: number) => {
-    return Number((0.24 + inTok / 165 + outTok / 22.5).toFixed(2));
+  // Physics-consistent laptop CPU model (qwen2.5:3b ~26W active; qwen2.5:0.5b ~16W active & faster)
+  const calcMetrics = (model: string, inTok: number, outTok: number) => {
+    const isTiny = model.includes('0.5b');
+    const prefillWh = isTiny ? 0.0007 + inTok * 0.000018 : 0.0016 + inTok * 0.000044;
+    const decodeWh = isTiny ? outTok * 0.000125 : outTok * 0.000325;
+    const noise = 1 + (rand() - 0.5) * 0.04;
+    const energyWh = Number(((prefillWh + decodeWh) * noise).toFixed(6));
+    const latencySec = Number(
+      (isTiny ? 0.12 + inTok / 340 + outTok / 55 : 0.22 + inTok / 165 + outTok / 22).toFixed(2)
+    );
+    const ramWh = Number(Math.min(energyWh * 0.42, (6.0 * latencySec) / 3600).toFixed(6));
+    const cpuWh = Number(Math.max(0, energyWh - ramWh).toFixed(6));
+    const emissionsG = Number((energyWh * 0.38).toFixed(6));
+    return { energyWh, latencySec, cpuWh, ramWh, emissionsG };
   };
 
-  // ------------------------------------------------------------------
-  // PHASE 1 (RQ1): Controlled Grid Sweep (Input Bins x Output Bins)
-  // ------------------------------------------------------------------
-  const inputBins = [64, 128, 256, 512, 1024, 2048];
-  const outputBins = [32, 64, 128, 256, 512];
+  let elapsedSec = 0;
 
-  for (const inTok of inputBins) {
-    for (const outTok of outputBins) {
-      for (let rep = 0; rep < 3; rep++) {
-        rows.push({
-          runId: `rq1_${runCounter++}`,
-          phase: 'rq1_sweep',
-          dataset: 'SyntheticSweep',
-          difficulty: 0,
-          promptId: `sweep_${inTok}_${outTok}_${rep}`,
-          thinkingMode: 'off',
-          limitType: 'num_predict',
-          maxTokensLimit: outTok,
-          inputTokens: inTok,
-          outputTokens: outTok,
-          thinkingTokens: 0,
-          answerTokens: outTok,
-          latencySec: modelLatencySec(inTok, outTok),
-          energyWh: modelEnergyWh(inTok, outTok, 0.04),
-          correct: true,
-        });
-      }
+  // PHASE 0: 5s Idle Baseline (matches course `idle_test.py`)
+  rows.push({
+    runId: 'idle_0',
+    timestamp: makeTime(elapsedSec),
+    model: 'idle',
+    phase: 'idle_baseline',
+    dataset: 'IdleBaseline',
+    promptId: 'idle_5s',
+    contextLevel: 'none',
+    limitType: 'unlimited',
+    maxTokensLimit: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    latencySec: 5.0,
+    energyWh: 0.011806,
+    correct: true,
+    cpuEnergyWh: 0.003472,
+    gpuEnergyWh: 0,
+    ramEnergyWh: 0.008333,
+    emissionsGco2eq: 0.004486,
+    expectedAnswer: '—',
+    responsePreview: 'Idle sleep baseline (no model running)',
+  });
+  elapsedSec += 6;
+
+  // PHASE 1 (RQ1): Input x Output Energy Grid (3x3 = 9 runs, matches --preliminary)
+  const inBins = [64, 256, 1024];
+  const outBins = [32, 128, 256];
+  for (const inTok of inBins) {
+    for (const outTok of outBins) {
+      const m = calcMetrics('qwen2.5:3b', inTok, outTok);
+      rows.push({
+        runId: `rq1_${runCounter++}`,
+        timestamp: makeTime(elapsedSec),
+        model: 'qwen2.5:3b',
+        phase: 'rq1_sweep',
+        dataset: 'SyntheticSweep',
+        promptId: `sweep_${inTok}_${outTok}`,
+        contextLevel: 'none',
+        limitType: 'num_predict',
+        maxTokensLimit: outTok,
+        inputTokens: inTok,
+        outputTokens: outTok,
+        latencySec: m.latencySec,
+        energyWh: m.energyWh,
+        correct: true,
+        cpuEnergyWh: m.cpuWh,
+        gpuEnergyWh: 0,
+        ramEnergyWh: m.ramWh,
+        emissionsGco2eq: m.emissionsG,
+        expectedAnswer: 'n/a',
+        responsePreview: 'System power grows steadily as more output tokens are written...',
+      });
+      elapsedSec += Math.ceil(m.latencySec) + 1;
     }
   }
 
-  // ------------------------------------------------------------------
-  // PHASE 2 (RQ2): Output Limits (`num_predict` and `"answer in N words"`)
-  // Across GSM8K (50 items), MATH-500 (50 items), TriviaQA (50 items)
-  // ------------------------------------------------------------------
-  const tokenLimits = [32, 64, 128, 256, 512, 1024];
-  const wordLimits = [10, 25, 50, 100, 200];
-
-  // Expected accuracy ceiling & required reasoning tokens per dataset
-  const datasetSpecs = [
-    { name: 'TriviaQA' as const, inMean: 56, diff: 1, baseCeiling: 0.65, reqMean: 24, avgNaturalOut: 32 },
-    { name: 'GSM8K' as const, inMean: 112, diff: 2, baseCeiling: 0.80, reqMean: 92, avgNaturalOut: 175 },
-    { name: 'MATH-500' as const, inMean: 138, diff: 3, baseCeiling: 0.58, reqMean: 135, avgNaturalOut: 265 },
+  // Verifiable questions (3 GSM8K math + 3 TriviaQA facts)
+  const questions = [
+    {
+      dataset: 'GSM8K' as const,
+      id: 'gsm_1',
+      gold: '18',
+      reqTok: 88,
+      baseIn: 68,
+      okPreview: '16 - 3 - 4 = 9 eggs left. 9 x $2 = $18.',
+      cutPreview: 'Janet starts with 16 eggs and eats 3 for...',
+      longFailPreview: 'Using the 16 eggs and the 42 note entries, she makes $24.',
+      tinyOk: true,
+      tinyPreview: 'Remaining eggs = 9. 9 * 2 = 18.',
+    },
+    {
+      dataset: 'GSM8K' as const,
+      id: 'gsm_2',
+      gold: '3',
+      reqTok: 46,
+      baseIn: 48,
+      okPreview: 'Blue = 2 bolts, white = 1 bolt. Total = 3 bolts.',
+      cutPreview: 'A robe uses 2 bolts of blue fiber and...',
+      longFailPreview: 'Total fiber is 2 + 1 = 3 bolts.',
+      tinyOk: true,
+      tinyPreview: '2 + 1 = 3 bolts.',
+    },
+    {
+      dataset: 'GSM8K' as const,
+      id: 'gsm_3',
+      gold: '70000',
+      reqTok: 118,
+      baseIn: 64,
+      okPreview: 'Cost = $130,000. New value = $200,000. Profit = $70,000.',
+      cutPreview: 'He buys the house for $80,000 and spends $50,000...',
+      longFailPreview: 'Profit is 150% of $130,000 = $195,000.',
+      tinyOk: false,
+      tinyPreview: '80000 + 50000 = 130000, profit = 65000.',
+    },
+    {
+      dataset: 'TriviaQA' as const,
+      id: 'triv_1',
+      gold: 'Au',
+      reqTok: 18,
+      baseIn: 28,
+      okPreview: 'The chemical symbol for gold is Au.',
+      cutPreview: 'Au',
+      longFailPreview: 'The chemical symbol for gold is Au.',
+      tinyOk: true,
+      tinyPreview: 'Au',
+    },
+    {
+      dataset: 'TriviaQA' as const,
+      id: 'triv_2',
+      gold: 'Mars',
+      reqTok: 18,
+      baseIn: 30,
+      okPreview: 'Mars is known as the Red Planet.',
+      cutPreview: 'Mars',
+      longFailPreview: 'Mars is the Red Planet.',
+      tinyOk: true,
+      tinyPreview: 'Mars',
+    },
+    {
+      dataset: 'TriviaQA' as const,
+      id: 'triv_3',
+      gold: 'Canberra',
+      reqTok: 22,
+      baseIn: 30,
+      okPreview: 'The capital city of Australia is Canberra.',
+      cutPreview: 'Canberra',
+      longFailPreview: 'Based on the notes, the capital city of Australia is Sydney.',
+      tinyOk: false,
+      tinyPreview: 'The capital of Australia is Sydney.',
+    },
   ];
 
-  for (const spec of datasetSpecs) {
-    for (let p = 0; p < 50; p++) {
-      const promptId = `${spec.name.toLowerCase()}_p${p + 1}`;
-      const inTok = Math.round(spec.inMean + (rand() - 0.5) * 32);
-      const solvable = rand() < spec.baseCeiling;
-      // Tokens needed to finish the reasoning chain cleanly
-      const requiredTokens = Math.max(16, Math.round(spec.reqMean * (0.45 + rand() * 1.15)));
-      const naturalOut = Math.max(requiredTokens, Math.round(spec.avgNaturalOut * (0.75 + rand() * 0.5)));
+  // PHASE 2a (RQ2a): Output Caps (32, 64, 128, 256 tokens + 15, 60 words = 36 runs)
+  const capLimits = [32, 64, 128, 256];
+  const wordLimits = [15, 60];
 
-      for (const limit of tokenLimits) {
-        const effectiveOut = Math.min(limit, naturalOut);
-        // Once token limit reaches requiredTokens, the prompt stays solved across larger limits
-        const correct = solvable && limit >= requiredTokens;
+  for (const q of questions) {
+    for (const lim of capLimits) {
+      const naturalOut = q.dataset === 'TriviaQA' ? 24 : Math.max(q.reqTok + 20, 140);
+      const actualOut = Math.min(lim, naturalOut);
+      const ok = lim >= q.reqTok;
+      const m = calcMetrics('qwen2.5:3b', q.baseIn, actualOut);
+      rows.push({
+        runId: `rq2a_${runCounter++}`,
+        timestamp: makeTime(elapsedSec),
+        model: 'qwen2.5:3b',
+        phase: 'rq2_output_limits',
+        dataset: q.dataset,
+        promptId: q.id,
+        contextLevel: 'short',
+        limitType: 'num_predict',
+        maxTokensLimit: lim,
+        inputTokens: q.baseIn,
+        outputTokens: actualOut,
+        latencySec: m.latencySec,
+        energyWh: m.energyWh,
+        correct: ok,
+        cpuEnergyWh: m.cpuWh,
+        gpuEnergyWh: 0,
+        ramEnergyWh: m.ramWh,
+        emissionsGco2eq: m.emissionsG,
+        expectedAnswer: q.gold,
+        responsePreview: ok ? q.okPreview : q.cutPreview,
+      });
+      elapsedSec += Math.ceil(m.latencySec);
+    }
 
-        rows.push({
-          runId: `rq2_tok_${runCounter++}`,
-          phase: 'rq2_limits',
-          dataset: spec.name,
-          difficulty: spec.name === 'MATH-500' ? (p % 5) + 1 : spec.diff,
-          promptId,
-          thinkingMode: 'off',
-          limitType: 'num_predict',
-          maxTokensLimit: limit,
-          inputTokens: inTok,
-          outputTokens: effectiveOut,
-          thinkingTokens: 0,
-          answerTokens: effectiveOut,
-          latencySec: modelLatencySec(inTok, effectiveOut),
-          energyWh: modelEnergyWh(inTok, effectiveOut),
-          correct,
-        });
-      }
-
-      for (const wLim of wordLimits) {
-        // ~1.35 tokens per word + formatting overhead
-        const approxTok = Math.round(Math.min(wLim * 1.38, naturalOut * 1.1));
-        const wordCorrect = solvable && wLim * 1.32 >= requiredTokens * 1.05;
-
-        rows.push({
-          runId: `rq2_word_${runCounter++}`,
-          phase: 'rq2_limits',
-          dataset: spec.name,
-          difficulty: spec.name === 'MATH-500' ? (p % 5) + 1 : spec.diff,
-          promptId,
-          thinkingMode: 'off',
-          limitType: 'word_limit',
-          maxTokensLimit: wLim,
-          inputTokens: inTok + 8,
-          outputTokens: approxTok,
-          thinkingTokens: 0,
-          answerTokens: approxTok,
-          latencySec: modelLatencySec(inTok + 8, approxTok),
-          energyWh: modelEnergyWh(inTok + 8, approxTok),
-          correct: wordCorrect,
-        });
-      }
+    for (const wlim of wordLimits) {
+      const approxOut = Math.min(Math.round(wlim * 1.4), q.dataset === 'TriviaQA' ? 22 : 120);
+      const ok = wlim * 1.45 >= q.reqTok;
+      const m = calcMetrics('qwen2.5:3b', q.baseIn + 8, approxOut);
+      rows.push({
+        runId: `rq2w_${runCounter++}`,
+        timestamp: makeTime(elapsedSec),
+        model: 'qwen2.5:3b',
+        phase: 'rq2_output_limits',
+        dataset: q.dataset,
+        promptId: q.id,
+        contextLevel: 'short',
+        limitType: 'word_limit',
+        maxTokensLimit: wlim,
+        inputTokens: q.baseIn + 8,
+        outputTokens: approxOut,
+        latencySec: m.latencySec,
+        energyWh: m.energyWh,
+        correct: ok,
+        cpuEnergyWh: m.cpuWh,
+        gpuEnergyWh: 0,
+        ramEnergyWh: m.ramWh,
+        emissionsGco2eq: m.emissionsG,
+        expectedAnswer: q.gold,
+        responsePreview: ok ? q.okPreview : q.cutPreview,
+      });
+      elapsedSec += Math.ceil(m.latencySec);
     }
   }
 
-  // ------------------------------------------------------------------
-  // PHASE 3 (RQ3): Thinking OFF (Direct) vs Thinking ON (Reasoning)
-  // Paired evaluation on identical prompts for McNemar's Test
-  // ------------------------------------------------------------------
-  const rq3Configs = [
-    // TriviaQA: Thinking adds 5.8x tokens, barely helps (+1.7% accuracy, p > 0.05)
-    { dataset: 'TriviaQA' as const, diff: 1, count: 60, inMean: 56, offOut: 26, onThink: 145, onAns: 28, pOff: 0.62, pGain: 0.02, pForget: 0.01 },
-    // GSM8K: Thinking adds 3.2x tokens, boosts accuracy significantly (+10% -> ~75% -> 85%)
-    { dataset: 'GSM8K' as const, diff: 2, count: 60, inMean: 112, offOut: 155, onThink: 345, onAns: 140, pOff: 0.72, pGain: 0.15, pForget: 0.03 },
-    // MATH-500 across difficulty levels 1-5 (12 per level = 60 items)
-    { dataset: 'MATH-500' as const, diff: 1, count: 12, inMean: 115, offOut: 135, onThink: 290, onAns: 120, pOff: 0.75, pGain: 0.17, pForget: 0.02 },
-    { dataset: 'MATH-500' as const, diff: 2, count: 12, inMean: 128, offOut: 175, onThink: 410, onAns: 145, pOff: 0.58, pGain: 0.25, pForget: 0.02 },
-    { dataset: 'MATH-500' as const, diff: 3, count: 12, inMean: 140, offOut: 220, onThink: 560, onAns: 165, pOff: 0.42, pGain: 0.33, pForget: 0.03 },
-    { dataset: 'MATH-500' as const, diff: 4, count: 12, inMean: 155, offOut: 270, onThink: 710, onAns: 190, pOff: 0.25, pGain: 0.25, pForget: 0.02 },
-    { dataset: 'MATH-500' as const, diff: 5, count: 12, inMean: 170, offOut: 310, onThink: 860, onAns: 210, pOff: 0.17, pGain: 0.17, pForget: 0.02 },
+  // PHASE 2b (RQ2b): Input Length vs. Output Quality (Short, Medium, Long = 18 runs)
+  // Mirrors Levy et al. (ACL 2024) & Liu et al. (TACL 2024): same question + extra distractor notes
+  const ctxLevels: Array<{ level: 'short' | 'medium' | 'long'; extraIn: number }> = [
+    { level: 'short', extraIn: 0 },
+    { level: 'medium', extraIn: 260 },
+    { level: 'long', extraIn: 940 },
   ];
 
-  let mathIdx = 1;
-  for (const cfg of rq3Configs) {
-    for (let i = 0; i < cfg.count; i++) {
-      const promptId =
-        cfg.dataset === 'MATH-500'
-          ? `math500_q${mathIdx++}`
-          : `${cfg.dataset.toLowerCase()}_q${i + 1}`;
-      const inTok = Math.round(cfg.inMean + (rand() - 0.5) * 28);
-
-      const offCorrect = rand() < cfg.pOff;
-      // Paired McNemar outcome: if off was wrong, probability pGain of becoming right; if off was right, small pForget of breaking
-      const onCorrect = offCorrect ? rand() >= cfg.pForget : rand() < cfg.pGain / (1 - cfg.pOff + 1e-6);
-
-      const offOut = Math.max(8, Math.round(cfg.offOut * (0.8 + rand() * 0.4)));
-      const onThink = Math.round(cfg.onThink * (0.8 + rand() * 0.4));
-      const onAns = Math.max(8, Math.round(cfg.onAns * (0.8 + rand() * 0.4)));
-      const onOut = onThink + onAns;
-
+  for (const q of questions) {
+    for (const ctx of ctxLevels) {
+      const inTok = q.baseIn + ctx.extraIn;
+      const outTok = q.dataset === 'TriviaQA' ? 26 : 128;
+      let ok = true;
+      if (ctx.level === 'medium' && q.id === 'gsm_3') ok = false;
+      if (ctx.level === 'long' && (q.id === 'gsm_1' || q.id === 'gsm_3' || q.id === 'triv_3')) {
+        ok = false;
+      }
+      const m = calcMetrics('qwen2.5:3b', inTok, outTok);
       rows.push({
-        runId: `rq3_off_${runCounter++}`,
-        phase: 'rq3_thinking',
-        dataset: cfg.dataset,
-        difficulty: cfg.diff,
-        promptId,
-        thinkingMode: 'off',
-        limitType: 'unlimited',
-        maxTokensLimit: 1536,
+        runId: `rq2in_${runCounter++}`,
+        timestamp: makeTime(elapsedSec),
+        model: 'qwen2.5:3b',
+        phase: 'rq2_input_quality',
+        dataset: q.dataset,
+        promptId: q.id,
+        contextLevel: ctx.level,
+        limitType: 'num_predict',
+        maxTokensLimit: 256,
         inputTokens: inTok,
-        outputTokens: offOut,
-        thinkingTokens: 0,
-        answerTokens: offOut,
-        latencySec: modelLatencySec(inTok, offOut),
-        energyWh: modelEnergyWh(inTok, offOut),
-        correct: offCorrect,
+        outputTokens: outTok,
+        latencySec: m.latencySec,
+        energyWh: m.energyWh,
+        correct: ok,
+        cpuEnergyWh: m.cpuWh,
+        gpuEnergyWh: 0,
+        ramEnergyWh: m.ramWh,
+        emissionsGco2eq: m.emissionsG,
+        expectedAnswer: q.gold,
+        responsePreview: ok ? q.okPreview : q.longFailPreview,
       });
+      elapsedSec += Math.ceil(m.latencySec);
+    }
+  }
 
+  // PHASE 3 (RQ3): Model Comparison (qwen2.5:0.5b vs. qwen2.5:3b on same 6 questions = 12 runs)
+  const compareModels = ['qwen2.5:0.5b', 'qwen2.5:3b'];
+  for (const model of compareModels) {
+    for (const q of questions) {
+      const isTiny = model.includes('0.5b');
+      const outTok = q.dataset === 'TriviaQA' ? (isTiny ? 16 : 24) : isTiny ? 84 : 124;
+      const ok = isTiny ? q.tinyOk : true;
+      const m = calcMetrics(model, q.baseIn, outTok);
       rows.push({
-        runId: `rq3_on_${runCounter++}`,
-        phase: 'rq3_thinking',
-        dataset: cfg.dataset,
-        difficulty: cfg.diff,
-        promptId,
-        thinkingMode: 'on',
-        limitType: 'unlimited',
-        maxTokensLimit: 1536,
-        inputTokens: inTok,
-        outputTokens: onOut,
-        thinkingTokens: onThink,
-        answerTokens: onAns,
-        latencySec: modelLatencySec(inTok, onOut),
-        energyWh: modelEnergyWh(inTok, onOut),
-        correct: onCorrect,
+        runId: `rq3_${runCounter++}`,
+        timestamp: makeTime(elapsedSec),
+        model,
+        phase: 'rq3_model_compare',
+        dataset: q.dataset,
+        promptId: q.id,
+        contextLevel: 'short',
+        limitType: 'num_predict',
+        maxTokensLimit: 256,
+        inputTokens: q.baseIn,
+        outputTokens: outTok,
+        latencySec: m.latencySec,
+        energyWh: m.energyWh,
+        correct: ok,
+        cpuEnergyWh: m.cpuWh,
+        gpuEnergyWh: 0,
+        ramEnergyWh: m.ramWh,
+        emissionsGco2eq: m.emissionsG,
+        expectedAnswer: q.gold,
+        responsePreview: isTiny ? q.tinyPreview : q.okPreview,
       });
+      elapsedSec += Math.ceil(m.latencySec);
     }
   }
 

@@ -1,46 +1,46 @@
 import React, { useState } from 'react';
-import type { ParetoPoint } from '../../types/experiment';
+import type { OutputCapPoint } from '../../types/experiment';
 
 interface ParetoKneeChartProps {
   id?: string;
-  tokenLimitCurve: ParetoPoint[];
-  wordLimitCurve: ParetoPoint[];
-  kneePoint: ParetoPoint | null;
+  tokenLimitCurve: OutputCapPoint[];
+  wordLimitCurve: OutputCapPoint[];
+  sweetSpot: OutputCapPoint | null;
 }
 
 export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
-  id = 'fig3-pareto-knee-svg',
+  id = 'fig3-output-caps-svg',
   tokenLimitCurve,
   wordLimitCurve,
-  kneePoint,
+  sweetSpot,
 }) => {
-  const [hovered, setHovered] = useState<ParetoPoint | null>(null);
+  const [hovered, setHovered] = useState<OutputCapPoint | null>(null);
 
   const width = 460;
-  const height = 240;
-  const pad = { top: 24, right: 20, bottom: 40, left: 48 };
+  const height = 244;
+  const pad = { top: 34, right: 22, bottom: 40, left: 48 };
   const plotW = width - pad.left - pad.right;
   const plotH = height - pad.top - pad.bottom;
 
   const allPts = [...tokenLimitCurve, ...wordLimitCurve];
-  const maxMwh = Math.max(15, ...allPts.map((p) => p.energyWh * 1000)) * 1.12;
-  const minAcc = Math.max(0, Math.floor((Math.min(10, ...allPts.map((p) => p.accuracyPct)) - 5) / 10) * 10);
-  const maxAcc = Math.min(100, Math.ceil((Math.max(85, ...allPts.map((p) => p.accuracyPct)) + 5) / 10) * 10);
+  const maxMwh = Math.max(15, ...allPts.map((p) => p.energyWh * 1000)) * 1.22;
+  const minAcc = 0;
+  const maxAcc = 100;
 
   const xScale = (mwh: number) => pad.left + (mwh / maxMwh) * plotW;
   const yScale = (acc: number) =>
-    pad.top + plotH - ((acc - minAcc) / Math.max(1, maxAcc - minAcc)) * plotH;
+    pad.top + plotH - ((acc - minAcc) / (maxAcc - minAcc)) * plotH;
 
-  const toPath = (pts: ParetoPoint[]) =>
+  const toPath = (pts: OutputCapPoint[]) =>
     pts
       .map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.energyWh * 1000).toFixed(1)} ${yScale(p.accuracyPct).toFixed(1)}`)
       .join(' ');
 
   const xTicks = [0, maxMwh * 0.25, maxMwh * 0.5, maxMwh * 0.75, maxMwh];
-  const yTicks = [minAcc, (minAcc + maxAcc) / 2, maxAcc];
+  const yTicks = [0, 50, 100];
 
-  const kneeX = kneePoint ? xScale(kneePoint.energyWh * 1000) : null;
-  const kneeY = kneePoint ? yScale(kneePoint.accuracyPct) : null;
+  const sweetX = sweetSpot ? xScale(sweetSpot.energyWh * 1000) : null;
+  const sweetY = sweetSpot ? yScale(sweetSpot.accuracyPct) : null;
 
   return (
     <div>
@@ -49,39 +49,40 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-auto block select-none"
         role="img"
-        aria-label="RQ2 Pareto frontier of Accuracy versus Energy with Saturation Knee Point highlighted"
+        aria-label="Chart of answer accuracy versus average energy across output limits showing the sweet spot where extra tokens stop improving accuracy"
       >
         <rect x="0" y="0" width={width} height={height} fill="#FFFFFF" />
 
-        {/* Shaded Diminishing Returns Region beyond the Knee */}
-        {kneeX !== null && (
+        {/* Shaded Plateau Zone beyond Sweet Spot */}
+        {sweetX !== null && (
           <g>
             <rect
-              x={kneeX}
+              x={sweetX}
               y={pad.top}
-              width={Math.max(0, width - pad.right - kneeX)}
+              width={Math.max(0, width - pad.right - sweetX)}
               height={plotH}
               fill="#FEF2F2"
               opacity="0.7"
             />
             <line
-              x1={kneeX}
+              x1={sweetX}
               y1={pad.top}
-              x2={kneeX}
+              x2={sweetX}
               y2={pad.top + plotH}
               stroke="#B91C1C"
               strokeWidth="1.2"
               strokeDasharray="4 3"
             />
             <text
-              x={Math.min(width - pad.right - 4, kneeX + 6)}
-              y={pad.top + 14}
+              x={width - pad.right - 2}
+              y={pad.top - 14}
+              textAnchor="end"
               fill="#991B1B"
               fontSize="8.5"
-              fontWeight="600"
+              fontWeight="700"
               fontFamily="Public Sans, sans-serif"
             >
-              Diminishing Returns (+Energy, ~0% Acc)
+              Plateau (~0% extra gain)
             </text>
           </g>
         )}
@@ -100,7 +101,7 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
                 fontSize="9.5"
                 fontFamily="IBM Plex Mono, monospace"
               >
-                {t.toFixed(0)}%
+                {t}%
               </text>
             </g>
           );
@@ -138,7 +139,7 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
           fontWeight="600"
           fontFamily="Public Sans, sans-serif"
         >
-          Mean Energy per Query (mWh)
+          Average Energy per Query (mWh)
         </text>
         <text
           x={14}
@@ -153,7 +154,7 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
           Accuracy (%)
         </text>
 
-        {/* Word-limit Curve (Prompt constraint) */}
+        {/* Word-limit Curve */}
         {wordLimitCurve.length > 1 && (
           <path
             d={toPath(wordLimitCurve)}
@@ -164,7 +165,7 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
           />
         )}
 
-        {/* Token-limit Curve (num_predict) */}
+        {/* Token-limit Curve */}
         {tokenLimitCurve.length > 1 && (
           <path d={toPath(tokenLimitCurve)} fill="none" stroke="#0F766E" strokeWidth="2.4" />
         )}
@@ -181,10 +182,10 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
               onMouseLeave={() => setHovered(null)}
             >
               <rect
-                x={cx - 3.5}
-                y={cy - 3.5}
-                width={7}
-                height={7}
+                x={cx - 3.8}
+                y={cy - 3.8}
+                width={7.6}
+                height={7.6}
                 fill="#B45309"
                 stroke="#FFFFFF"
                 strokeWidth="1"
@@ -193,10 +194,11 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
           );
         })}
 
-        {/* Token-limit markers + labels */}
+        {/* Token-limit markers */}
         {tokenLimitCurve.map((pt, idx) => {
           const cx = xScale(pt.energyWh * 1000);
           const cy = yScale(pt.accuracyPct);
+          const labelOffsetY = pt.accuracyPct >= 88 ? 16 : idx % 2 === 0 ? 15 : -10;
           return (
             <g
               key={`tl-${pt.limit}`}
@@ -207,42 +209,54 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
               <circle
                 cx={cx}
                 cy={cy}
-                r={pt.isKnee ? 6 : 4.2}
-                fill={pt.isKnee ? '#B91C1C' : '#0F766E'}
+                r={pt.isSweetSpot ? 5.5 : 4.2}
+                fill={pt.isSweetSpot ? '#B91C1C' : '#0F766E'}
                 stroke="#FFFFFF"
                 strokeWidth="1.5"
               />
-              <text
-                x={cx}
-                y={cy + (idx % 2 === 0 ? -9 : 14)}
-                textAnchor="middle"
-                fill={pt.isKnee ? '#B91C1C' : '#0F172A'}
-                fontSize="8.5"
-                fontWeight={pt.isKnee ? '700' : '600'}
-                fontFamily="IBM Plex Mono, monospace"
-              >
-                {pt.limit}
-              </text>
+              {!pt.isSweetSpot && (
+                <text
+                  x={cx}
+                  y={cy + labelOffsetY}
+                  textAnchor="middle"
+                  fill="#0F172A"
+                  fontSize="8.8"
+                  fontWeight="600"
+                  fontFamily="IBM Plex Mono, monospace"
+                >
+                  {pt.limit}
+                </text>
+              )}
             </g>
           );
         })}
 
-        {/* Knee annotation callout with clean background box so it never overlaps curves */}
-        {kneeX !== null && kneeY !== null && kneePoint && (() => {
-          const labelW = 148;
+        {/* Plain-English Sweet Spot Callout placed in clear space with leader line */}
+        {sweetX !== null && sweetY !== null && sweetSpot && (() => {
+          const labelW = 156;
           const labelH = 20;
-          const boxX = Math.max(pad.left + 6, Math.min(width - pad.right - labelW - 6, kneeX - labelW / 2));
-          const boxY = Math.max(pad.top + 22, kneeY - 34);
+          const placeLeft = sweetX > pad.left + labelW + 24;
+          const boxX = placeLeft
+            ? pad.left + 8
+            : Math.min(width - pad.right - labelW - 6, sweetX + 18);
+          const boxY = placeLeft
+            ? pad.top + 8
+            : Math.max(pad.top + 8, Math.min(pad.top + plotH - 68, sweetY + 14));
+          const leaderStartX = placeLeft ? boxX + labelW : boxX;
+          const leaderStartY = boxY + labelH / 2;
+          const leaderEndX = placeLeft ? sweetX - 10 : sweetX + 10;
+          const leaderEndY = sweetY + (placeLeft ? 1 : 0);
           return (
             <g>
-              <circle cx={kneeX} cy={kneeY} r={10} fill="none" stroke="#B91C1C" strokeWidth="1.4" />
+              <circle cx={sweetX} cy={sweetY} r={9.5} fill="none" stroke="#B91C1C" strokeWidth="1.4" />
               <line
-                x1={kneeX}
-                y1={kneeY - 10}
-                x2={boxX + labelW / 2}
-                y2={boxY + labelH}
+                x1={leaderStartX}
+                y1={leaderStartY}
+                x2={leaderEndX}
+                y2={leaderEndY}
                 stroke="#B91C1C"
-                strokeWidth="1"
+                strokeWidth="1.1"
+                strokeDasharray="3 2"
               />
               <rect
                 x={boxX}
@@ -259,19 +273,19 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
                 y={boxY + 13.5}
                 textAnchor="middle"
                 fill="#991B1B"
-                fontSize="9"
+                fontSize="8.8"
                 fontWeight="700"
                 fontFamily="Public Sans, sans-serif"
               >
-                Knee: {kneePoint.limit} tok ({kneePoint.accuracyPct.toFixed(1)}%)
+                Sweet spot: {sweetSpot.limit} tok ({sweetSpot.accuracyPct.toFixed(0)}%)
               </text>
             </g>
           );
         })()}
 
-        {/* Compact Legend bottom right */}
-        <g transform={`translate(${width - pad.right - 168}, ${pad.top + plotH - 42})`}>
-          <rect x="0" y="0" width="164" height="36" rx="4" fill="#FFFFFF" fillOpacity="0.92" stroke="#E2E8F0" strokeWidth="1" />
+        {/* Legend bottom right */}
+        <g transform={`translate(${width - pad.right - 168}, ${pad.top + plotH - 40})`}>
+          <rect x="0" y="0" width="164" height="36" rx="4" fill="#FFFFFF" fillOpacity="0.94" stroke="#E2E8F0" strokeWidth="1" />
           <circle cx="12" cy="12" r="3.5" fill="#0F766E" />
           <text x="21" y="15" fill="#0F172A" fontSize="8.8" fontWeight="600" fontFamily="Public Sans, sans-serif">
             num_predict cap (tokens)
@@ -285,9 +299,10 @@ export const ParetoKneeChart: React.FC<ParetoKneeChartProps> = ({
 
       {hovered && (
         <div className="mt-1.5 px-2.5 py-1 bg-slate-900 text-white text-[11px] font-mono tabular-nums rounded flex items-center justify-between">
-          <span>Limit: {hovered.label}</span>
+          <span>Cap: {hovered.label}</span>
           <span>
-            Acc {hovered.accuracyPct.toFixed(1)}% · {(hovered.energyWh * 1000).toFixed(1)} mWh · {(hovered.whPerCorrect * 1000).toFixed(1)} mWh/correct
+            Acc {hovered.accuracyPct.toFixed(0)}% · {(hovered.energyWh * 1000).toFixed(1)} mWh
+            {hovered.whPerCorrect !== null ? ` · ${(hovered.whPerCorrect * 1000).toFixed(1)} mWh/correct` : ''}
           </span>
         </div>
       )}

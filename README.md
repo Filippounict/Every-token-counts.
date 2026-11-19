@@ -25,6 +25,8 @@ No black-box algorithms or complicated statistics — every metric is easy to ve
 5. **Samsi et al. (IEEE HPEC 2023)** — *From Words to Watts*: Larger models consume more energy per token; task type changes output length.
 6. **Zadenoori et al. (arXiv 2025)** — *Does Model Size Matter?*: Small local models stay within ~2% of huge cloud models on focused tasks while running privately and reproducibly.
 
+Detailed working notes, exact SOTA baselines, and the 5 planned extensions are in [`docs/SOTA_NOTES.md`](docs/SOTA_NOTES.md).
+
 ---
 
 ## Fast Preliminary Run (~3–5 Minutes on Your Laptop)

@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Every Token Counts Study Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Theory, poster walk-through, talk scripts and Q&A drill for the SusCo26 poster Every Token Counts (Group 10).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a companion to the A0 poster. Sticky contents rail on the left (desktop), one reading column,
+   poster crops inline. Square corners, one accent hue (#1F4E79) and its tints, exactly as on the poster. */
+:root{
+  --bg:#F4F7FA; --surface:#FFFFFF; --ink:#16212C; --muted:#56657A; --line:#D2DCE6;
+  --accent:#1F4E79; --accent-ink:#FFFFFF; --tint:#E3ECF5; --tint-2:#EFF4F9;
+  --warn:#8A4A0B; --warn-bg:#FAEFE1; --ok:#2C6838; --ok-bg:#E5F1E7;
+  --font-body:"Arimo", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --s-xs:.8125rem; --s-sm:.9rem; --s-md:1.0625rem; --s-lg:1.3rem; --s-xl:1.75rem; --s-xxl:2.4rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E141A; --surface:#141D25; --ink:#E2E9F0; --muted:#9AAABA; --line:#2A3846;
+    --accent:#8DB9E2; --accent-ink:#0E141A; --tint:#1A2B3C; --tint-2:#16222E;
+    --warn:#EDB771; --warn-bg:#2C2216; --ok:#8FCB9A; --ok-bg:#16281B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#141D25; --ink:#E2E9F0; --muted:#9AAABA; --line:#2A3846;
+  --accent:#8DB9E2; --accent-ink:#0E141A; --tint:#1A2B3C; --tint-2:#16222E;
+  --warn:#EDB771; --warn-bg:#2C2216; --ok:#8FCB9A; --ok-bg:#16281B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{scroll-behavior:smooth; scroll-padding-top:16px}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:var(--s-md); line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:0 64px}
+a{color:var(--accent); text-underline-offset:2px}
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+h1,h2,h3,h4{text-wrap:balance; line-height:1.2; margin:0}
+h2{font-size:var(--s-xl); color:var(--accent); font-weight:700}
+h3{font-size:var(--s-lg); font-weight:700; margin-top:2rem}
+h4{font-size:var(--s-md); font-weight:700; margin-top:1.4rem}
+p, li{max-width:68ch}
+p{margin:.6rem 0}
+ul,ol{padding-left:1.3rem; margin:.5rem 0}
+li{margin:.25rem 0}
+code, .mono{font-family:var(--font-mono); font-size:.88em}
+code{background:var(--tint-2); padding:.05em .3em; overflow-wrap:anywhere}
+.num{font-variant-numeric:tabular-nums}
+strong{font-weight:700}
+
+/* masthead */
+.mast{max-width:1180px; margin:0 auto; padding-block:28px 22px; border-bottom:3px solid var(--accent)}
+.eyebrow{font-size:var(--s-xs); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.mast h1{font-size:var(--s-xxl); margin:.35rem 0 .5rem; font-weight:700}
+.mast .finding{font-size:var(--s-lg); border-left:4px solid var(--accent); padding-left:14px; max-width:60ch; margin:.8rem 0 0}
+.mast .meta{color:var(--muted); font-size:var(--s-sm); margin-top:.6rem}
+
+/* layout */
+.layout{max-width:1180px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1fr); gap:28px; padding-top:20px}
+@media (min-width:1000px){ .layout{grid-template-columns:240px minmax(0,1fr); gap:48px} }
+aside.rail{min-width:0}
+@media (min-width:1000px){ aside.rail .toc{position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto} }
+.toc{background:var(--surface); border:1px solid var(--line); padding:12px 14px}
+.toc summary{font-weight:700; cursor:pointer}
+@media (min-width:1000px){ .toc summary{pointer-events:none; list-style:none} .toc summary::-webkit-details-marker{display:none} }
+.toc ol{list-style:none; padding:0; margin:.6rem 0 0}
+.toc li{margin:0; max-width:none}
+.toc a{display:flex; justify-content:space-between; gap:8px; padding:5px 6px; text-decoration:none; color:var(--ink); font-size:var(--s-sm); border-left:3px solid transparent}
+.toc a:hover{background:var(--tint-2)}
+.toc a .k{font-family:var(--font-mono); font-size:var(--s-xs); color:var(--muted); white-space:nowrap}
+.toc a.is-done{border-left-color:var(--ok)}
+.toc a.is-done .k{color:var(--ok)}
+.toc .sub a{padding-left:18px; font-size:var(--s-xs)}
+.toc .progress{margin-top:10px; font-size:var(--s-xs); color:var(--muted)}
+.toc .bar, .tbar{height:6px; background:var(--tint); margin-top:4px}
+.toc .bar i, .tbar i{display:block; height:100%; width:0; background:var(--accent)}
+
+main{min-width:0}
+section.sec{background:var(--surface); border:1px solid var(--line); padding:22px clamp(16px,3vw,32px) 26px; margin-bottom:28px}
+.sec-head{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px 16px; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:8px}
+.sec-head .who{font-size:var(--s-xs); color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+label.known{font-size:var(--s-sm); color:var(--muted); display:inline-flex; gap:6px; align-items:center; cursor:pointer; white-space:nowrap}
+label.known input{accent-color:var(--accent); width:16px; height:16px}
+
+/* source tags */
+.src{font-family:var(--font-mono); font-size:.72em; color:var(--muted); background:var(--tint-2); border:1px solid var(--line); padding:0 .35em; white-space:nowrap; vertical-align:.08em}
+.src.out{border-style:dashed}
+
+/* boxes */
+.box{border:1px solid var(--line); background:var(--tint-2); padding:12px 16px; margin:1rem 0}
+.box > :first-child{margin-top:0}
+.box h4{margin-top:0}
+.box.key{background:var(--tint); border-color:transparent; border-left:4px solid var(--accent)}
+.box.warn{background:var(--warn-bg); border-color:transparent; border-left:4px solid var(--warn)}
+.box.warn h4{color:var(--warn)}
+.box.ok{background:var(--ok-bg); border-color:transparent; border-left:4px solid var(--ok)}
+.box.ok h4{color:var(--ok)}
+.label{display:inline-block; font-size:var(--s-xs); font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--accent); margin-top:1.2rem}
+.two{display:grid; grid-template-columns:minmax(0,1fr); gap:14px}
+@media (min-width:760px){ .two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
+.two .box{margin:0}
+.formula{font-family:var(--font-mono); background:var(--tint); padding:8px 12px; display:block; margin:.6rem 0; overflow-x:auto; white-space:nowrap}
+
+/* tables */
+.tw{overflow-x:auto; margin:1rem 0}
+table{border-collapse:collapse; width:100%; font-size:var(--s-sm); font-variant-numeric:tabular-nums}
+th, td{text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+thead th{border-bottom:2px solid var(--ink); font-weight:700}
+td.r, th.r{text-align:right}
+caption{caption-side:top; text-align:left; font-size:var(--s-sm); color:var(--muted); padding-bottom:6px}
+
+/* figures */
+figure{margin:1rem 0}
+figure img{display:block; border:1px solid var(--line); background:#fff; max-width:100%; height:auto}
+figcaption{font-size:var(--s-sm); color:var(--muted); margin-top:6px}
+.poster-thumb{max-width:420px}
+
+/* steps / story */
+.story{display:grid; grid-template-columns:minmax(0,1fr); gap:0; border:1px solid var(--line); margin:1rem 0}
+.story > div{display:grid; grid-template-columns:110px minmax(0,1fr); gap:12px; padding:10px 14px; border-bottom:1px solid var(--line)}
+.story > div:last-child{border-bottom:0}
+.story b{color:var(--accent); text-transform:uppercase; letter-spacing:.06em; font-size:var(--s-xs); padding-top:3px}
+@media (max-width:480px){ .story > div{grid-template-columns:minmax(0,1fr); gap:2px} }
+
+/* scripts */
+.script-meta{display:flex; flex-wrap:wrap; gap:8px 18px; color:var(--muted); font-size:var(--s-sm); margin:.4rem 0 1rem}
+.timer{display:flex; flex-wrap:wrap; align-items:center; gap:10px; background:var(--tint); padding:10px 14px; margin:1rem 0; position:sticky; top:env(safe-area-inset-top, 0px); z-index:5}
+.timer .tdisp{font-family:var(--font-mono); font-size:var(--s-lg); font-weight:600; min-width:9ch}
+.timer .tbar{flex:1 1 160px; min-width:120px; margin:0}
+.timer .tnow{font-size:var(--s-xs); color:var(--muted); flex-basis:100%}
+button{font:inherit; font-size:var(--s-sm); background:var(--surface); color:var(--ink); border:1px solid var(--accent); padding:5px 12px; cursor:pointer}
+button.primary{background:var(--accent); color:var(--accent-ink)}
+button:hover{background:var(--tint)}
+button.primary:hover{opacity:.9; background:var(--accent)}
+button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
+.beat{display:grid; grid-template-columns:62px minmax(0,1fr); gap:14px; padding:12px 0; border-top:1px solid var(--line)}
+.beat .t{font-family:var(--font-mono); font-weight:600; color:var(--accent); padding-top:2px}
+.beat .t small{display:block; font-weight:400; color:var(--muted); font-size:var(--s-xs)}
+.beat p{margin:.3rem 0}
+.cue{font-size:var(--s-sm); color:var(--warn); font-style:italic}
+.cue::before{content:"[ "} .cue::after{content:" ]"}
+.cuecard{columns:2 260px; column-gap:24px; font-size:var(--s-sm)}
+.cuecard li{break-inside:avoid}
+.handover{border-top:2px solid var(--accent); padding-top:8px; font-weight:600}
+
+/* Q&A + cards */
+.filters{display:flex; flex-wrap:wrap; gap:6px; margin:.8rem 0}
+details.qa{border:1px solid var(--line); margin:.45rem 0; background:var(--surface)}
+details.qa > summary{cursor:pointer; padding:9px 12px; font-weight:600; list-style-position:outside; margin-left:18px}
+details.qa > summary .tags{font-weight:400; font-family:var(--font-mono); font-size:var(--s-xs); color:var(--muted); margin-left:6px; white-space:nowrap}
+details.qa > div{padding:2px 14px 12px 30px; border-top:1px dashed var(--line)}
+details.qa[open]{background:var(--tint-2)}
+.cards{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:10px; margin:1rem 0}
+details.card{border:1px solid var(--line); background:var(--tint-2); padding:10px 12px}
+details.card summary{cursor:pointer; font-size:var(--s-sm); font-weight:600}
+details.card .a{font-family:var(--font-mono); font-size:var(--s-lg); font-weight:600; color:var(--accent); margin-top:6px}
+details.card .n{font-size:var(--s-xs); color:var(--muted)}
+.q{border-top:1px solid var(--line); padding:12px 0}
+.q fieldset{border:0; padding:0; margin:0}
+.q legend{font-weight:600; padding:0; margin-bottom:6px}
+.q label{display:block; padding:4px 6px; cursor:pointer; font-size:var(--s-sm)}
+.q label:hover{background:var(--tint-2)}
+.q .fb{font-size:var(--s-sm); margin-top:4px}
+.q .fb.good{color:var(--ok)} .q .fb.bad{color:var(--warn)}
+.score{font-family:var(--font-mono); font-weight:600}
+.legend-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:4px 18px; font-size:var(--s-sm)}
+.muted{color:var(--muted)}
+hr{border:0; border-top:1px solid var(--line); margin:1.5rem 0}
+</style>
+
+<header class="mast">
+  <div class="eyebrow">SusCo26 · Group 10 · study guide for Mateusz, Filippo and Hazem</div>
+  <h1>Every Token Counts: know the poster by heart</h1>
+  <p class="finding">Pilot, RQ1: on a laptop CPU, a generated token cost about five times the estimated energy of a prompt token. <span class="src">Poster</span></p>
+  <p class="meta">Built from the final hand-in <code>SusCo26_Poster_group10_Mateusz_Filippo_Hazem.pdf</code>, the pilot data and code in <code>Every-token-counts./</code>, the course lectures (VL0 to VL9) and the cited papers. Every fact carries a source tag.</p>
+</header>
+
+<div class="layout">
+<aside class="rail">
+  <details class="toc" id="toc" open>
+    <summary>Contents</summary>
+    <ol id="toc-list">
+      <li><a href="#start" data-sec="start">How to use this page <span class="k">5 min</span></a></li>
+      <li><a href="#story" data-sec="story">The story and the 5-minute pitch <span class="k">all</span></a></li>
+      <li><a href="#theory" data-sec="theory">Shared theory <span class="k">all</span></a></li>
+      <li class="sub"><a href="#t-energy">Power, energy, carbon</a></li>
+      <li class="sub"><a href="#t-llm">How an LLM answers</a></li>
+      <li class="sub"><a href="#t-small">Small local models</a></li>
+      <li class="sub"><a href="#t-measure">Measuring energy, CodeCarbon</a></li>
+      <li class="sub"><a href="#t-baseline">Idle, warm-up, confounders</a></li>
+      <li class="sub"><a href="#t-metrics">Metrics</a></li>
+      <li class="sub"><a href="#t-stats">Design and statistics</a></li>
+      <li class="sub"><a href="#t-green">Green AI, the big picture</a></li>
+      <li class="sub"><a href="#t-lit">The seven references</a></li>
+      <li class="sub"><a href="#t-data">Datasets</a></li>
+      <li class="sub"><a href="#t-gloss">Glossary</a></li>
+      <li><a href="#poster" data-sec="poster">Poster walk-through <span class="k">all</span></a></li>
+      <li><a href="#code" data-sec="code">The code behind it <span class="k">Filippo+</span></a></li>
+      <li><a href="#weak" data-sec="weak">Weak spots, honest answers <span class="k">all</span></a></li>
+      <li><a href="#part1" data-sec="part1">Script 1: Mateusz <span class="k">0–10</span></a></li>
+      <li><a href="#part2" data-sec="part2">Script 2: Filippo <span class="k">10–20</span></a></li>
+      <li><a href="#part3" data-sec="part3">Script 3: Hazem <span class="k">20–30</span></a></li>
+      <li><a href="#qa" data-sec="qa">Q&amp;A drill <span class="k">all</span></a></li>
+      <li><a href="#numbers" data-sec="numbers">Numbers and quiz <span class="k">all</span></a></li>
+    </ol>
+    <div class="progress"><span id="prog-text">0 of 11 sections marked as known</span><div class="bar"><i id="prog-bar"></i></div></div>
+  </details>
+</aside>
+
+<main>
+
+<!-- ============================== 0. START ============================== -->
+<section class="sec" id="start" data-sec="start">
+  <div class="sec-head"><h2>How to use this page</h2><label class="known"><input type="checkbox" id="known-start" data-known="start"> I know this</label></div>
+  <p>The page is written for all three of us. Read it in this order. The first five blocks are shared knowledge; every one of us can be asked about any part of the project, because the seminar is graded per person <span class="src">VL0 p.55</span>.</p>
+  <ol>
+    <li><a href="#story">The story</a>: the one sentence, the five steps of the argument, and a 5-minute pitch for visitors at the poster.</li>
+    <li><a href="#theory">Shared theory</a>: energy, LLM inference, measurement, metrics, statistics, Green AI, the papers. This is the "why".</li>
+    <li><a href="#poster">Poster walk-through</a>: every sentence and number on the poster, where it comes from, and what it does not mean.</li>
+    <li><a href="#code">The code</a>: how <code>run_experiment.py</code> produced the numbers. Filippo in depth, the others at least once.</li>
+    <li><a href="#weak">Weak spots</a>: the places where an examiner can push, with short honest answers.</li>
+    <li>Your own script (<a href="#part1">Mateusz</a>, <a href="#part2">Filippo</a>, <a href="#part3">Hazem</a>), with a rehearsal timer, a cue card and the numbers you must know.</li>
+    <li><a href="#qa">Q&amp;A drill</a> and the <a href="#numbers">numbers quiz</a>, until you can answer without looking.</li>
+  </ol>
+  <div class="box key">
+    <h4>Course frame</h4>
+    <ul>
+      <li>Grading: presentation 40, scientific report 40, tests 20 points; groups, but individual grades <span class="src">VL0 p.55</span>.</li>
+      <li>The poster guide asks for a poster that "supports a 5 minute explanation" and is understandable without the presenter <span class="src">Poster guide, slide 2</span>. Our own plan for the talk is 3 × 10 minutes.</li>
+      <li>Next deliverable: the 8 to 10 page scientific report, due Monday 11 January 2027 <span class="src">VL0 p.55, VL6 p.2</span>. The poster's "report results in January" refers to it.</li>
+    </ul>
+  </div>
+  <h4>Source tags</h4>
+  <div class="legend-grid">
+    <div><span class="src">Poster</span> final hand-in PDF</div>
+    <div><span class="src">CSV rq1_7</span> <code>results_prelim/experiment_results.csv</code>, run id</div>
+    <div><span class="src">raw log</span> <code>results_prelim/emissions_raw.csv</code> (CodeCarbon)</div>
+    <div><span class="src">stats</span> <code>figures/summary_stats.json</code></div>
+    <div><span class="src">R:380</span> <code>public/kit/run_experiment.py</code>, line</div>
+    <div><span class="src">VL9 p.58</span> lecture PDF, page index of the PDF</div>
+    <div><span class="src">[2] p.4</span> cited paper, page</div>
+    <div><span class="src out">outside course</span> model card, Ollama library, CodeCarbon source or general knowledge</div>
+    <div><span class="src">derived</span> our own arithmetic on the pilot data</div>
+  </div>
+  <p class="muted" style="font-size:var(--s-sm)">Lecture page numbers are PDF page indices. The printed slide number differs in VL2, in VL9 from p.63 and in VL0 from p.54.</p>
+</section>
+
+<!-- ============================== 1. STORY ============================== -->
+<section class="sec" id="story" data-sec="story">
+  <div class="sec-head"><h2>The story in 60 seconds</h2><label class="known"><input type="checkbox" id="known-story" data-known="story"> I know this</label></div>
+  <figure class="poster-thumb"><img src="assets/poster.jpg" alt="The final A0 poster: title band, finding line, section I and II in the left column, III and IV in the right column." width="1300" height="1838" loading="lazy"><figcaption>The final hand-in (Canva v5 export, A0 portrait). Reading order: left column I and II, right column III and IV.</figcaption></figure>
+  <div class="story">
+    <div><b>Why</b><span>On data-centre GPUs, the answer is the expensive part of an LLM query, and extra context can hurt accuracy <span class="src">Poster, [1] [2] [3] [4]</span>. Small models now run on ordinary laptops, where nobody has checked this.</span></div>
+    <div><b>What</b><span>We test the same trade-offs for Qwen3 1.7B on a consumer laptop: four research questions on prompt vs answer tokens (RQ1), answer limits (RQ2a), unrelated context (RQ2b) and thinking mode (RQ3) <span class="src">Poster, Table 1</span>.</span></div>
+    <div><b>How</b><span>Every query passes four steps: prompt and task, the local model in Ollama, energy from CodeCarbon, scoring and records <span class="src">Poster, Fig. 1</span>. Energy is estimated, because the laptop has no energy counter.</span></div>
+    <div><b>Found</b><span>In a 75-run calibration pilot, one answer token cost 0.375 mWh and one prompt token 0.075 mWh, a ratio of 4.99 <span class="src">Poster, Fig. 3</span>. The pilot also exposed two problems: Ollama's prompt cache and a thinking budget that was too small.</span></div>
+    <div><b>Next</b><span>Run RQ1 to RQ3 on GSM8K and TriviaQA with 100 items per task, 3 runs per condition and 95 % bootstrap intervals; freeze the pipeline in December, report in January <span class="src">Poster, IV</span>.</span></div>
+  </div>
+
+  <h3>The 5-minute pitch</h3>
+  <p class="muted">For a visitor who stops at the poster. Any of us must be able to give it. About 600 words; say it, do not read it.</p>
+  <div class="box">
+    <p>"Hello, we are Group 10. Our poster is called <em>Every Token Counts</em>. The question behind it is simple: when a language model answers you, where does the energy go?</p>
+    <p>Studies on data-centre and workstation GPUs found two things. First, the answer costs much more than the prompt: in the UNESCO study, halving the prompt saved about 5 % of the energy, but halving the answer saved 54 %. Second, extra text in the prompt can make models less accurate, even far below their context limit. But small models such as Qwen3 with 1.7 billion parameters now run on normal laptops, on the CPU. Nobody has checked whether the same trade-offs hold there. That is our project.</p>
+    <p><em>(point at Table 1)</em> We ask four questions. RQ1: does an answer token cost more energy than a prompt token? RQ2a: what do token caps or a word limit like 'answer in 15 words' do to accuracy and energy? RQ2b: what does unrelated text around the same question do? And RQ3: how much energy does thinking mode add, and how much accuracy does it buy?</p>
+    <p><em>(point at Fig. 1)</em> The method is a four-step pipeline. A prompt is built from a task, the model runs locally in Ollama, CodeCarbon samples the whole machine every second, and the reply is scored and logged. One honest point: this laptop has no hardware energy counter, so CodeCarbon models CPU power from the processor load and assumes 10 watts for the RAM. Our energy numbers are estimates, which is why we also report runtime.</p>
+    <p><em>(point at Fig. 2)</em> Here is one real item, a GSM8K maths problem whose answer is 18. With a 32-token cap the model is cut off before it reaches a number. With 256 tokens it writes a full solution in 189 tokens. With 'answer in 15 words' it gets it right in 36 tokens. With thinking on it is also right, but uses 485 tokens. Same answer, very different cost.</p>
+    <p><em>(point at Fig. 3)</em> This is our pilot result for RQ1. We varied the prompt length with a short answer, and the answer length with a short prompt. Each extra answer token cost about 0.375 milliwatt-hours, each extra prompt token about 0.075, so roughly five times less. The reason is how models generate text: the prompt is read in one parallel pass, while the answer is written one token at a time.</p>
+    <p><em>(point at Fig. 4)</em> The heat map shows all nine combinations. One cell looks wrong: the long prompt with a short answer costs more than with a longer answer. That is because that call came first and had to read the whole prompt; the next calls reused Ollama's cache. So the pilot taught us two rules: run conditions in random order, and give thinking mode a 2,048-token budget, because two of three maths runs stopped at 512.</p>
+    <p>This is a calibration pilot, one run per point, so we do not claim more than the direction of the effect. In January we run all four questions on GSM8K and TriviaQA, 100 items per task, three runs per condition, with bootstrap confidence intervals.</p>
+    <p>If you want to follow the project, the QR code leads to our links. Do you have any questions?"</p>
+  </div>
+</section>
+
+<!-- ============================== 2. THEORY ============================== -->
+<section class="sec" id="theory" data-sec="theory">
+  <div class="sec-head"><h2>Shared theory</h2><label class="known"><input type="checkbox" id="known-theory" data-known="theory"> I know this</label></div>
+  <p>Ten short topics. Each says what the idea is, why it matters for our poster, and where it comes from. Mateusz presents most of this in Part 1, but all three of us need it for the questions.</p>
+
+  <!-- T1 -->
+  <h3 id="t-energy">1. Power, energy and carbon</h3>
+  <ul>
+    <li><strong>Power</strong> is a rate: how fast energy is used, in watts. 1 W = 1 J/s. <strong>Energy</strong> is the amount used over time, in joules or watt-hours <span class="src">VL0 p.36–37</span>.</li>
+    <li>Energy over an interval = average power × elapsed time; in general <span class="mono">E = ∫ P(t) dt</span> <span class="src">VL2 p.41</span> <span class="src">VL6 p.11</span>.</li>
+    <li>Units we use: 1 Wh = 3,600 J, so <strong>1 mWh = 3.6 J</strong> <span class="src">derived</span>.</li>
+    <li>Lower power does not mean lower energy. The same task at 15 W for 20 s uses 300 J; at 40 W for 4 s it uses 160 J <span class="src">VL7 p.7</span>. Time matters as much as watts.</li>
+    <li><strong>Energy efficiency</strong> = useful work per unit of energy <span class="src">VL0 p.37</span>. <strong>Energy proportionality</strong>: an ideal machine uses almost nothing when idle and scales with load <span class="src">VL0 p.39</span>.</li>
+    <li><strong>Operational emissions</strong> = energy × carbon intensity of the electricity (gCO₂e/kWh). Example on the slide: 200 W for 1 hour = 0.2 kWh; at 400 gCO₂e/kWh that is 80 g <span class="src">VL6 p.11</span> <span class="src">VL0 p.41</span>.</li>
+  </ul>
+  <div class="box key">
+    <h4>With our own numbers</h4>
+    <ul>
+      <li>The laptop drew an estimated <strong>18.31 W</strong> when idle and <strong>24.34 W</strong> on average while answering <span class="src">stats</span>. So inference added only about 6 W on top of idle <span class="src">derived</span>. The laptop is far from energy-proportional.</li>
+      <li>Janet's ducks with a 256-token cap ran 10.13 s and used 66.52 mWh, which is 239 J or about 23.6 W <span class="src">CSV rq2a_13</span>. A useful rule of thumb from the pilot: <strong>one second of answering ≈ 6.4 mWh</strong> (energy = 6.39 × seconds + 2.84, r = 0.998) <span class="src">derived</span>.</li>
+      <li>The whole pilot, 75 queries, used about 3.87 Wh and emitted <strong>1.47 g CO₂e</strong> at Germany's intensity of about 380 g/kWh <span class="src">raw log</span> <span class="src">stats</span>. The same energy would be 0.14 g in Sweden and 2.75 g in India <span class="src">stats</span>. Carbon depends on where you run, energy does not.</li>
+    </ul>
+  </div>
+
+  <!-- T2 -->
+  <h3 id="t-llm">2. How an LLM answers: tokens, prefill and decode</h3>
+  <ul>
+    <li>A large language model is trained to predict the next token <span class="src">VL9 p.17</span>. A <strong>token</strong> is a piece of a word. European languages need about 1.2 to 1.5 tokens per word; "more tokens means more computation" <span class="src">VL9 p.23</span>.</li>
+    <li>Inference pipeline: tokenise the prompt, run the model "again and again" to predict each next token, then post-process <span class="src">VL9 p.23</span>.</li>
+  </ul>
+  <div class="two">
+    <div class="box">
+      <h4>Prefill (reading the prompt)</h4>
+      <ul>
+        <li>All prompt tokens are processed together, in parallel.</li>
+        <li>Fills the <strong>KV cache</strong> with the internal state of every prompt token.</li>
+        <li>Heavy computation, typically compute-bound <span class="src">VL9 p.24</span> <span class="src">[2] p.2</span>.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h4>Decode (writing the answer)</h4>
+      <ul>
+        <li>One token at a time. Each new token needs a full pass through the model and reads the KV cache.</li>
+        <li>Stops at an end token or at the maximum number of tokens (our cap, <code>num_predict</code>).</li>
+        <li>Slower, sequential, typically memory-bound <span class="src">VL9 p.24</span> <span class="src">[2] p.2</span>.</li>
+      </ul>
+    </div>
+  </div>
+  <p><strong>KV cache</strong>: the keys and values of the attention layers for tokens already processed, kept so they are not computed again <span class="src out">outside course</span>. The lecture diagram names it but does not explain it <span class="src">VL9 p.24</span>.</p>
+  <h4>Why an answer token costs more than a prompt token</h4>
+  <p>In prefill, every weight the CPU loads from memory is used for many prompt tokens at once. In decode, all weights of the model (about 1.4 GB for the 4-bit Qwen3 1.7B) have to pass through the processor for every single new token. So decode is limited by memory bandwidth and produces far fewer tokens per second. In our pilot the laptop read about <strong>81 prompt tokens per second</strong> but wrote only about <strong>21 answer tokens per second</strong> <span class="src">derived from CSV latencies</span>. Power stayed around 23 to 25 W, so energy follows time, and the energy ratio lands near 4 to 5.</p>
+  <p>The same direction is reported on GPUs: "Decoding is more energy intensive per token than prefill" <span class="src">[2] p.4</span>, and decoding dominates total energy "except for tasks with shorter generation lengths" <span class="src">[2] p.4</span>. In the UNESCO study, halving the prompt saved 5 % and halving the response 54 % <span class="src">[1] p.17–18</span> <span class="src">VL9 p.58</span>.</p>
+  <h4>Thinking mode</h4>
+  <ul>
+    <li>Thinking (reasoning) mode makes the model write hidden reasoning before the visible answer. Those are decode tokens like any other, and in Ollama they count toward the same cap <span class="src">R:661</span>.</li>
+    <li>Course numbers from Oviedo et al. 2026: DeepSeek-R1 used a median of 0.63 Wh per normal query but 10.60 Wh with test-time scaling; Llama 3.1 405B 0.39 Wh vs 3.39 Wh <span class="src">VL9 p.38</span>. "Long answers, reasoning, images and video cost much more" <span class="src">VL9 p.36</span>.</li>
+    <li>Qwen3 has thinking on by default and can switch it off per request. Its model card says not to use greedy decoding in thinking mode, because it can cause endless repetition, and recommends temperature 0.6 <span class="src out">Qwen3-1.7B model card</span>. We used temperature 0. Keep this in mind for RQ3.</li>
+  </ul>
+
+  <!-- T3 -->
+  <h3 id="t-small">3. Small local models</h3>
+  <div class="tw"><table>
+    <caption>Qwen3 1.7B as we ran it</caption>
+    <tbody>
+      <tr><th>Parameters</th><td>1.7 B (1.4 B without embeddings) <span class="src out">model card</span></td></tr>
+      <tr><th>Layers, attention</th><td>28 layers; 16 query heads, 8 key-value heads (grouped-query attention) <span class="src out">model card</span></td></tr>
+      <tr><th>Context window</th><td>32,768 tokens <span class="src out">model card</span>; Ollama lists 40K. Our longest prompt was 1,073 tokens <span class="src">CSV rq1_7</span>.</td></tr>
+      <tr><th>Runtime</th><td>Ollama, tag <code>qwen3:1.7b</code> <span class="src">R:53</span>. Today that tag is the 4-bit Q4_K_M build, 1.4 GB <span class="src out">Ollama library</span>. We did not log the Ollama version or the model hash, so "4-bit" is very likely, not recorded.</td></tr>
+      <tr><th>Hardware</th><td>Intel Core i5-13420H, 12 logical CPUs, 16 GB RAM, Windows 11, no GPU used <span class="src">raw log</span> <span class="src">Poster</span></td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>Quantisation</strong> stores weights with fewer bits: less memory and less data to move. On Llama 3.1 8B, AWQ 4-bit cut energy by 44 % with 71.2 % vs 70.5 % accuracy; GPTQ −35 %, bitsandbytes −22 % <span class="src">VL9 p.53</span> <span class="src">[1] p.16</span>.</li>
+    <li>"The greenest model is the smallest one that meets the requirement" <span class="src">VL9 p.51</span>. Small task-specific models used 15 to 50 times less energy than the 8B model on their own tasks, but were weaker on unfamiliar data <span class="src">VL9 p.59</span> <span class="src">[1] p.19</span>.</li>
+    <li>Edge inference: "run small models close to the data", but "idle capacity also uses energy" <span class="src">VL9 p.61</span>. On our laptop the idle share was large: 18.3 of 24.3 W.</li>
+    <li>CPUs have a few powerful general-purpose cores and are slow for large matrix operations; energy goes into computing and into moving data between memory and chips <span class="src">VL9 p.34</span>. That is why a CPU result need not match a GPU result, and why we tested it.</li>
+  </ul>
+
+  <!-- T4 -->
+  <h3 id="t-measure">4. Measuring energy, and what CodeCarbon really does</h3>
+  <h4>Ways to get an energy number</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Source</th><th>What it gives</th><th>Ref.</th></tr></thead>
+    <tbody>
+      <tr><td>External power meter</td><td>Whole system at the socket; the reference to validate against</td><td><span class="src">VL6 p.15</span> <span class="src">VL2 p.42</span></td></tr>
+      <tr><td>IPMI / PDU on servers</td><td>Whole node, vendor-dependent coverage</td><td><span class="src">VL2 p.42</span></td></tr>
+      <tr><td>Intel RAPL</td><td>Accumulated energy <em>estimates</em> for package, core, DRAM; not disk, fans, PSU</td><td><span class="src">VL2 p.43–45</span></td></tr>
+      <tr><td>Power model</td><td>Estimate from utilisation when no direct measurement exists</td><td><span class="src">VL2 p.50–51</span> <span class="src">VL6 p.24</span></td></tr>
+    </tbody>
+  </table></div>
+  <p>The lecture's linear model: <span class="formula">P(u) = P_idle + (P_max − P_idle) · u</span> "a simplified linear approximation" <span class="src">VL6 p.24</span>. Software tools such as Kepler or Scaphandre "work with estimations"; treat their output as "estimated energy at this boundary", not as a meter reading <span class="src">VL2 p.58–59</span>. Each step from hardware counter to service metric "adds a model, an allocation rule or another source of uncertainty" <span class="src">VL2 p.61</span>.</p>
+  <h4>CodeCarbon on our laptop</h4>
+  <p>CodeCarbon "tracks energy and estimates CO₂e of Python code" <span class="src">VL9 p.48</span>. Our settings and what they mean:</p>
+  <ul>
+    <li><code>OfflineEmissionsTracker(country_iso_code="DEU", tracking_mode="machine", measure_power_secs=1)</code> <span class="src">R:267–283</span>. A new tracker is started and stopped around every single query <span class="src">R:376–392</span>.</li>
+    <li><strong>tracking_mode "machine"</strong> = whole-machine load, not only our Python process. Needed because Ollama runs as a separate server process <span class="src">R:277 comment</span>.</li>
+    <li><strong>measure_power_secs = 1</strong>: energy is accounted every second instead of the default 15 s <span class="src out">CodeCarbon source</span>.</li>
+    <li><strong>CPU</strong>: Windows without a hardware energy interface, so CodeCarbon falls back to "CPU load mode": it looks up the processor's TDP and computes <span class="formula">P_cpu = TDP × (0.1 + 0.9 × load³)</span> <span class="src out">CodeCarbon source, current version</span>. The logged minimum CPU power was 4.57 W, which is 10 % of about 45 W, the i5-13420H's base power <span class="src out">Intel spec</span>, so the log matches this model <span class="src">raw log</span>.</li>
+    <li><strong>TDP</strong> (thermal design power) is the manufacturer's rated sustained power for cooling design. It is a specification, not a measurement <span class="src out">general knowledge</span>.</li>
+    <li><strong>RAM</strong>: 5 W per memory slot with a minimum of 10 W on x86; a 16 GB laptop counts as 2 slots, so 10 W in every row, whatever the activity <span class="src out">CodeCarbon source</span> <span class="src">raw log</span>.</li>
+    <li><strong>GPU</strong>: none detected, 0 Wh <span class="src">stats</span>. <strong>Not inside the boundary</strong>: display, disk, network, fans, power-adapter losses.</li>
+    <li><strong>Emissions</strong> = energy (kWh) × the country's carbon intensity from CodeCarbon's data files <span class="src out">CodeCarbon source</span>.</li>
+  </ul>
+  <div class="box warn">
+    <h4>Consequence: why the poster says "estimated" and reports runtime</h4>
+    <p>CPU power is a curve of load, RAM power is a constant. With the CPU busy at a similar load in every query, power is almost constant, so <strong>energy is essentially runtime × about 23 W</strong>. In the pilot, energy and runtime correlate with r = 0.998 <span class="src">derived</span>. The RAM constant alone is 41 % of the inference energy <span class="src">stats</span>. Our energy numbers are therefore a model of the machine, not a measurement. The ranking of conditions is still informative, because it follows time.</p>
+  </div>
+
+  <!-- T5 -->
+  <h3 id="t-baseline">5. Idle baseline, warm-up and confounders</h3>
+  <ul>
+    <li>Total power = idle (baseline) + dynamic (workload) part. Who "pays" for idle is a policy choice: assign it to the platform, allocate it, or report it separately <span class="src">VL2 p.52</span>.</li>
+  </ul>
+  <div class="tw"><table>
+    <caption>"Who pays for idle energy?" 100 Wh = 40 Wh idle + 60 Wh workload; App A uses 25 %, App B 75 % <span class="src">VL6 p.26</span></caption>
+    <thead><tr><th>Policy</th><th class="r">A</th><th class="r">B</th><th class="r">Unallocated</th></tr></thead>
+    <tbody>
+      <tr><td>Proportional (all energy)</td><td class="r">25 Wh</td><td class="r">75 Wh</td><td class="r">0</td></tr>
+      <tr><td>Equal idle + proportional dynamic</td><td class="r">35 Wh</td><td class="r">65 Wh</td><td class="r">0</td></tr>
+      <tr><td>Dynamic only</td><td class="r">15 Wh</td><td class="r">45 Wh</td><td class="r">40 Wh</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>"For evaluating a software optimization, the incremental energy difference may be more relevant than any allocated share" <span class="src">VL6 p.26</span>.</li>
+    <li><strong>Our pilot</strong> measured idle for 5 s (18.31 W) but did <strong>not</strong> subtract it: all poster numbers are gross whole-machine energy <span class="src">R:457–485</span>. Subtracting idle would leave only about 25 % of the energy and would raise the answer/prompt ratio to about 10 <span class="src">derived</span>. Idle subtraction is a planned January step.</li>
+    <li><strong>Warm-up</strong>: the first call has to load the model from disk into RAM. We send one unmeasured question ("What is 2 + 2?", 12 tokens) so loading is not billed to the first measured query <span class="src">R:419–431</span>. The lectures do not cover warm-up; the closest idea is cold starts in serverless <span class="src">VL4 p.33</span>.</li>
+    <li><strong>Observer effect</strong>: "probes and telemetry also consume resources" <span class="src">VL7 p.26</span>. CodeCarbon runs on the same CPU it estimates.</li>
+    <li><strong>Prompt cache</strong>: Ollama keeps the processed state of the last prompt and reuses the part that matches the next request <span class="src out">Ollama behaviour</span>. In our RQ1 sweep, a repeated 1,073-token prompt took 14.2 s on the first call and 9.1 s on the next one with a longer answer <span class="src">CSV rq1_7, rq1_8</span>. Token counts did not show it; only latency did.</li>
+    <li><strong>Order and drift</strong>: the first measured calls ran at 29 to 36 W, later ones at 23 to 25 W <span class="src">derived from CSV</span>. Random order spreads such drift over all conditions.</li>
+  </ul>
+
+  <!-- T6 -->
+  <h3 id="t-metrics">6. Metrics</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Metric</th><th>Definition in our project</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Energy per query</td><td>CodeCarbon energy between start and stop of one query, in mWh</td><td>Basic unit; follows [5]'s energy per response</td></tr>
+      <tr><td>Energy per token</td><td>Slope of a straight-line fit of mWh against tokens</td><td>RQ1: separates prompt and answer cost</td></tr>
+      <tr><td>Runtime</td><td>Seconds around the <code>ollama.chat</code> call <span class="src">R:378–391</span></td><td>The estimate is driven by time; report it beside energy</td></tr>
+      <tr><td>Accuracy</td><td>Share of items answered correctly</td><td>Quality guardrail</td></tr>
+      <tr><td>mWh per correct answer</td><td>Total energy of a condition ÷ number of correct answers</td><td>Energy per unit of useful work</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>Energy per successful request is "valid only when the interval, success criterion, background load and shared dependencies are declared" <span class="src">VL2 p.62</span>. A cheaper but wrong answer is not a saving: "A change that reduces energy but degrades the service must be evaluated against its functional outcome" <span class="src">VL2 p.67</span>. Same energy for a 200 OK and a 404 is not the same useful work <span class="src">VL6 p.34</span>.</li>
+    <li>Samsi et al. [5] define energy per response and per output token, and state that they do not control output correctness <span class="src">[5] p.3–4</span>. <strong>Dividing by correct answers is our extension.</strong></li>
+    <li><strong>SCI</strong> (Software Carbon Intensity) = (E × I + M) / R: energy × carbon intensity plus embodied emissions, per functional unit R, for example per inference. Slide example: (100 kWh × 400 g/kWh + 10,000 g) / 10,000 orders = 5 gCO₂e per order <span class="src">VL6 p.27–29</span> <span class="src">VL2 p.64–66</span>.</li>
+    <li><strong>PUE</strong> = total facility energy / IT energy, at least 1.0 <span class="src">VL1 p.21</span>. A laptop has no facility overhead; CodeCarbon logged PUE 1.0 <span class="src">raw log</span>.</li>
+    <li>Energy figures are comparable only with the same functional unit, workload, boundary, operating conditions and measurement quality <span class="src">VL6 p.35</span>. Google's median Gemini prompt is 0.24 Wh full stack but 0.10 Wh for the accelerators alone, "always check what is inside the boundary" <span class="src">VL9 p.36</span>.</li>
+  </ul>
+
+  <!-- T7 -->
+  <h3 id="t-stats">7. Experimental design and statistics</h3>
+  <ul>
+    <li><strong>Benchmarking</strong>: controlled workload, reproducible environment, repeated short runs, offline analysis <span class="src">VL6 p.8</span> <span class="src">VL4 p.23–25</span>.</li>
+    <li><strong>Accuracy</strong> (close to the true value), <strong>precision</strong> (spread across repeats) and <strong>validity</strong> (measuring what you intend) are different things: "A precise measurement can still be inaccurate" <span class="src">VL6 p.50</span>. Results can differ through measurement accuracy, repeatability, model validity or experimental validity <span class="src">VL6 p.30</span>.</li>
+    <li>"Is the apparent 4.8 % improvement meaningful?" needs variance, percentiles, a confidence interval and a significance test <span class="src">VL6 p.51</span>. CLUE step 5: repeat under comparable conditions <span class="src">VL6 p.43</span>.</li>
+    <li><strong>Our pilot</strong> ran each condition once. That is enough to check the pipeline and the direction of an effect, not to estimate its size. Free evidence of noise: RQ3 "thinking off" repeats RQ2a "cap 256" exactly, and energy differed by 2 to 24 % between the two copies <span class="src">derived from CSV</span>.</li>
+    <li><strong>Temperature 0</strong> means greedy decoding: always pick the most likely token. The <strong>seed</strong> (42) fixes any random sampling <span class="src">R:55–56</span>. Even so, one item (gsm_3) produced different text in two identical runs <span class="src">CSV rq2a_25, rq3_66</span>. A likely cause is that multi-threaded CPU arithmetic and prompt-cache reuse can change rounding, which can flip a near-tie between two tokens <span class="src out">likely explanation</span>.</li>
+    <li><strong>Straight-line fit</strong>: <code>numpy.polyfit(x, y, 1)</code> gives the least-squares slope in mWh per token <span class="src">make_figures.py</span>.</li>
+    <li><strong>Bootstrap 95 % interval</strong> (January plan): resample the 100 items with replacement thousands of times, recompute the metric each time, take the 2.5th and 97.5th percentiles <span class="src out">standard method</span>.</li>
+    <li>What 100 items can resolve: at about 80 % accuracy the standard error is √(0.8 × 0.2 / 100) = 0.04, so a 95 % interval of roughly ±8 points <span class="src">derived</span>. Differences much smaller than that will not be visible.</li>
+    <li><strong>Randomised order</strong> spreads drift (temperature, background load) and cache effects over all conditions, instead of letting them line up with one condition.</li>
+  </ul>
+
+  <!-- T8 -->
+  <h3 id="t-green">8. Green AI and the big picture</h3>
+  <ul>
+    <li><strong>Green AI</strong> makes AI itself efficient; <strong>AI for Green</strong> uses AI to make other sectors efficient <span class="src">VL9 p.4</span>.</li>
+    <li><strong>Red AI</strong> buys accuracy with more computation and reports results without their cost. Green AI reports cost (FLOPs, energy, time) next to accuracy. "Accuracy is not free: report what it costs" (Schwartz et al. 2020) <span class="src">VL9 p.26</span>. Our accuracy-plus-energy reporting follows this.</li>
+    <li><strong>Inference dominates</strong>: training happens once, inference on every use. Inference is 80 to 90 % of ML cloud demand at AWS and 60 % of ML energy at Google; "small per request, but repeated billions of times" <span class="src">VL9 p.35</span> <span class="src">VL9 p.68</span>.</li>
+    <li>Energy per query: OpenAI about 0.34 Wh (no method published), Epoch AI about 0.3 Wh, Google Gemini median 0.24 Wh <span class="src">VL9 p.36</span>. At 2.5 billion prompts a day × 0.34 Wh, about 850 MWh per day <span class="src">VL9 p.37</span>. Our laptop queries were 0.019 to 0.121 Wh in RQ1 <span class="src">CSV</span>, with a much smaller model and a different boundary; do not compare them directly.</li>
+    <li><strong>Rebound effect</strong>: Google cut the energy of a median Gemini prompt 33-fold in one year, yet AI data-centre demand grew 50 % in 2025; "lower energy per query does not mean lower total impact" <span class="src">VL9 p.46</span>. Energy per transaction −40 % with doubled volume gives +20 % total <span class="src">VL1 p.18</span>. Economists call this the Jevons paradox <span class="src out">outside course</span>.</li>
+    <li>Where to act: concise prompts, shorter outputs, caching, batching, small task-specific models, retrieval instead of long context <span class="src">VL9 p.50</span>. Our RQs test the first two and the thinking switch directly.</li>
+  </ul>
+
+  <!-- T9 -->
+  <h3 id="t-lit">9. The seven references</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Ref.</th><th>What they did</th><th>Key finding</th><th>How we use it, and the caveat</th></tr></thead>
+    <tbody>
+      <tr><td>[1] UNESCO &amp; UCL 2025, <em>Smarter, Smaller, Stronger</em></td><td>Llama 3.1 8B on one RTX 3090 Ti (consumer GPU), CodeCarbon; summarisation, translation, QA</td><td>Halving the prompt: −5 %; halving the response: −54 %; quantisation up to −44 %; small task models up to −90 % <span class="src">[1] p.16–19</span></td><td>Motivation for RQ1 and RQ2a. Caveat: not a data-centre GPU; the "small models" are 61 to 570 M-parameter task models, not small chat LLMs.</td></tr>
+      <tr><td>[2] Fernandez et al. 2025, ACL</td><td>1 B to 32 B models on A6000 and A100 GPUs, GPU energy via NVML/CodeCarbon, no accuracy</td><td>Decode costs more per token than prefill and dominates, except for short generations; FLOP-based estimates underestimate real energy <span class="src">[2] p.1, p.4</span></td><td>Mechanism behind RQ1. Caveat: GPU-only boundary, mostly workstation GPUs.</td></tr>
+      <tr><td>[3] Levy et al. 2024, ACL, <em>Same Task, More Tokens</em></td><td>Reasoning tasks padded with irrelevant text</td><td>Accuracy drops as input grows, far below the context limit <span class="src out">paper abstract</span></td><td>Motivation for RQ2b.</td></tr>
+      <tr><td>[4] Liu et al. 2024, TACL, <em>Lost in the Middle</em></td><td>Multi-document QA (NaturalQuestions) and key-value retrieval</td><td>Accuracy is U-shaped: best when the relevant text is first or last, worst in the middle <span class="src out">paper abstract</span></td><td>RQ2b puts the question between two blocks of notes; the January long-context task follows their setup.</td></tr>
+      <tr><td>[5] Samsi et al. 2023, HPEC, <em>From Words to Watts</em></td><td>LLaMA 7 B to 65 B on V100/A100, measured with nvidia-smi and DCGM</td><td>Energy per response and per output token, about 3 to 4 J per output token; power capping 250 → 175 W saved 23 % energy for 6.7 % more time <span class="src">[5] p.4–7</span></td><td>Our metric definitions. Caveat: they do not control correctness, so per-correct-answer is ours.</td></tr>
+      <tr><td>[6] Cobbe et al. 2021, GSM8K</td><td>Dataset of grade-school maths word problems, plus trained verifiers</td><td>8.5K problems, 7.5K train / 1K test, 2 to 8 steps, one numeric final answer</td><td>Main task. Note: the released test file has 1,319 problems.</td></tr>
+      <tr><td>[7] Joshi et al. 2017, ACL, TriviaQA</td><td>Reading-comprehension dataset of trivia questions with evidence documents</td><td>Over 650K question-answer-evidence triples from 95K questions</td><td>Short-fact contrast task.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Scale check <span class="src">derived</span>: our answer token cost 0.375 mWh = 1.35 J on a laptop with a 1.7 B model; Samsi report about 3 to 4 J per output token for 7 B to 65 B models on data-centre GPUs <span class="src">[5] p.6</span>. Different model sizes and boundaries, so only the order of magnitude is comparable.</p>
+
+  <!-- T10 -->
+  <h3 id="t-data">10. Datasets and pilot items</h3>
+  <ul>
+    <li><strong>GSM8K</strong> <span class="src">[6]</span>: 8.5K grade-school word problems (7.5K train, 1K test), 2 to 8 arithmetic steps, one number as the answer. Graded automatically by the final number. Answer limits and thinking mode change whether the model reaches that number, so they show up in accuracy <span class="src">Poster, Tasks</span>.</li>
+    <li><strong>TriviaQA</strong> <span class="src">[7]</span>: short factual questions. The contrast case: the answer is one word, so long answers or thinking cannot help.</li>
+    <li><strong>The 6 pilot items</strong> <span class="src">R:83–121</span>: three shortened GSM8K test problems (Janet's ducks → 18; a robe needs blue and white fibre → 3; Josh flips a house → 70,000) and three TriviaQA-style facts we wrote (chemical symbol of gold → Au; the Red Planet → Mars; capital of Australia → Canberra).</li>
+    <li>Earlier roadmap drafts also named MMLU; the final poster does not, and it has no reference there.</li>
+  </ul>
+
+  <!-- T11 -->
+  <h3 id="t-gloss">Glossary</h3>
+  <div class="tw"><table>
+    <tbody>
+      <tr><th>Token</th><td>Piece of text the model reads or writes; about 1.2–1.5 per English word</td></tr>
+      <tr><th>Prompt / input token</th><td>Token we send; processed in prefill</td></tr>
+      <tr><th>Answer / output token</th><td>Token the model generates; produced in decode (thinking tokens included)</td></tr>
+      <tr><th>Cap, <code>num_predict</code></th><td>Maximum number of tokens Ollama will generate; the reply is cut off there</td></tr>
+      <tr><th>Word limit</th><td>Instruction in the prompt ("Answer in at most 15 words"); the model may ignore it</td></tr>
+      <tr><th>Thinking mode</th><td>Qwen3 writes hidden reasoning first; switched with <code>think=True/False</code> in Ollama</td></tr>
+      <tr><th>Greedy decoding</th><td>Temperature 0: always the most likely next token</td></tr>
+      <tr><th>KV cache</th><td>Stored attention keys and values of processed tokens</td></tr>
+      <tr><th>Prompt cache (Ollama)</th><td>Reuse of the KV cache for a prompt that starts like the previous one</td></tr>
+      <tr><th>Q4_K_M</th><td>Ollama's default 4-bit quantisation format for this model</td></tr>
+      <tr><th>TDP</th><td>Rated sustained power of a processor; CodeCarbon's scale for CPU power</td></tr>
+      <tr><th>RAPL</th><td>Intel's on-chip energy estimates (package, core, DRAM)</td></tr>
+      <tr><th>Idle baseline</th><td>Power with nothing running; 18.31 W in our pilot</td></tr>
+      <tr><th>mWh</th><td>Milliwatt-hour = 3.6 J</td></tr>
+      <tr><th>Slope</th><td>Extra mWh per extra token from a straight-line fit</td></tr>
+      <tr><th>Functional unit</th><td>The unit of useful work energy is divided by (a query, a correct answer)</td></tr>
+      <tr><th>Bootstrap CI</th><td>Interval from resampling the items with replacement</td></tr>
+      <tr><th>Calibration pilot</th><td>Small first run to test the pipeline and find problems, not to answer the RQs</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================== 3. POSTER ============================== -->
+<section class="sec" id="poster" data-sec="poster">
+  <div class="sec-head"><h2>Poster walk-through</h2><label class="known"><input type="checkbox" id="known-poster" data-known="poster"> I know this</label></div>
+  <p>Every block of the poster, in reading order. For each: what it says, where the number comes from, and what it does <em>not</em> mean.</p>
+
+  <h3>Title band and finding line</h3>
+  <ul>
+    <li><strong>Title</strong>: "Every Token Counts: Energy and Accuracy of a Small Local LLM". Authors Mateusz Fydrych, Filippo Bascetta, Hazem Salama; "Sustainable Computing, ENHANCE Edition Winter 2026/27"; SusCo26 is the 1st Workshop on Sustainable Computing <span class="src">VL7 p.1</span>. Logos: TU Berlin, Politecnico di Milano, Universitat Politècnica de València, Gdańsk University of Technology.</li>
+    <li><strong>Finding line</strong>: "Pilot, RQ1: on a laptop CPU, a generated token cost about five times the estimated energy of a prompt token." Three hedges are built in and we keep them when we speak: <em>pilot</em>, <em>about</em>, <em>estimated</em>.</li>
+  </ul>
+
+  <h3>I. Motivation and research questions</h3>
+  <figure><img src="assets/sec1.png" alt="Poster section I: motivation paragraph and Table 1 with RQ1, RQ2a, RQ2b and RQ3." width="929" height="733" loading="lazy"></figure>
+  <ul>
+    <li>"On data-centre GPUs, answer length drives most inference energy [1, 2]": in GPU studies, output tokens dominate energy. Precise version: [1] used a consumer RTX 3090 Ti, [2] mostly A6000 and some A100; [2] says decoding dominates except for short generations <span class="src">[1] p.30</span> <span class="src">[2] p.4</span>. If pressed, say "on GPUs".</li>
+    <li>"and extra context can lower accuracy [3, 4]": padding and position effects, below the context limit.</li>
+    <li>"Small models now run on personal laptops, so we test the same trade-offs for Qwen3 1.7B on a consumer laptop": this is the gap we fill.</li>
+  </ul>
+  <div class="tw"><table>
+    <caption>Table 1, with what the pilot actually ran <span class="src">Poster</span> <span class="src">CSV</span> <span class="src">R</span></caption>
+    <thead><tr><th>RQ</th><th>Question and levels (poster)</th><th>What the pilot ran</th></tr></thead>
+    <tbody>
+      <tr><td><strong>RQ1</strong></td><td>Does an answer token cost more energy than a prompt token? Prompt 64 to 1,024 × answer 32 to 256 tokens, thinking off.</td><td>Prompt targets 64 / 256 / 1,024 (Ollama counted 74 / 275 / 1,073 with the chat template) × caps 32 / 128 / 256 = 9 runs. The prompt asks for "a detailed explanation of every point without stopping early", so all 9 runs used their full cap.</td></tr>
+      <tr><td><strong>RQ2a</strong></td><td>How do token caps and word limits change accuracy and energy? Cap 32, 64, 128, 256; "answer in 15 / 60 words".</td><td>6 items × 4 caps = 24 runs; 6 items × 2 word limits (cap 256) = 12 runs.</td></tr>
+      <tr><td><strong>RQ2b</strong></td><td>Does unrelated text around the same question change accuracy and energy? 0, ~260 or ~920 tokens of notes, cap 256.</td><td>6 items × 3 levels = 18 runs. Notes are split half before and half after the question. Measured prompts: 55 / 353 / 1,039 tokens.</td></tr>
+      <tr><td><strong>RQ3</strong></td><td>How much energy does thinking mode add, and how much accuracy does it buy? Thinking off vs on; budget 256 vs 2,048.</td><td>6 items × off/on = 12 runs, with caps <strong>256 (off) and 512 (on)</strong>. 2,048 is the January budget, chosen because of the pilot.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Caption: "All runs: qwen3:1.7b in Ollama, temperature 0, same seed, random order. Outcomes: accuracy, estimated mWh, mWh per correct answer [5]." Model, temperature 0 and seed 42 are true for the pilot <span class="src">R:53–56</span>. <strong>Random order is the protocol for the full study; the pilot ran in a fixed order</strong>, and that is exactly how we found the cache problem. [5] supports energy per response; per correct answer is our addition.</p>
+
+  <h3>II. Method</h3>
+  <figure><img src="assets/sec2.png" alt="Poster section II: four-step pipeline, Tasks and Hardware paragraphs, and Fig. 2 with the GSM8K example." width="929" height="1337" loading="lazy"></figure>
+  <h4>Fig. 1, the measurement pipeline</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>What happens</th><th>Code</th></tr></thead>
+    <tbody>
+      <tr><td>1. Prompts and tasks</td><td>Build the prompt for the RQ and item (filler notes, word limits)</td><td><span class="src">R:224–261</span></td></tr>
+      <tr><td>2. Local model (Ollama)</td><td><code>ollama.chat</code> with temperature 0, seed 42, a token cap and the thinking switch</td><td><span class="src">R:380–389</span></td></tr>
+      <tr><td>3. Energy (CodeCarbon)</td><td>A fresh tracker starts before and stops after each query</td><td><span class="src">R:376–392</span></td></tr>
+      <tr><td>4. Scoring and records</td><td>Final number (GSM8K) or alias match (trivia); one CSV row per query</td><td><span class="src">R:194–221</span></td></tr>
+    </tbody>
+  </table></div>
+  <h4>TASKS paragraph</h4>
+  <p>GSM8K numbers are from the paper [6]. "TriviaQA facts [7] are the contrast": the pilot's three facts were written in TriviaQA style; the January run draws real TriviaQA items.</p>
+  <h4>HARDWARE AND MEASUREMENT paragraph, claim by claim</h4>
+  <ul>
+    <li>"One laptop runs everything (Intel Core i5-13420H, 16 GB RAM)": confirmed by the CodeCarbon log (15.7 GB usable) <span class="src">raw log</span>.</li>
+    <li>"CodeCarbon 3.3.2 samples the whole machine every second": version 3.3.2, tracking mode machine, <code>measure_power_secs=1</code> <span class="src">raw log</span> <span class="src">R:277–278</span>.</li>
+    <li>"after a 5 s idle baseline and a warm-up call": idle first (model not yet loaded), then warm-up <span class="src">R:457–485</span> <span class="src">R:419–431</span>.</li>
+    <li>"With no energy counter, CPU power is modelled from load and RAM is fixed at 10 W, so we also report runtime": see <a href="#t-measure">theory 4</a>.</li>
+  </ul>
+  <h4>Fig. 2, one item and four answer settings</h4>
+  <div class="tw"><table>
+    <caption>Janet's ducks, gold answer 18 (a shortened GSM8K test problem). Tokens on the poster; mWh and seconds from the CSV, not on the poster.</caption>
+    <thead><tr><th>Setting</th><th>Reply (first 140 characters are stored)</th><th class="r">Tokens</th><th>Result</th><th class="r">mWh</th><th class="r">s</th></tr></thead>
+    <tbody>
+      <tr><td>Cap 32 <span class="src">rq2a_10</span></td><td>"Let's break down the problem step by step: Step 1: Total eggs laid per day…" cut off</td><td class="r">32</td><td>wrong</td><td class="r">17.26</td><td class="r">2.26</td></tr>
+      <tr><td>Cap 256 <span class="src">rq2a_13</span></td><td>Same opening, then the full worked solution</td><td class="r">189</td><td>correct</td><td class="r">66.52</td><td class="r">10.13</td></tr>
+      <tr><td>"Answer in 15 words" <span class="src">rq2w_14</span></td><td>"Janet sells 16 - 3 - 4 = 9 eggs. 9 * 2 = 18. Final answer: 18."</td><td class="r">36</td><td>correct</td><td class="r">19.45</td><td class="r">2.63</td></tr>
+      <tr><td>Thinking on <span class="src">rq3_70</span></td><td>910 characters of hidden reasoning, then a worked answer</td><td class="r">485</td><td>correct</td><td class="r">186.04</td><td class="r">28.86</td></tr>
+    </tbody>
+  </table></div>
+  <p>The message: the same correct answer cost 36 tokens or 485 tokens, about 19 vs 186 mWh, almost a factor of 10 <span class="src">derived</span>. Two details to know: "no final number" for cap 32 means no answer number; the scorer's last number there is 16 from the restated question, wrong either way. And the 60-word limit (not on the poster) gave a wrong answer, 14 <span class="src">CSV rq2w_15</span>, so word limits are not automatically safe.</p>
+
+  <h3>III. Pilot result for RQ1</h3>
+  <figure><img src="assets/fig3.png" alt="Fig. 3: energy per query against tokens per query, with a steep answer-token line and a flat prompt-token line." width="929" height="725" loading="lazy"></figure>
+  <ul>
+    <li><strong>Axes</strong>: tokens per query (x) and energy per query in mWh (y). Two sweeps share the point (74 prompt, 32 answer) = 18.6 mWh.</li>
+    <li><strong>Prompt sweep</strong> (grey, answer fixed at 32): 74 → 18.6, 275 → 30.6, 1,073 → 92.8 mWh <span class="src">CSV rq1_1, rq1_4, rq1_7</span>.</li>
+    <li><strong>Answer sweep</strong> (blue, prompt fixed at 74): 32 → 18.6, 128 → 53.9, 256 → 102.6 mWh <span class="src">CSV rq1_1–3</span>.</li>
+    <li><strong>Fits</strong>: prompt slope 0.07525 mWh/token (intercept 11.7), answer slope 0.37536 mWh/token (intercept 6.3); ratio 4.988, printed as 4.99 <span class="src">stats</span> <span class="src">make_figures.py</span>.</li>
+    <li>In joules: 0.27 J per prompt token, 1.35 J per answer token <span class="src">derived</span>.</li>
+    <li>"Linear fits, one run per point": three points per line, so the slopes are estimates without an error bar.</li>
+  </ul>
+  <figure><img src="assets/fig4.png" alt="Fig. 4: heat map of mWh per query for 3 prompt lengths by 3 answer lengths, plus the Lessons from the pilot paragraph." width="929" height="845" loading="lazy"></figure>
+  <div class="tw"><table>
+    <caption>Fig. 4 values (mWh) with runtime in seconds <span class="src">stats grid, grid_latency</span></caption>
+    <thead><tr><th>Answer \ prompt</th><th class="r">74</th><th class="r">275</th><th class="r">1,073</th></tr></thead>
+    <tbody>
+      <tr><th>256</th><td class="r">102.6 (12.6 s)</td><td class="r">99.9 (15.3 s)</td><td class="r">121.0 (18.6 s)</td></tr>
+      <tr><th>128</th><td class="r">53.9 (5.5 s)</td><td class="r">50.6 (7.5 s)</td><td class="r">60.6 (9.1 s)</td></tr>
+      <tr><th>32</th><td class="r">18.6 (1.8 s)</td><td class="r">30.6 (4.5 s)</td><td class="r"><strong>92.8 (14.2 s)</strong></td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>How to read it</strong>: up = longer answer, energy rises steeply in every column. Right = longer prompt, energy rises gently, except the bottom-right cell.</li>
+    <li><strong>The anomaly</strong>: 1,073 / 32 costs 92.8 mWh but 1,073 / 128 only 60.6. Each prompt was sent three times in a row, starting with the 32-token cap <span class="src">R:492–495</span>. The first call had to read all 1,073 tokens (14.2 s); the next calls reused Ollama's prompt cache (9.1 s for 128 tokens, which is about the time for writing 128 tokens alone) <span class="src">derived</span>. The annotations "first call per prompt" and "later calls, same prompt" say exactly this.</li>
+    <li>Not visible on the poster: the 74-token prompt cells were the first measured calls and ran at 29 to 36 W, the others at 23 to 25 W <span class="src">derived</span>.</li>
+  </ul>
+  <h4>LESSONS FROM THE PILOT</h4>
+  <p>"Repeated prompts reused Ollama's cache, so conditions now run in random order. Two of three math runs with thinking stopped at 512 tokens, so the budget is 2,048." The two runs are gsm_2 and gsm_3, both wrong; gsm_3 even produced an empty answer <span class="src">CSV rq3_71, rq3_72</span>.</p>
+
+  <h3>IV. Next steps, references, QR</h3>
+  <figure><img src="assets/sec4.png" alt="Poster section IV: three next-step bullets, the seven references and the Let's connect QR code." width="929" height="460" loading="lazy"></figure>
+  <ul>
+    <li>"Run RQ1 to RQ3 on GSM8K [6] and TriviaQA [7]"; "100 items per task, 3 runs per condition, 95 % bootstrap intervals"; "Freeze the pipeline in December, report results in January".</li>
+    <li>References [1] to [7]; see <a href="#t-lit">theory 9</a>.</li>
+    <li>QR "Let's connect" leads to <code>https://linktr.ee/SusCom</code>. There is no GitHub QR on purpose.</li>
+  </ul>
+
+  <div class="two">
+    <div class="box ok">
+      <h4>We can claim</h4>
+      <ul>
+        <li>The pipeline works end to end on a laptop: 75 queries, energy, tokens and accuracy logged.</li>
+        <li>In this calibration run an answer token cost about 5 times the estimated energy of a prompt token, and the direction holds under every way of analysing it.</li>
+        <li>Answer settings change token counts by an order of magnitude for the same correct answer (Fig. 2).</li>
+        <li>The pilot found two design flaws (cache, thinking budget) and we fixed the protocol.</li>
+      </ul>
+    </div>
+    <div class="box warn">
+      <h4>We must not claim</h4>
+      <ul>
+        <li>That energy was measured. It was estimated.</li>
+        <li>An exact ratio. "About five" from one run per point.</li>
+        <li>Any finding for RQ2a, RQ2b or RQ3. They are planned methods; n = 6 items.</li>
+        <li>A "sweet spot" at 256 tokens. 256 is simply the largest cap we tried.</li>
+        <li>That thinking lowers accuracy. Its runs were cut off at 512 tokens.</li>
+        <li>That results transfer to other hardware, models or GPUs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Pilot numbers not on the poster (for questions only)</h3>
+  <p class="muted">n = 6 items per condition, one run each. Quote them only as "in the pilot", never as results.</p>
+  <div class="tw"><table>
+    <caption>RQ2a, answer caps and word limits <span class="src">stats</span> <span class="src">derived</span></caption>
+    <thead><tr><th>Condition</th><th class="r">Correct</th><th class="r">Mean mWh</th><th class="r">Hit the cap</th><th class="r">mWh per correct</th></tr></thead>
+    <tbody>
+      <tr><td>Cap 32</td><td class="r">3/6</td><td class="r">14.2</td><td class="r">5</td><td class="r">28.4</td></tr>
+      <tr><td>Cap 64</td><td class="r">3/6</td><td class="r">17.7</td><td class="r">4</td><td class="r">35.5</td></tr>
+      <tr><td>Cap 128</td><td class="r">4/6</td><td class="r">28.9</td><td class="r">2</td><td class="r">43.4</td></tr>
+      <tr><td>Cap 256</td><td class="r">5/6</td><td class="r">39.9</td><td class="r">1</td><td class="r">47.9</td></tr>
+      <tr><td>15 words (22 tokens on average)</td><td class="r">5/6</td><td class="r">12.1</td><td class="r">0</td><td class="r">14.5</td></tr>
+      <tr><td>60 words (38 tokens on average)</td><td class="r">4/6</td><td class="r">17.5</td><td class="r">0</td><td class="r">26.3</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tw"><table>
+    <caption>RQ2b, unrelated notes around the question, cap 256 <span class="src">stats</span></caption>
+    <thead><tr><th>Level</th><th class="r">Prompt tokens</th><th class="r">Correct</th><th class="r">Mean mWh</th><th class="r">Mean s</th></tr></thead>
+    <tbody>
+      <tr><td>Short (no notes)</td><td class="r">55</td><td class="r">5/6</td><td class="r">33.0</td><td class="r">4.8</td></tr>
+      <tr><td>Medium (~260)</td><td class="r">353</td><td class="r">5/6</td><td class="r">52.8</td><td class="r">7.9</td></tr>
+      <tr><td>Long (~920)</td><td class="r">1,039</td><td class="r">5/6</td><td class="r">103.9</td><td class="r">15.9</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tw"><table>
+    <caption>RQ3, thinking mode <span class="src">stats</span></caption>
+    <thead><tr><th>Mode</th><th class="r">Cap</th><th class="r">Correct</th><th class="r">Answer tokens</th><th class="r">Mean mWh</th><th class="r">mWh per correct</th></tr></thead>
+    <tbody>
+      <tr><td>Off</td><td class="r">256</td><td class="r">5/6</td><td class="r">112.3</td><td class="r">41.6</td><td class="r">49.9</td></tr>
+      <tr><td>On</td><td class="r">512</td><td class="r">4/6</td><td class="r">476.3</td><td class="r">178.3</td><td class="r">267.5</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>All six trivia answers were correct in every condition, and gsm_3 (the house) was wrong in all 12 of its runs. Every accuracy difference comes from two maths items <span class="src">derived</span>. This is why none of it is a finding.</li>
+    <li>Long notes cost 3.15 times the energy of no notes with no change in accuracy; thinking cost 4.29 times the energy of thinking off <span class="src">stats</span>.</li>
+  </ul>
+</section>
+
+<!-- ============================== 4. CODE ============================== -->
+<section class="sec" id="code" data-sec="code">
+  <div class="sec-head"><h2>The code behind it</h2><span class="who">Filippo in depth, everyone once</span><label class="known"><input type="checkbox" id="known-code" data-known="code"> I know this</label></div>
+  <p>Repository <code>Every-token-counts./</code>. The experiment kit is <code>public/kit/run_experiment.py</code> (777 lines) and <code>analyze_results.py</code> (257 lines); the poster figures come from <code>poster_academic/make_figures.py</code>. A comment says the settings mirror the course script <code>llm_test_reasoning.py</code> <span class="src">R:51</span>. The React app in <code>src/</code> uses synthetic numbers and is not part of the poster.</p>
+  <h3>What one run does, in order</h3>
+  <ol>
+    <li><strong>Settings</strong>: model <code>qwen3:1.7b</code>, temperature 0, seed 42, country DEU <span class="src">R:53–56</span>. Pilot mode uses the first 6 of 12 items; <code>--full</code> uses all 12 <span class="src">R:444</span>.</li>
+    <li><strong>Idle baseline</strong>: a tracker runs while the script sleeps 5 s <span class="src">R:457–485</span>. Stored as its own row, used only to report idle watts.</li>
+    <li><strong>Warm-up</strong>: "What is 2 + 2?", thinking off, cap 12, not measured, then a 1.5 s pause <span class="src">R:419–431</span>.</li>
+    <li><strong>RQ1</strong>: prompt length outer loop (64 → 256 → 1,024), cap inner loop (32 → 128 → 256), 0.3 s pause between calls <span class="src">R:489–532</span>.</li>
+    <li><strong>RQ2a</strong>: per item, caps 32 → 256, then word limits 15 and 60 with cap 256 <span class="src">R:536–616</span>.</li>
+    <li><strong>RQ2b</strong>: per item, short → medium → long notes, cap 256 <span class="src">R:618–658</span>.</li>
+    <li><strong>RQ3</strong>: all six items with thinking off (cap 256), then all six with thinking on (cap 512 by default, <code>--thinking-cap</code>) <span class="src">R:660–704, R:770</span>.</li>
+    <li><strong>Outputs</strong>: <code>experiment_results.csv</code> (21 columns, one row per query), CodeCarbon's <code>emissions_raw.csv</code> (one row per tracker stop), <code>proof_of_work.json</code> (timestamps, platform, SHA-256 of the files) <span class="src">R:58–80, R:731–755</span>.</li>
+  </ol>
+  <h3>One query</h3>
+<pre class="formula" style="white-space:pre">tracker = make_tracker(...)            # OfflineEmissionsTracker, machine mode, 1 s
+tracker.start(); t0 = time.perf_counter()
+response = ollama.chat(model=model,
+    messages=[{"role": "user", "content": prompt}],
+    think=think,
+    options={"temperature": 0, "seed": 42, "num_predict": num_predict})
+elapsed = time.perf_counter() - t0; tracker.stop()
+in_tokens  = response.prompt_eval_count   # prompt tokens, counted by Ollama
+out_tokens = response.eval_count          # answer tokens, thinking included</pre>
+  <p class="muted" style="font-size:var(--s-sm)">Simplified from <span class="src">R:376–398</span>. Energy is CodeCarbon's <code>energy_consumed</code> in kWh × 1000 = Wh in the CSV; the poster multiplies by 1000 again for mWh.</p>
+  <h3>Prompts</h3>
+  <ul>
+    <li><strong>Filler</strong>: six neutral log sentences, e.g. "Office note: Server room temperature stayed near 21 degrees Celsius during Tuesday morning." <code>make_filler_block(n)</code> takes about n / 1.35 words, cycling the sentences from the start <span class="src">R:162–169, R:224–233</span>. So a shorter filler is always the exact beginning of a longer one.</li>
+    <li><strong>RQ1</strong>: "Read these short notes and write a detailed explanation of every point without stopping early." + filler <span class="src">R:236–239</span>.</li>
+    <li><strong>RQ2a caps, RQ3</strong>: "Solve and give the final answer clearly. Question: …". <strong>Word limits</strong>: "Answer in at most 15 (60) words and give the final answer clearly." <span class="src">R:541, R:580, R:668</span>.</li>
+    <li><strong>RQ2b</strong>: short = the question with a one-line instruction; medium and long = "You are given background notes and one question inside them. Ignore unrelated notes…", then Notes part 1, the question, Notes part 2 <span class="src">R:242–261</span>.</li>
+  </ul>
+  <h3>Scoring</h3>
+  <ul>
+    <li><strong>GSM8K</strong>: take the last number in the reply (regex <code>[-+]?\d[\d,]*\.?\d*</code>, commas removed) and compare with the gold number, tolerance 0.0001 <span class="src">R:194–221</span>. Thinking text is not scored, only the visible answer.</li>
+    <li><strong>Trivia</strong>: normalise the text and check whether any accepted alias (for gold: "au" or "gold") appears in the reply <span class="src">R:219–221</span>.</li>
+    <li>RQ1 rows are not scored (they are filler explanations) and carry <code>correct=1</code> by convention <span class="src">R:523</span>.</li>
+  </ul>
+  <h3>From CSV to poster</h3>
+  <ul>
+    <li><code>analyze_results.py</code> computes idle and active watts, the RQ1 slopes and per-condition summaries, and writes <code>figures/summary_stats.json</code>.</li>
+    <li><code>make_figures.py</code> recomputes everything from the CSV: prompt line = RQ1 rows with the smallest cap (32); answer line = rows with prompt ≤ 74 + 40 tokens; slope = least-squares fit; ratio = answer slope / prompt slope. <code>cross_check()</code> asserts that every number equals <code>summary_stats.json</code> before any figure is drawn <span class="src">make_figures.py</span>.</li>
+  </ul>
+  <div class="box warn">
+    <h4>Not in the code yet (January work)</h4>
+    <ul>
+      <li>Random order of conditions; a unique run tag in each prompt to defeat the prompt cache.</li>
+      <li>Idle subtraction.</li>
+      <li>Phase timings: Ollama already returns <code>prompt_eval_duration</code> and <code>eval_duration</code>, which would split prefill from decode time; we do not read them.</li>
+      <li>Thinking cap 2,048 and a larger <code>num_ctx</code> so the budget fits.</li>
+      <li>Saving full replies (now only 140 characters) and stricter trivia matching.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== 5. WEAK SPOTS ============================== -->
+<section class="sec" id="weak" data-sec="weak">
+  <div class="sec-head"><h2>Weak spots, honest answers</h2><label class="known"><input type="checkbox" id="known-weak" data-known="weak"> I know this</label></div>
+  <p>Places where the poster says more than the pilot did, or where an examiner can push. The rule for all of them: agree with the fact, explain why, say what January changes. Never defend a number harder than the data allows.</p>
+  <div class="tw"><table>
+    <thead><tr><th>If someone says…</th><th>The fact</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>"Table 1 says random order. Was the pilot randomised?"</td><td>No, fixed order <span class="src">R:492–704</span>.</td><td>"Table 1 describes the protocol for the full study. The pilot ran in a fixed order, and that is how we discovered the cache effect in Fig. 4. Random order is the first lesson in our Lessons box."</td></tr>
+      <tr><td>"Thinking budget 2,048: is that what you ran?"</td><td>The pilot used 512 <span class="src">R:770</span>.</td><td>"The pilot used 512, and two of three maths runs hit it. That is why the full study uses 2,048, as the Lessons paragraph says."</td></tr>
+      <tr><td>"So you did not measure energy?"</td><td>CPU modelled from load × TDP, RAM a constant 10 W.</td><td>"Correct, it is a CodeCarbon estimate, so we write 'estimated' everywhere and report runtime too. The estimate tracks runtime almost perfectly, so the ranking of conditions is meaningful, the absolute watts are not. A wall power meter or a machine with RAPL would be the next step."</td></tr>
+      <tr><td>"Why not subtract idle power?"</td><td>Not subtracted; idle 18.31 W.</td><td>"In the pilot we report gross whole-machine energy, which is what the user pays for. Subtracting idle is planned; it makes the answer/prompt ratio larger, about 10, so 'five' is the conservative number."</td></tr>
+      <tr><td>"One run per point. How sure is 'five times'?"</td><td>Ratio ranges 3.9 to about 10 depending on analysis <span class="src">derived</span>.</td><td>"Not sure about the size, sure about the direction. Using runtime only gives 3.9; a fit on all nine points about 8; idle-subtracted about 10. In every version an answer token costs several times a prompt token. That is why the poster says 'pilot' and 'about'."</td></tr>
+      <tr><td>"Could the cache also distort the prompt line?"</td><td>Shorter filler is the start of the longer filler <span class="src">R:224–233</span>.</td><td>"Possibly. The 275 and 1,073-token prompts begin with the same text as the 74-token one, so part of each new prompt may have come from the cache. If so, prompt tokens are a bit more expensive than we estimated and the ratio a bit smaller. Unique run tags and random order remove this."</td></tr>
+      <tr><td>"Temperature 0 and a seed should be deterministic."</td><td>gsm_3 gave different text in two identical runs <span class="src">CSV</span>.</td><td>"We expected that too, but one item changed. On a CPU, multi-threaded arithmetic and cache reuse can change rounding. That is one reason for three repeats per condition."</td></tr>
+      <tr><td>"Qwen says not to use greedy decoding with thinking."</td><td>Model card recommends temperature 0.6 in thinking mode <span class="src out">model card</span>.</td><td>"Yes, greedy decoding can make thinking loop, which may be part of why runs hit the cap. With three runs per condition we can use the recommended sampling for RQ3 and still average out the randomness. We will decide this before the pipeline freeze."</td></tr>
+      <tr><td>"Is that really GSM8K test problem 1?"</td><td>Shortened rewording; trivia items written by us.</td><td>"It is the first GSM8K test problem, shortened for the pilot. The trivia facts were written in TriviaQA style. January uses the real datasets, 100 items each."</td></tr>
+      <tr><td>"Your trivia scoring looks loose."</td><td>Substring alias match; "gold" is in the question.</td><td>"Agreed. A reply that repeats 'gold' would pass. For January we match TriviaQA's alias list on whole words in the final answer only."</td></tr>
+      <tr><td>"[1] is not a data-centre GPU study."</td><td>RTX 3090 Ti; [2] A6000 and A100.</td><td>"Right, [1] used a consumer GPU and [2] mostly workstation GPUs. The point stands for GPUs in general: decode dominates except for very short answers."</td></tr>
+      <tr><td>"[5] does not measure accuracy."</td><td>Samsi exclude correctness.</td><td>"[5] gives us energy per response and per token. Dividing by correct answers is our addition, following the course's idea of energy per successful request."</td></tr>
+      <tr><td>"Fig. 2 says 'no final number', but there is a 16."</td><td>Scorer's last number is 16 <span class="src">CSV rq2a_10</span>.</td><td>"The reply never reaches an answer number; the 16 is from the restated question. The scorer reads 16 and marks it wrong, so the outcome is the same."</td></tr>
+      <tr><td>"How do I know the data were not edited?"</td><td>SHA-256 in proof_of_work.json matches after converting line endings back to CRLF.</td><td>"The run wrote SHA-256 hashes. Git converted the Windows line endings, so the hashes match once CRLF is restored; the content is unchanged."</td></tr>
+      <tr><td>"Was the laptop on mains power, apps closed, turbo controlled?"</td><td>Not recorded; 9.8 GB RAM already in use at idle.</td><td>"Not controlled in the pilot. For January we fix the power plan, run on mains, close apps and log this in the run record."</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================== 6. SCRIPTS ============================== -->
+<section class="sec script" id="part1" data-sec="part1">
+  <div class="sec-head"><h2>Script 1: why, and what we ask</h2><span class="who">Mateusz · 0:00 to 10:00 · poster section I</span><label class="known"><input type="checkbox" id="known-part1" data-known="part1"> I know this</label></div>
+  <div class="script-meta"><span>Covers: motivation, inference energy, energy basics, tokens and prefill/decode, literature, the gap, Table 1</span><span class="wc" data-wc="part1"></span></div>
+  <div class="timer" data-timer="part1"><span class="tdisp">0:00</span><span class="muted">/ 10:00</span><button type="button" class="primary" data-act="start">Start</button><button type="button" data-act="reset">Reset</button><div class="tbar"><i></i></div><span class="tnow">Now: Opening</span></div>
+  <div class="spoken" data-spoken="part1">
+    <div class="beat" data-at="0"><div class="t">0:00<small>Opening</small></div><div>
+      <p>Good morning. We are Group 10: Mateusz Fydrych, Filippo Bascetta and Hazem Salama, from the Sustainable Computing course, ENHANCE edition. Our poster is called <em>Every Token Counts: Energy and Accuracy of a Small Local LLM</em>. I will explain why we did this project and what we ask. Filippo will explain how we measure. Hazem will show the pilot result and what comes next.</p>
+      <p>Our main pilot finding is the line under the title: on a laptop CPU, a generated token cost about five times the estimated energy of a prompt token. Please keep three words of that sentence in mind: <em>pilot</em>, <em>about</em> and <em>estimated</em>. We will come back to each of them.</p>
+      <p class="cue">point at the finding line under the title</p>
+    </div></div>
+    <div class="beat" data-at="60"><div class="t">1:00<small>Why inference</small></div><div>
+      <p>Why should anyone care about the energy of a single answer? Because of scale. A model is trained once or a few times, but inference happens every time somebody uses it. In the Green AI lecture we saw that inference is 80 to 90 percent of machine-learning demand in the AWS cloud, and about 60 percent of machine-learning energy at Google. One query is small: published estimates are around 0.24 to 0.34 watt-hours for a data-centre chatbot. But at two and a half billion prompts per day, that is roughly 850 megawatt-hours every day. For comparison, training GPT-3 took about 1,287 megawatt-hours, once. At that daily rate, inference overtakes it in less than two days.</p>
+      <p>And efficiency alone does not solve it. Google reduced the energy of a median Gemini prompt by a factor of 33 in one year, and yet the demand of AI data centres grew by about 50 percent in 2025. That is the rebound effect: cheaper queries, more queries. The Green AI idea is to stop reporting accuracy alone and report what it costs. To do that, we need to know which part of a query actually costs the energy, because that is where users and developers can save.</p>
+    </div></div>
+    <div class="beat" data-at="165"><div class="t">2:45<small>Energy basics</small></div><div>
+      <p>Two basics before we go on. Power is a rate, measured in watts. Energy is power multiplied by time, measured in joules or watt-hours. On the poster we use milliwatt-hours; one milliwatt-hour is 3.6 joules.</p>
+      <p>Our laptop drew an estimated 18 watts when idle and about 24 watts while answering. So, as a rule of thumb from our pilot, every second the model spends answering costs about six point four milliwatt-hours. On this machine, time is energy: if a query takes longer, it costs more, almost one to one. And remember that lower power does not automatically mean lower energy; what counts is power times time.</p>
+      <p>Energy becomes emissions through the carbon intensity of the grid. Our whole pilot used about 3.9 watt-hours, which is about 1.5 grams of CO₂ in Germany but only about 0.1 grams in Sweden. That is why we report energy: it does not depend on where you plug in the laptop.</p>
+    </div></div>
+    <div class="beat" data-at="240"><div class="t">4:00<small>Prefill and decode</small></div><div>
+      <p>Now, what happens inside the model? A language model reads and writes tokens, pieces of words, roughly 1.2 to 1.5 tokens per English word. Answering has two phases. First the <em>prefill</em>: the model reads the whole prompt in one parallel pass and stores its internal state in the so-called KV cache. Then the <em>decode</em>: the model writes the answer one token at a time, and for every single token it has to run through the entire model again.</p>
+      <p>On a laptop, that means streaming about 1.4 gigabytes of weights through the processor for every piece of a word it writes. So prefill is limited by computation and runs fast, while decode is limited by memory and runs slowly. In our pilot the laptop read about 80 prompt tokens per second, but wrote only about 21 answer tokens per second.</p>
+      <p>Qwen3 also has a thinking mode. It simply means that the model writes hidden reasoning tokens before the visible answer. Those are decode tokens too, so they are the expensive kind.</p>
+    </div></div>
+    <div class="beat" data-at="330"><div class="t">5:30<small>Literature</small></div><div>
+      <p>What did others find? Four studies motivate our questions. The UNESCO and UCL report <em>Smarter, Smaller, Stronger</em>, reference one, ran Llama 3.1 with 8 billion parameters on a GPU. Halving the prompt saved about 5 percent of the energy; halving the response saved 54 percent. Fernandez and colleagues, reference two, measured GPU energy for ACL 2025 and found that decoding costs more energy per token than prefill and dominates the total, except when answers are very short.</p>
+      <p>On the accuracy side, Levy and colleagues, reference three, showed that adding irrelevant text to the same task lowers reasoning accuracy, far below the context limit. Liu and colleagues, reference four, <em>Lost in the Middle</em>, showed that models use information worst when it sits in the middle of a long context. Finally, Samsi and colleagues, reference five, defined energy per response and per output token, which is where our metrics start. They did not check whether the answers were correct; we add energy per correct answer.</p>
+      <p class="cue">point at the citation numbers in the first paragraph, then at the reference list</p>
+    </div></div>
+    <div class="beat" data-at="405"><div class="t">6:45<small>The gap</small></div><div>
+      <p>All of these studies ran on GPUs, in data centres or on workstations. But small models now run on personal laptops, on the CPU, through tools like Ollama. Qwen3 with 1.7 billion parameters fits in about 1.4 gigabytes in its 4-bit version and runs on an ordinary i5 laptop. A CPU is a very different machine from a GPU: few cores, little parallelism, and memory bandwidth as the bottleneck. And nobody measures the energy of these local queries, because they happen on the user's own device. The lecture also reminds us that idle capacity uses energy too: on our laptop, 18 of the 24 watts are there even when the model does nothing.</p>
+      <p>The course gave us a simple rule: the greenest model is the smallest one that meets the requirement. We wanted to know whether the trade-offs found on GPUs also hold for such a small model on a consumer laptop.</p>
+    </div></div>
+    <div class="beat" data-at="480"><div class="t">8:00<small>Table 1</small></div><div>
+      <p class="cue">point at Table 1, row by row</p>
+      <p>Table 1 lists our four research questions. RQ1: does an answer token cost more energy than a prompt token? We vary the prompt from about 64 to 1,024 tokens and the answer from 32 to 256 tokens, with thinking off.</p>
+      <p>RQ2a: how do limits on the answer change accuracy and energy? We use hard token caps of 32, 64, 128 and 256 tokens, and soft word limits: "answer in 15 words" or "in 60 words".</p>
+      <p>RQ2b: does unrelated text around the same question change accuracy and energy? We add zero, about 260 or about 920 tokens of neutral notes, half before and half after the question.</p>
+      <p>RQ3: how much energy does thinking mode add, and how much accuracy does it buy?</p>
+      <p>All runs use the same model, temperature zero and a fixed seed, and we record three outcomes: accuracy, estimated milliwatt-hours, and milliwatt-hours per correct answer. That last one matters most, because a cheap wrong answer is not a saving. Or, as the Green AI lecture put it: accuracy is not free, report what it costs. And the four questions map directly onto the levers that lecture lists: shorter outputs, concise prompts, and switching reasoning off where it is not needed.</p>
+    </div></div>
+    <div class="beat" data-at="585"><div class="t">9:45<small>Handover</small></div><div>
+      <p class="handover">So the questions are clear. But how do you measure the energy of one answer on a laptop that has no energy meter? Filippo.</p>
+    </div></div>
+  </div>
+  <div class="two" style="margin-top:1rem">
+    <div class="box"><h4>Cue card</h4><ul class="cuecard">
+      <li>Group 10, three names, who does what</li>
+      <li>Finding line; pilot, about, estimated</li>
+      <li>Inference dominates: AWS 80–90 %, Google 60 %</li>
+      <li>0.24–0.34 Wh per query; 2.5 bn/day ≈ 850 MWh/day</li>
+      <li>Rebound: 33× cheaper, +50 % demand</li>
+      <li>Power vs energy; 1 mWh = 3.6 J</li>
+      <li>18 W idle, 24 W answering, 1 s ≈ 6.4 mWh</li>
+      <li>Prefill parallel / decode one by one, KV cache</li>
+      <li>1.4 GB weights per token; 80 vs 21 tok/s</li>
+      <li>Thinking = more decode tokens</li>
+      <li>[1] −5 % vs −54 %; [2] decode dominates</li>
+      <li>[3] padding, [4] middle; [5] per response</li>
+      <li>Gap: GPUs studied, laptops not</li>
+      <li>Table 1: RQ1, RQ2a, RQ2b, RQ3</li>
+      <li>Outcomes; accuracy is not free</li>
+      <li>Handover: "how do you measure…? Filippo"</li>
+    </ul></div>
+    <div class="box key"><h4>Numbers Mateusz must know</h4><ul>
+      <li>0.375 vs 0.075 mWh/token, ratio 4.99</li>
+      <li>Idle 18.31 W, answering 24.34 W</li>
+      <li>UNESCO: prompt −5 %, response −54 %</li>
+      <li>Qwen3: 1.7 B parameters, 28 layers, about 1.4 GB in 4-bit</li>
+      <li>RQ levels: prompt 64–1,024; answer 32–256; caps 32/64/128/256; 15/60 words; 0/~260/~920 notes</li>
+    </ul></div>
+  </div>
+</section>
+
+<section class="sec script" id="part2" data-sec="part2">
+  <div class="sec-head"><h2>Script 2: how we measure</h2><span class="who">Filippo · 10:00 to 20:00 · poster section II</span><label class="known"><input type="checkbox" id="known-part2" data-known="part2"> I know this</label></div>
+  <div class="script-meta"><span>Covers: pipeline, tasks, model settings, CodeCarbon and its limits, idle and warm-up, scoring and metrics, Fig. 2</span><span class="wc" data-wc="part2"></span></div>
+  <div class="timer" data-timer="part2"><span class="tdisp">0:00</span><span class="muted">/ 10:00</span><button type="button" class="primary" data-act="start">Start</button><button type="button" data-act="reset">Reset</button><div class="tbar"><i></i></div><span class="tnow">Now: Pipeline</span></div>
+  <div class="spoken" data-spoken="part2">
+    <div class="beat" data-at="0"><div class="t">0:00<small>Pipeline</small></div><div>
+      <p class="cue">point at Fig. 1</p>
+      <p>Thank you, Mateusz. I will explain how we measure, using Figure 1. Every single query passes the same four steps. One, we build a prompt from a task. Two, the local model answers in Ollama. Three, CodeCarbon estimates the energy. Four, we score the answer and write one row to a CSV file. The whole pilot is one Python script, <em>run_experiment.py</em>. We ran it on the 18th of November; 75 queries took about twelve and a half minutes. Everything else stays fixed: the same laptop, the same model, the same settings, so that the only thing that changes between two queries is the condition we test.</p>
+    </div></div>
+    <div class="beat" data-at="60"><div class="t">1:00<small>Tasks</small></div><div>
+      <p>Step one, the tasks. Our main task is GSM8K, reference six: 8,500 grade-school maths word problems, 7,500 for training and 1,000 for testing. Each needs two to eight arithmetic steps and ends in one number. That makes it ideal for two reasons. We can grade it automatically by the final number. And the answer settings we study, caps, word limits and thinking, decide whether the model reaches that number, so they show up in accuracy.</p>
+      <p>As a contrast we use short factual questions in the style of TriviaQA, reference seven, like "What is the capital of Australia?". There the answer is one word, so a long answer or reasoning should not help.</p>
+      <p>In the pilot we used six items: three shortened GSM8K test problems and three trivia facts. The prompt depends on the research question. For RQ1 we ask the model to explain a block of neutral notes in detail, so that it always writes until its cap. The notes are sentences like "Office note: server room temperature stayed near 21 degrees". For RQ2b we put the same kind of notes half before and half after the question, following the setups of Levy and of Liu.</p>
+    </div></div>
+    <div class="beat" data-at="150"><div class="t">2:30<small>The model</small></div><div>
+      <p>Step two, the model. We run Qwen3 1.7B through Ollama, a local runtime, on the laptop's CPU. The default Ollama build is quantised to 4 bits, about 1.4 gigabytes. Each query is one call with fixed options: temperature zero, so the model always picks the most likely next token; seed 42; and <em>num_predict</em>, the token cap, which cuts the answer off at 32, 64, 128 or 256 tokens. Thinking mode is a single switch, think true or false.</p>
+      <p>Ollama returns how many prompt tokens and answer tokens it processed, so we never have to guess token counts. Answer tokens include the hidden thinking tokens.</p>
+    </div></div>
+    <div class="beat" data-at="210"><div class="t">3:30<small>Energy</small></div><div>
+      <p>Step three is the critical one: energy. The laptop is an Intel Core i5-13420H with 16 gigabytes of RAM, running Windows, no GPU used. We wrap every query in its own CodeCarbon tracker, version 3.3.2, in machine mode, because Ollama runs as a separate server process and we need the whole machine. It records every second.</p>
+      <p>Now the honest part. This laptop gives CodeCarbon no hardware energy counter, no Intel RAPL readings. So CodeCarbon falls back to a model. It takes the processor's rated power, the TDP, about 45 watts here, and scales it with the CPU load, with a floor of 10 percent. For memory it simply assumes 10 watts, two memory slots at 5 watts each, whatever the activity. In the metrics lecture this is called a power model: an estimate from utilisation when direct measurement is unavailable. And the lecture's warning applies to us: treat it as estimated energy at this boundary, not as a meter reading.</p>
+      <p>What does that mean in practice? The estimated power stays almost constant, around 23 to 24 watts, so energy is essentially runtime times power. In our data, energy and runtime correlate at 0.998. That is why the poster says "estimated" every time, and why we always report runtime as well. Note also what is outside the boundary: the screen, the disk, the fans and the charger.</p>
+      <p>We checked that the log is consistent with this model. The lowest CPU power CodeCarbon logged was 4.57 watts, which is 10 percent of the 45-watt rating, and the RAM line is 10 watts in every single row.</p>
+      <p class="cue">point at the Hardware and Measurement paragraph</p>
+    </div></div>
+    <div class="beat" data-at="345"><div class="t">5:45<small>Idle, warm-up</small></div><div>
+      <p>Two more details. Before any query we record a five-second idle baseline. The laptop drew an estimated 18.3 watts doing nothing, against 24.3 watts while answering, so inference adds only about six watts on top of idle. In the pilot we report the gross energy of the whole machine, idle included, which is what the user actually pays for. The lecture on idle energy shows that this is a policy choice: you can include idle, allocate it, or subtract it. For January we will report the idle-subtracted value as well.</p>
+      <p>Then a warm-up call. The first request has to load the model from disk into memory, so we send one unmeasured question, "What is 2 plus 2?", and loading is not counted against the first real query.</p>
+    </div></div>
+    <div class="beat" data-at="405"><div class="t">6:45<small>Scoring, metrics</small></div><div>
+      <p>Step four, scoring and records. For GSM8K we take the last number in the visible answer and compare it with the gold answer. For trivia we check whether an accepted answer, for example "Canberra", appears in the reply. The RQ1 runs are not scored, because there the model explains filler notes; they only measure energy and tokens. Every query becomes one row with 21 columns: the condition, prompt and answer tokens, runtime, energy split into CPU and RAM, emissions, and whether the answer was correct.</p>
+      <p>From these rows we compute three outcomes per condition: accuracy, mean estimated energy per query, and energy per correct answer, which is the total energy divided by the number of correct answers. Samsi and colleagues defined energy per response; we divide by correct answers because, as the course puts it, a change that reduces energy but degrades the service must be judged by its outcome.</p>
+    </div></div>
+    <div class="beat" data-at="480"><div class="t">8:00<small>Fig. 2</small></div><div>
+      <p class="cue">point at Fig. 2, row by row</p>
+      <p>Figure 2 shows what this looks like for one real item, the first GSM8K test problem in shortened form. Janet's ducks lay 16 eggs a day; she eats 3, bakes with 4 and sells the rest at 2 dollars each. The gold answer is 18.</p>
+      <p>With a 32-token cap the model starts "Let's break down the problem step by step" and is cut off before any result: wrong. With a 256-token cap it writes the full worked solution in 189 tokens and ends with 18: correct. With the instruction "answer in 15 words" it writes "Janet sells 16 minus 3 minus 4 equals 9 eggs, 9 times 2 is 18", in 36 tokens: correct. With thinking on, it first writes about 900 characters of hidden reasoning, then a worked answer: correct, but 485 tokens.</p>
+      <p>So the same correct answer cost 36 tokens or 485 tokens. In our log that is about 19 versus 186 milliwatt-hours, almost ten times. Note also that the replies with a 32-token and a 256-token cap start with exactly the same words. A cap does not make the model more concise; it only stops it. A word limit changes how the model writes. That is exactly the trade-off that RQ2a and RQ3 will measure properly.</p>
+    </div></div>
+    <div class="beat" data-at="585"><div class="t">9:45<small>Handover</small></div><div>
+      <p class="handover">So we have a working pipeline that gives tokens, energy and accuracy for every query. What did the pilot show for RQ1? Hazem.</p>
+    </div></div>
+  </div>
+  <div class="two" style="margin-top:1rem">
+    <div class="box"><h4>Cue card</h4><ul class="cuecard">
+      <li>Fig. 1: prompt → Ollama → CodeCarbon → score + CSV</li>
+      <li>18 Nov, 75 queries, ~12.5 min</li>
+      <li>GSM8K: 8.5K, 7.5K/1K, 2–8 steps, one number</li>
+      <li>Trivia contrast: one-word answer</li>
+      <li>6 pilot items; RQ1 notes; RQ2b notes around question</li>
+      <li>Qwen3 1.7B, Ollama, 4-bit, 1.4 GB</li>
+      <li>temp 0, seed 42, num_predict cap, think on/off</li>
+      <li>Ollama counts tokens</li>
+      <li>i5-13420H, 16 GB, Windows, no GPU</li>
+      <li>CodeCarbon 3.3.2, machine mode, every 1 s</li>
+      <li>No RAPL → TDP × load, floor 10 %; RAM 10 W</li>
+      <li>Power model = estimate at this boundary</li>
+      <li>Energy ≈ runtime, r = 0.998</li>
+      <li>Idle 18.3 W vs 24.3 W; gross energy; policy choice</li>
+      <li>Warm-up "2 + 2"</li>
+      <li>Scoring: last number / alias; 21 columns</li>
+      <li>mWh per correct answer; judged by outcome</li>
+      <li>Janet, 18: 32 wrong, 189, 36, 485; 19 vs 186 mWh</li>
+      <li>Handover: "what did the pilot show? Hazem"</li>
+    </ul></div>
+    <div class="box key"><h4>Numbers Filippo must know</h4><ul>
+      <li>75 queries: RQ1 9, RQ2a 36, RQ2b 18, RQ3 12</li>
+      <li>12 min 27 s on 18 Nov 2026</li>
+      <li>Idle 18.31 W (8.32 CPU + 10 RAM); active 24.34 W</li>
+      <li>RAM 41 % of inference energy</li>
+      <li>CPU floor 4.57 W ≈ 10 % of ~45 W</li>
+      <li>Fig. 2: 32 / 189 / 36 / 485 tokens; 17.3 / 66.5 / 19.5 / 186.0 mWh</li>
+    </ul></div>
+  </div>
+</section>
+
+<section class="sec script" id="part3" data-sec="part3">
+  <div class="sec-head"><h2>Script 3: what the pilot shows, and what comes next</h2><span class="who">Hazem · 20:00 to 30:00 · poster sections III and IV</span><label class="known"><input type="checkbox" id="known-part3" data-known="part3"> I know this</label></div>
+  <div class="script-meta"><span>Covers: Fig. 3 and the slopes, why it is plausible, how robust, Fig. 4 and the cache, lessons, limits, next steps, take-home</span><span class="wc" data-wc="part3"></span></div>
+  <div class="timer" data-timer="part3"><span class="tdisp">0:00</span><span class="muted">/ 10:00</span><button type="button" class="primary" data-act="start">Start</button><button type="button" data-act="reset">Reset</button><div class="tbar"><i></i></div><span class="tnow">Now: What the pilot is</span></div>
+  <div class="spoken" data-spoken="part3">
+    <div class="beat" data-at="0"><div class="t">0:00<small>What the pilot is</small></div><div>
+      <p>Thank you, Filippo. I will present the pilot result for RQ1, what the pilot taught us, and our plan. First, what this pilot is: a calibration run of 75 queries on six items, with one run per condition. Its job was to test the pipeline end to end and to find problems before the real study. So I will show you one result, RQ1, and I will be careful about how much it can carry.</p>
+    </div></div>
+    <div class="beat" data-at="45"><div class="t">0:45<small>Fig. 3</small></div><div>
+      <p class="cue">point at Fig. 3, first the axes, then each line</p>
+      <p>Figure 3. On the horizontal axis, tokens per query; on the vertical axis, estimated energy per query in milliwatt-hours. There are two sweeps. The grey circles: we fixed the answer at 32 tokens and made the prompt longer, 74, 275 and 1,073 tokens. Energy went from 18.6 to 30.6 to 92.8 milliwatt-hours. The blue squares: we fixed the prompt at 74 tokens and let the answer grow, 32, 128 and 256 tokens. Energy went from 18.6 to 53.9 to 102.6. The two sweeps share their starting point: 74 prompt tokens and 32 answer tokens, 18.6 milliwatt-hours.</p>
+      <p>Through each set of three points we fit a straight line. The slope of the line is the cost of one more token. For prompt tokens it is 0.075 milliwatt-hours per token; for answer tokens, 0.375. The ratio is 4.99, so about five. In joules, that is about a quarter of a joule per prompt token and 1.35 joules per answer token.</p>
+    </div></div>
+    <div class="beat" data-at="120"><div class="t">2:00<small>Why plausible</small></div><div>
+      <p>Why should an answer token cost five times more? Mateusz explained prefill and decode. The prompt is read in parallel; the answer is written one token at a time, and each token needs a full pass over the model's weights in memory. We see it directly in the runtime: the laptop read about 80 prompt tokens per second but wrote only about 21 answer tokens per second. And since the estimated power is nearly constant, energy follows time.</p>
+      <p>You can also see it without any fitting. Going from a 32-token to a 256-token answer added 84 milliwatt-hours. Going from a 74-token to a 1,073-token prompt, more than four times as many extra tokens, added only 74.</p>
+      <p>The direction agrees with the GPU studies. In the UNESCO report, shortening the answer saved about ten times more than shortening the prompt, and Fernandez and colleagues found decoding more expensive per token than prefill.</p>
+    </div></div>
+    <div class="beat" data-at="195"><div class="t">3:15<small>How sure</small></div><div>
+      <p>How sure are we about the number five? About the direction, quite sure. About the size, not yet. Each point is one run, each line has three points, and the energy is estimated. So we tested how sensitive the ratio is. If we use runtime instead of energy, the ratio is about 3.9. If we fit all nine runs together, about 8. If we subtract the idle power, about 10. In every version an answer token costs several times a prompt token, but the exact factor depends on the analysis. That is why the poster says "pilot" and "about five", and why we call it a feasibility result.</p>
+    </div></div>
+    <div class="beat" data-at="255"><div class="t">4:15<small>Fig. 4</small></div><div>
+      <p class="cue">point at Fig. 4: first a column upwards, then the bottom-right cell</p>
+      <p>Figure 4 shows all nine combinations as a heat map: three prompt lengths across, three answer lengths up. Reading upwards, every column grows strongly: longer answers cost more, as expected. Reading to the right, the rows grow only a little: longer prompts add less. Except one cell, at the bottom right. The 1,073-token prompt with only a 32-token answer costs 92.8 milliwatt-hours, more than the same prompt with a 128-token answer, 60.6. That should not happen.</p>
+      <p>The explanation is the order of the runs. Each prompt was sent three times in a row, always starting with the 32-token answer. On that first call the model had to read all 1,073 tokens, which took 14.2 seconds. On the next calls, Ollama reused the stored prompt state from its cache, so the call with a 128-token answer took only 9.1 seconds, about the time needed just to write 128 tokens. The token counts that Ollama reports did not show this; only the runtime did. The two labels on the poster, "first call per prompt" and "later calls, same prompt", point at exactly this.</p>
+    </div></div>
+    <div class="beat" data-at="360"><div class="t">6:00<small>Lessons</small></div><div>
+      <p class="cue">point at Lessons from the pilot</p>
+      <p>This gives the first lesson from the pilot. Repeated prompts reuse the cache, so in the full study the conditions run in random order, and each prompt will be unique so that nothing can be reused by accident.</p>
+      <p>The second lesson comes from RQ3. With thinking on, two of the three maths problems ran out of tokens at 512, so the model never got to its answer. A test of thinking mode that cuts the thinking off is not a fair test. So the full study gives thinking a budget of 2,048 tokens.</p>
+      <p>A third, smaller lesson: with only six items, one hard maths problem was wrong in every single condition, and the trivia questions were always right. Six items cannot separate conditions; that needs a hundred.</p>
+    </div></div>
+    <div class="beat" data-at="420"><div class="t">7:00<small>Not claimed</small></div><div>
+      <p>Let me be explicit about what we do not claim. We did not measure energy with a meter; it is estimated. We do not report results for RQ2a, RQ2b and RQ3 yet; they are designed and tested, not answered. In particular, we do not claim a best answer length: 256 tokens was simply the largest cap we tried. And we do not claim that thinking lowers accuracy, because the thinking runs were cut off.</p>
+    </div></div>
+    <div class="beat" data-at="465"><div class="t">7:45<small>Next steps</small></div><div>
+      <p class="cue">point at IV. Next steps</p>
+      <p>So what happens next, in section four. First, we run RQ1 to RQ3 on the real datasets, GSM8K and TriviaQA. Second, 100 items per task and three runs per condition, so that every number gets a 95 percent bootstrap confidence interval. With 100 items, an accuracy of around 80 percent is known to about plus or minus eight points, so we will see real differences and not noise. Third, we freeze the pipeline in December, with random order, unique prompts, the larger thinking budget and idle subtraction, and report the results in January in our scientific report. We will also log the prefill and decode times that Ollama already reports, so that every query can be split into its reading and its writing phase directly.</p>
+    </div></div>
+    <div class="beat" data-at="525"><div class="t">8:45<small>Take-home</small></div><div>
+      <p>To sum up. A language-model answer has two parts with very different costs: reading the prompt is cheap, writing the answer is expensive. Our pilot suggests that this holds on a laptop CPU too, with an answer token costing about five times a prompt token. If the full study confirms it, the practical lesson is simple: the cheapest token is the one the model does not write. Remember Filippo's example: the same correct answer cost about 19 milliwatt-hours with a 15-word limit and 186 with thinking on. Asking for a short answer, or switching thinking off when it is not needed, is where the energy is. And for researchers: report energy per correct answer, not only per query, because accuracy is not free.</p>
+      <p class="handover">Thank you. The QR code on the right leads to our links. We are happy to take your questions.</p>
+    </div></div>
+  </div>
+  <div class="two" style="margin-top:1rem">
+    <div class="box"><h4>Cue card</h4><ul class="cuecard">
+      <li>Calibration pilot: 75 queries, 6 items, 1 run each</li>
+      <li>Fig. 3 axes; grey = prompt sweep, blue = answer sweep</li>
+      <li>74/275/1,073 → 18.6/30.6/92.8</li>
+      <li>32/128/256 → 18.6/53.9/102.6</li>
+      <li>Slopes 0.075 vs 0.375, ratio 4.99; 0.27 J vs 1.35 J</li>
+      <li>Why: parallel vs one by one; 80 vs 21 tok/s; energy follows time</li>
+      <li>Agrees with [1] (×10) and [2]</li>
+      <li>Robustness: 3.9 / 8 / 10; direction sure, size not</li>
+      <li>Fig. 4: up strong, right weak</li>
+      <li>92.8 &gt; 60.6; first call 14.2 s, cached 9.1 s</li>
+      <li>Lesson 1: random order, unique prompts</li>
+      <li>Lesson 2: 512 cut-off → 2,048</li>
+      <li>Lesson 3: 6 items too few</li>
+      <li>Not claimed: meter, RQ2/3, sweet spot, thinking</li>
+      <li>Next: GSM8K + TriviaQA, 100 items, 3 runs, bootstrap, ±8 pts</li>
+      <li>Freeze Dec, report Jan</li>
+      <li>Cheapest token is the one not written; per correct answer</li>
+    </ul></div>
+    <div class="box key"><h4>Numbers Hazem must know</h4><ul>
+      <li>Fig. 3 points and slopes (left)</li>
+      <li>Intercepts: 11.7 (prompt line), 6.3 (answer line) mWh</li>
+      <li>Grid row 256: 102.6 / 99.9 / 121.0; row 128: 53.9 / 50.6 / 60.6; row 32: 18.6 / 30.6 / 92.8</li>
+      <li>Ratios: runtime 3.9, all-9 fit ~8, idle-subtracted ~10</li>
+      <li>Thinking: gsm_2 and gsm_3 hit 512</li>
+      <li>±8 points at 80 % with 100 items</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============================== 7. Q&A ============================== -->
+<section class="sec" id="qa" data-sec="qa">
+  <div class="sec-head"><h2>Q&amp;A drill</h2><label class="known"><input type="checkbox" id="known-qa" data-known="qa"> I know this</label></div>
+  <p>Say your answer out loud first, then open the card. Suggested owner in brackets, but everyone should know every answer. Keep answers to two or three sentences, then stop.</p>
+  <div class="filters" id="qa-filters" role="group" aria-label="Filter questions by topic">
+    <button type="button" data-f="all" aria-pressed="true">All</button>
+    <button type="button" data-f="theory" aria-pressed="false">Motivation and theory</button>
+    <button type="button" data-f="measure" aria-pressed="false">Measurement</button>
+    <button type="button" data-f="method" aria-pressed="false">Method</button>
+    <button type="button" data-f="results" aria-pressed="false">Results</button>
+    <button type="button" data-f="stats" aria-pressed="false">Statistics</button>
+    <button type="button" data-f="future" aria-pressed="false">Next steps and impact</button>
+    <button type="button" id="qa-toggle">Open all</button>
+  </div>
+  <div id="qa-list">
+    <details class="qa" data-t="theory"><summary>Why did you choose this topic? <span class="tags">Mateusz</span></summary><div><p>Inference now dominates AI energy, because it runs on every use <span class="src">VL9 p.35</span>. Small models run on laptops, where nobody measures their energy. We wanted to check whether what GPU studies found, that the answer is the expensive part, also holds there.</p></div></details>
+    <details class="qa" data-t="theory"><summary>Why Qwen3 1.7B? <span class="tags">Mateusz</span></summary><div><p>It is small enough to run on a laptop CPU (about 1.4 GB in 4-bit), it is open and available in Ollama, and the same model can switch thinking on and off. That lets us test RQ3 without changing models.</p></div></details>
+    <details class="qa" data-t="theory"><summary>Why a laptop CPU and not a GPU? <span class="tags">Mateusz</span></summary><div><p>GPUs are already studied [1, 2, 5]. Local use on personal devices is growing and is not measured. A CPU has a different bottleneck (few cores, memory bandwidth), so the GPU results need not transfer.</p></div></details>
+    <details class="qa" data-t="theory"><summary>What is a token? <span class="tags">Mateusz</span></summary><div><p>A piece of text the model reads or writes, often part of a word; about 1.2 to 1.5 tokens per English word <span class="src">VL9 p.23</span>. Ollama tells us exactly how many prompt and answer tokens each query used.</p></div></details>
+    <details class="qa" data-t="theory"><summary>Explain prefill and decode. <span class="tags">Mateusz</span></summary><div><p>Prefill reads the whole prompt in one parallel pass and fills the KV cache; it is compute-bound. Decode writes the answer one token at a time, each token a full pass through the model; it is memory-bound and slower <span class="src">VL9 p.24</span> <span class="src">[2] p.2</span>.</p></div></details>
+    <details class="qa" data-t="theory"><summary>What is the KV cache? <span class="tags">Mateusz</span></summary><div><p>The attention keys and values of tokens already processed, stored so the model does not recompute them for each new token. Ollama can also keep it between requests, which caused our Fig. 4 anomaly.</p></div></details>
+    <details class="qa" data-t="theory"><summary>Why should an answer token cost more than a prompt token? <span class="tags">Hazem</span></summary><div><p>In prefill each weight read from memory serves many tokens at once; in decode all weights (about 1.4 GB) pass through the CPU for every single token. So decode is slower: about 21 answer tokens per second against 81 prompt tokens per second in our pilot. With near-constant power, energy follows time.</p></div></details>
+    <details class="qa" data-t="theory"><summary>What is thinking mode and why is it expensive? <span class="tags">Mateusz</span></summary><div><p>The model writes hidden reasoning before its answer. These are extra decode tokens, the expensive kind, and they count toward the cap. In the course, test-time scaling raised DeepSeek-R1 from 0.63 to 10.60 Wh per query <span class="src">VL9 p.38</span>.</p></div></details>
+    <details class="qa" data-t="theory"><summary>What is quantisation, and which one did you use? <span class="tags">Filippo</span></summary><div><p>Storing weights with fewer bits, which saves memory and data movement. Ollama's <code>qwen3:1.7b</code> tag is the 4-bit Q4_K_M build, 1.4 GB. We did not log the Ollama version, so we say "very likely 4-bit" and will record the model hash in January.</p></div></details>
+    <details class="qa" data-t="theory"><summary>What is the difference between power and energy? <span class="tags">Mateusz</span></summary><div><p>Power is the rate in watts; energy is power times time, in joules or watt-hours. A lower-power run can still use more energy if it takes longer <span class="src">VL7 p.7</span>.</p></div></details>
+
+    <details class="qa" data-t="measure"><summary>How exactly did you measure energy? <span class="tags">Filippo</span></summary><div><p>CodeCarbon 3.3.2, a fresh tracker around each query, machine mode, power accounted every second. Without a hardware energy interface it models CPU power from load and the processor's TDP, and assumes 10 W for RAM. So the numbers are estimates.</p></div></details>
+    <details class="qa" data-t="measure"><summary>What is TDP and how does CodeCarbon use it? <span class="tags">Filippo</span></summary><div><p>Thermal design power, the manufacturer's rated sustained power, about 45 W for this CPU. CodeCarbon's load mode computes TDP × (0.1 + 0.9 × load³), so never less than 10 % of TDP. Our logged minimum was 4.57 W, which matches the 10 % floor <span class="src">raw log</span>.</p></div></details>
+    <details class="qa" data-t="measure"><summary>Why is RAM a constant 10 W? <span class="tags">Filippo</span></summary><div><p>CodeCarbon estimates 5 W per memory slot with a minimum of two slots on x86. It does not see memory activity, so the same 10 W is booked every second. That constant is 41 % of our inference energy.</p></div></details>
+    <details class="qa" data-t="measure"><summary>Why machine mode and not process mode? <span class="tags">Filippo</span></summary><div><p>The model runs inside the Ollama server, a different process from our Python script. Process mode would track only our script and miss the actual inference <span class="src">R:277</span>.</p></div></details>
+    <details class="qa" data-t="measure"><summary>What is RAPL, and why did you not use it? <span class="tags">Filippo</span></summary><div><p>Intel's on-chip energy estimates for package, cores and DRAM <span class="src">VL2 p.43</span>. On our Windows laptop CodeCarbon found no such interface and fell back to its load model. On Linux it could read RAPL, which is still an estimate, but a hardware-based one.</p></div></details>
+    <details class="qa" data-t="measure"><summary>How would you validate your estimates? <span class="tags">Filippo</span></summary><div><p>With an external power meter at the socket, which the lecture recommends for critical measurements <span class="src">VL2 p.42</span>, or by repeating the runs on a Linux machine with RAPL and comparing the rankings.</p></div></details>
+    <details class="qa" data-t="measure"><summary>What is inside your system boundary? <span class="tags">Filippo</span></summary><div><p>Modelled CPU power plus estimated RAM power for the whole machine during each query. Not the display, disk, network, fans or charger losses; no GPU. PUE is 1 because there is no facility around a laptop.</p></div></details>
+    <details class="qa" data-t="measure"><summary>Did you subtract idle power? <span class="tags">Filippo</span></summary><div><p>No. The pilot reports gross energy, idle included (18.31 W idle, 24.34 W answering). Subtracting idle would leave about a quarter of the energy and raise the ratio to about 10, so five is the conservative figure. January reports both.</p></div></details>
+    <details class="qa" data-t="measure"><summary>Why the warm-up call? <span class="tags">Filippo</span></summary><div><p>The first request loads the model from disk into memory. Without a warm-up that loading time would be billed to the first measured query. We send one unmeasured "What is 2 + 2?" first.</p></div></details>
+    <details class="qa" data-t="measure"><summary>Does CodeCarbon itself use energy? <span class="tags">Filippo</span></summary><div><p>Yes, a little; probes consume resources too, the observer effect <span class="src">VL7 p.26</span>. In machine mode its own load is inside the estimate, equally for every condition, so it does not change the comparison.</p></div></details>
+
+    <details class="qa" data-t="method"><summary>How did you count tokens? <span class="tags">Filippo</span></summary><div><p>From Ollama's response: <code>prompt_eval_count</code> for prompt tokens and <code>eval_count</code> for answer tokens, thinking tokens included. The word-based fallback in the code was never needed.</p></div></details>
+    <details class="qa" data-t="method"><summary>How did you score answers? <span class="tags">Filippo</span></summary><div><p>GSM8K: the last number in the visible answer must equal the gold number. Trivia: an accepted alias must appear in the normalised reply. The trivia rule is loose and will be tightened.</p></div></details>
+    <details class="qa" data-t="method"><summary>Why GSM8K? <span class="tags">Filippo</span></summary><div><p>Multi-step problems (2 to 8 steps) with one numeric answer, so grading is automatic and answer length or thinking can change the result <span class="src">[6]</span>.</p></div></details>
+    <details class="qa" data-t="method"><summary>Why trivia questions as a contrast? <span class="tags">Filippo</span></summary><div><p>The answer is one word, so long answers or reasoning cannot add accuracy, only cost. That separates "useful extra tokens" from "wasted extra tokens".</p></div></details>
+    <details class="qa" data-t="method"><summary>What is the difference between a token cap and a word limit? <span class="tags">Filippo</span></summary><div><p>A cap (<code>num_predict</code>) cuts the reply off mid-sentence; a word limit is an instruction, so the model can plan a short complete answer. In the pilot, "15 words" averaged 22 tokens with 5 of 6 correct, while a 32-token cap got 3 of 6.</p></div></details>
+    <details class="qa" data-t="method"><summary>How many runs, and how long did the pilot take? <span class="tags">Filippo</span></summary><div><p>75 queries plus an idle row, on 18 November 2026, 12 min 27 s in total: RQ1 9, RQ2a 36, RQ2b 18, RQ3 12.</p></div></details>
+    <details class="qa" data-t="method"><summary>Why temperature 0? <span class="tags">Filippo</span></summary><div><p>To make runs as repeatable as possible: the model always takes the most likely token. It was not fully deterministic on the CPU, and Qwen advises against greedy decoding in thinking mode, so we will revisit it for RQ3.</p></div></details>
+    <details class="qa" data-t="method"><summary>What does mWh per correct answer show that mWh per query does not? <span class="tags">Filippo</span></summary><div><p>Whether energy buys useful work. A 32-token cap is cheap per query but wrong half the time; per correct answer it can lose its advantage. The course calls this a quality guardrail <span class="src">VL2 p.67</span>.</p></div></details>
+    <details class="qa" data-t="method"><summary>What is Ollama? <span class="tags">Filippo</span></summary><div><p>A local runtime that downloads and serves open models on your own machine, with a Python client. It handles quantised models, the chat template, token counting and the thinking switch.</p></div></details>
+
+    <details class="qa" data-t="results"><summary>Walk me through Fig. 3. <span class="tags">Hazem</span></summary><div><p>Two sweeps: prompt longer with a 32-token answer (grey), answer longer with a 74-token prompt (blue). Straight-line fits give 0.075 and 0.375 mWh per token, a ratio of 4.99.</p></div></details>
+    <details class="qa" data-t="results"><summary>How did you compute the slopes? <span class="tags">Hazem</span></summary><div><p>Least-squares straight line through the three points of each sweep (<code>numpy.polyfit</code>, degree 1). The ratio is the answer slope divided by the prompt slope. <code>make_figures.py</code> checks every number against <code>summary_stats.json</code> before drawing.</p></div></details>
+    <details class="qa" data-t="results"><summary>Why is 1,073 / 32 higher than 1,073 / 128? <span class="tags">Hazem</span></summary><div><p>Run order. The 32-token call came first and had to read the whole prompt (14.2 s). The 128-token call reused Ollama's cached prompt state (9.1 s). Token counts hid it; runtime showed it.</p></div></details>
+    <details class="qa" data-t="results"><summary>How robust is the ratio of 4.99? <span class="tags">Hazem</span></summary><div><p>The direction is robust, the size is not: runtime only 3.9, a fit on all nine runs about 8, idle-subtracted about 10. Hence "about five" and "pilot".</p></div></details>
+    <details class="qa" data-t="results"><summary>What do the intercepts mean? <span class="tags">Hazem</span></summary><div><p>About 11.7 mWh (prompt line) and 6.3 mWh (answer line) at zero tokens: the fixed cost of a call, such as the chat template, the other half of the query and set-up. With three points per line we do not interpret them further.</p></div></details>
+    <details class="qa" data-t="results"><summary>Is the relation really linear? <span class="tags">Hazem</span></summary><div><p>Three points cannot test that. In theory attention cost grows with context length, and on GPUs decode energy also rises for long inputs <span class="src">[2] p.4</span>. In our range a straight line is a reasonable first approximation.</p></div></details>
+    <details class="qa" data-t="results"><summary>What did RQ2a, RQ2b and RQ3 show in the pilot? <span class="tags">Hazem</span></summary><div><p>Only tendencies with six items: caps under 256 cut maths answers off; notes made queries up to 3.15 times more expensive with no accuracy change; thinking cost 4.29 times more energy. They are not findings, because every accuracy difference comes from two maths items.</p></div></details>
+    <details class="qa" data-t="results"><summary>Does thinking mode lower accuracy? <span class="tags">Hazem</span></summary><div><p>We cannot say. In the pilot it was 4 of 6 against 5 of 6, but two thinking runs were cut off at 512 tokens. That is a budget problem, not evidence about thinking, so the full study uses 2,048.</p></div></details>
+    <details class="qa" data-t="results"><summary>So 256 tokens is the sweet spot? <span class="tags">Hazem</span></summary><div><p>No. 256 was the largest cap we tried and the only one that let most maths answers finish. A sweet spot needs a range on both sides and repeated runs.</p></div></details>
+    <details class="qa" data-t="results"><summary>Why did trivia answers get longer with notes added? <span class="tags">Hazem</span></summary><div><p>The model commented on the irrelevant notes before answering; triv_1 grew from 17 to 76 to 78 tokens. So unrelated context costs twice: more prompt tokens and more answer tokens.</p></div></details>
+
+    <details class="qa" data-t="stats"><summary>Why only one run per point? <span class="tags">Hazem</span></summary><div><p>It was a calibration pilot: test the pipeline, find problems, estimate run times. The two copies of identical conditions differed by 2 to 24 % in energy, which is why the full study uses 3 runs per condition.</p></div></details>
+    <details class="qa" data-t="stats"><summary>How will you compute confidence intervals? <span class="tags">Hazem</span></summary><div><p>Bootstrap: resample the 100 items with replacement thousands of times, recompute the metric each time, and take the 2.5th and 97.5th percentiles as a 95 % interval.</p></div></details>
+    <details class="qa" data-t="stats"><summary>Are 100 items enough? <span class="tags">Hazem</span></summary><div><p>At about 80 % accuracy the standard error is 4 points, so a 95 % interval of about ±8 points. Large effects will show; differences of a few points will not.</p></div></details>
+    <details class="qa" data-t="stats"><summary>Why random order? <span class="tags">Hazem</span></summary><div><p>Fixed order lets cache reuse, heating or background load line up with one condition. Randomising spreads them over all conditions. Our 1,073 / 32 cell is the proof.</p></div></details>
+    <details class="qa" data-t="stats"><summary>Which confounders remain? <span class="tags">Hazem</span></summary><div><p>Thermal throttling and turbo, background processes, battery vs mains, the Windows power plan, and prompt caching. January fixes the power plan, runs on mains, closes apps, randomises the order and makes prompts unique.</p></div></details>
+
+    <details class="qa" data-t="future"><summary>What exactly changes before the December freeze? <span class="tags">Hazem</span></summary><div><p>Random order, unique prompts, thinking budget 2,048 with a larger context setting, idle subtraction, prefill and decode timings from Ollama, full replies saved, stricter trivia scoring, real GSM8K and TriviaQA items.</p></div></details>
+    <details class="qa" data-t="future"><summary>Why 2,048 tokens for thinking? <span class="tags">Hazem</span></summary><div><p>At 512 two of three maths runs were cut off. 2,048 gives the reasoning room to finish while keeping 100 items × 3 runs feasible on a laptop.</p></div></details>
+    <details class="qa" data-t="future"><summary>What would you do with more time or hardware? <span class="tags">Hazem</span></summary><div><p>A wall power meter, a Linux machine with RAPL, the same tests on a GPU, and other model sizes or quantisation levels.</p></div></details>
+    <details class="qa" data-t="future"><summary>What is the CO₂ footprint of your experiment? <span class="tags">Mateusz</span></summary><div><p>About 3.87 Wh for the whole pilot, which is 1.47 g CO₂e at Germany's grid intensity, 0.14 g in Sweden, 2.75 g in India <span class="src">stats</span>.</p></div></details>
+    <details class="qa" data-t="future"><summary>How does your energy per query compare to ChatGPT's 0.34 Wh? <span class="tags">Mateusz</span></summary><div><p>Our RQ1 queries used 0.019 to 0.121 Wh. They are not comparable: much smaller model, different hardware and a different boundary. The lecture warns that boundaries can change a number by 2.4 times <span class="src">VL9 p.36</span>.</p></div></details>
+    <details class="qa" data-t="future"><summary>What is the rebound effect, and does it apply here? <span class="tags">Mateusz</span></summary><div><p>Efficiency gains lowering cost per use and so increasing use; for example Google's prompts became 33 times cheaper while AI data-centre demand grew 50 % <span class="src">VL9 p.46</span>. Cheap local models could do the same. Saving per answer only helps if total use does not explode.</p></div></details>
+    <details class="qa" data-t="future"><summary>What would you recommend to users? <span class="tags">Mateusz</span></summary><div><p>If the full study confirms the pilot: ask for short answers, switch thinking off for simple factual questions, and use the smallest model that does the job.</p></div></details>
+    <details class="qa" data-t="future"><summary>How would you compute SCI for this system? <span class="tags">Mateusz</span></summary><div><p>SCI = (E × I + M) / R <span class="src">VL6 p.27</span>: our energy, the grid intensity, a time share of the laptop's embodied emissions, and R = one correct answer. We have E and I; the embodied share M is not included yet.</p></div></details>
+  </div>
+</section>
+
+<!-- ============================== 8. NUMBERS ============================== -->
+<section class="sec" id="numbers" data-sec="numbers">
+  <div class="sec-head"><h2>Numbers to know by heart</h2><label class="known"><input type="checkbox" id="known-numbers" data-known="numbers"> I know this</label></div>
+  <p>Say the number, then open the card.</p>
+  <div class="cards">
+    <details class="card"><summary>Energy of one answer token</summary><div class="a">0.375 mWh</div><div class="n">= 1.35 J; slope of the answer sweep</div></details>
+    <details class="card"><summary>Energy of one prompt token</summary><div class="a">0.075 mWh</div><div class="n">= 0.27 J; slope of the prompt sweep</div></details>
+    <details class="card"><summary>Slope ratio</summary><div class="a">4.99</div><div class="n">"about five"; 3.9 to ~10 by analysis</div></details>
+    <details class="card"><summary>Queries in the pilot</summary><div class="a">75</div><div class="n">RQ1 9, RQ2a 36, RQ2b 18, RQ3 12; 6 items</div></details>
+    <details class="card"><summary>Idle and answering power</summary><div class="a">18.31 / 24.34 W</div><div class="n">estimated; inference adds ~6 W</div></details>
+    <details class="card"><summary>RAM power, RAM share</summary><div class="a">10 W, 41 %</div><div class="n">CodeCarbon constant (2 slots × 5 W)</div></details>
+    <details class="card"><summary>Energy vs runtime correlation</summary><div class="a">r = 0.998</div><div class="n">1 s of answering ≈ 6.4 mWh</div></details>
+    <details class="card"><summary>Prompt sweep (answer 32)</summary><div class="a">18.6 / 30.6 / 92.8</div><div class="n">mWh at 74 / 275 / 1,073 tokens</div></details>
+    <details class="card"><summary>Answer sweep (prompt 74)</summary><div class="a">18.6 / 53.9 / 102.6</div><div class="n">mWh at 32 / 128 / 256 tokens</div></details>
+    <details class="card"><summary>The anomaly</summary><div class="a">92.8 vs 60.6</div><div class="n">1,073 / 32 (14.2 s) vs 1,073 / 128 (9.1 s, cached)</div></details>
+    <details class="card"><summary>Largest heat-map cell</summary><div class="a">121.0 mWh</div><div class="n">1,073-token prompt, 256-token answer</div></details>
+    <details class="card"><summary>Reading vs writing speed</summary><div class="a">~81 vs ~21 tok/s</div><div class="n">prompt vs answer tokens, from runtimes</div></details>
+    <details class="card"><summary>Fig. 2 token counts</summary><div class="a">32 / 189 / 36 / 485</div><div class="n">cap 32, cap 256, 15 words, thinking; gold answer 18</div></details>
+    <details class="card"><summary>Fig. 2 energy, 15 words vs thinking</summary><div class="a">19.5 vs 186.0 mWh</div><div class="n">same correct answer, almost 10×</div></details>
+    <details class="card"><summary>Thinking budget</summary><div class="a">512 → 2,048</div><div class="n">2 of 3 maths runs hit 512 in the pilot</div></details>
+    <details class="card"><summary>Pilot CO₂</summary><div class="a">1.47 g CO₂e</div><div class="n">3.87 Wh at ~380 g/kWh (Germany)</div></details>
+    <details class="card"><summary>When and how long</summary><div class="a">18 Nov 2026, 12 min 27 s</div><div class="n">one script run</div></details>
+    <details class="card"><summary>Laptop</summary><div class="a">i5-13420H, 16 GB</div><div class="n">Windows 11, no GPU, ~45 W TDP</div></details>
+    <details class="card"><summary>Model</summary><div class="a">Qwen3 1.7B</div><div class="n">28 layers, ~1.4 GB in 4-bit (Q4_K_M), 32,768 context</div></details>
+    <details class="card"><summary>CodeCarbon</summary><div class="a">3.3.2, every 1 s</div><div class="n">machine mode, one tracker per query</div></details>
+    <details class="card"><summary>GSM8K</summary><div class="a">8.5K problems</div><div class="n">7.5K train / 1K test, 2–8 steps, one number</div></details>
+    <details class="card"><summary>UNESCO [1] halving</summary><div class="a">−5 % vs −54 %</div><div class="n">prompt vs response</div></details>
+    <details class="card"><summary>Full study plan</summary><div class="a">100 × 3, 95 %</div><div class="n">items per task × runs, bootstrap intervals</div></details>
+    <details class="card"><summary>Precision with 100 items</summary><div class="a">±8 points</div><div class="n">95 % interval at ~80 % accuracy</div></details>
+    <details class="card"><summary>Grading</summary><div class="a">40 / 40 / 20</div><div class="n">presentation / report / tests; report due 11 Jan 2027</div></details>
+  </div>
+
+  <h3>Self-check quiz</h3>
+  <p class="muted">Pick an answer; the explanation appears at once. <span class="score" id="quiz-score"></span></p>
+  <div id="quiz"></div>
+  <p><button type="button" id="quiz-reset">Reset quiz</button></p>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "etc-study-v1";
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e){ return {}; } }
+  function save(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){} }
+  var state = load(); if (!state.known) state.known = {};
+
+  /* known-section checkboxes and progress */
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("input[data-known]"));
+  function refreshProgress(){
+    var n = 0;
+    boxes.forEach(function(b){
+      var id = b.getAttribute("data-known");
+      var link = document.querySelector('.toc a[data-sec="' + id + '"]');
+      if (link) link.classList.toggle("is-done", b.checked);
+      if (b.checked) n++;
+    });
+    var t = document.getElementById("prog-text"), bar = document.getElementById("prog-bar");
+    if (t) t.textContent = n + " of " + boxes.length + " sections marked as known";
+    if (bar) bar.style.width = (boxes.length ? (100 * n / boxes.length) : 0) + "%";
+  }
+  boxes.forEach(function(b){
+    var id = b.getAttribute("data-known");
+    b.checked = !!state.known[id];
+    b.addEventListener("change", function(){ state.known[id] = b.checked; save(state); refreshProgress(); });
+  });
+  refreshProgress();
+
+  /* collapse contents on narrow screens */
+  var toc = document.getElementById("toc");
+  if (toc && window.matchMedia && !window.matchMedia("(min-width: 1000px)").matches) toc.open = false;
+
+  /* word counts and reading time of scripts */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-spoken]"), function(el){
+    var id = el.getAttribute("data-spoken");
+    var text = Array.prototype.map.call(el.querySelectorAll(".beat p:not(.cue)"), function(p){ return p.textContent; }).join(" ");
+    var words = text.trim().split(/\s+/).length;
+    var mins = words / 125;
+    var out = document.querySelector('[data-wc="' + id + '"]');
+    if (out) out.textContent = words + " words · about " + Math.floor(mins) + ":" + String(Math.round((mins % 1) * 60)).padStart(2, "0") + " at 125 words per minute";
+  });
+
+  /* rehearsal timers */
+  function fmt(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  Array.prototype.forEach.call(document.querySelectorAll(".timer"), function(tm){
+    var id = tm.getAttribute("data-timer");
+    var section = document.getElementById(id);
+    var beats = Array.prototype.slice.call(section.querySelectorAll(".beat"));
+    var disp = tm.querySelector(".tdisp"), bar = tm.querySelector(".tbar i"), now = tm.querySelector(".tnow");
+    var btn = tm.querySelector('[data-act="start"]'), reset = tm.querySelector('[data-act="reset"]');
+    var running = false, started = 0, acc = 0, handle = null, TOTAL = 600;
+    function elapsed(){ return acc + (running ? (Date.now() - started) / 1000 : 0); }
+    function paint(){
+      var e = elapsed();
+      disp.textContent = fmt(e);
+      bar.style.width = Math.min(100, 100 * e / TOTAL) + "%";
+      var cur = beats[0];
+      beats.forEach(function(b){ if (e >= Number(b.getAttribute("data-at"))) cur = b; });
+      var label = cur.querySelector(".t small");
+      now.textContent = (e > TOTAL ? "Over time · " : "Now: ") + (label ? label.textContent : "");
+      beats.forEach(function(b){ b.style.background = (b === cur && (running || acc > 0)) ? "var(--tint-2)" : ""; });
+    }
+    btn.addEventListener("click", function(){
+      if (running){ acc = elapsed(); running = false; clearInterval(handle); btn.textContent = "Resume"; }
+      else { started = Date.now(); running = true; handle = setInterval(paint, 250); btn.textContent = "Pause"; }
+      paint();
+    });
+    reset.addEventListener("click", function(){ running = false; clearInterval(handle); acc = 0; btn.textContent = "Start"; paint(); });
+    paint();
+  });
+
+  /* Q&A filters */
+  var qa = Array.prototype.slice.call(document.querySelectorAll("#qa-list details.qa"));
+  var fbtns = Array.prototype.slice.call(document.querySelectorAll("#qa-filters [data-f]"));
+  fbtns.forEach(function(b){
+    b.addEventListener("click", function(){
+      var f = b.getAttribute("data-f");
+      fbtns.forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); });
+      qa.forEach(function(d){ d.hidden = !(f === "all" || d.getAttribute("data-t") === f); });
+    });
+  });
+  var tog = document.getElementById("qa-toggle");
+  tog.addEventListener("click", function(){
+    var anyClosed = qa.some(function(d){ return !d.hidden && !d.open; });
+    qa.forEach(function(d){ if (!d.hidden) d.open = anyClosed; });
+    tog.textContent = anyClosed ? "Close all" : "Open all";
+  });
+
+  /* quiz */
+  var Q = [
+    { q: "What does the slope of the blue line in Fig. 3 measure?", o: ["Energy per prompt token", "Energy per answer token", "Runtime per query", "Accuracy per mWh"], a: 1, e: "Blue = answer sweep with the prompt fixed at 74 tokens: 0.375 mWh per answer token." },
+    { q: "Why does the poster always say 'estimated' energy?", o: ["CodeCarbon rounds its numbers", "The laptop has no energy counter, so CPU power is modelled from load and RAM is a fixed 10 W", "We only had 75 runs", "The GPU was not measured"], a: 1, e: "No RAPL or other energy interface: CodeCarbon fell back to a TDP × load model and a RAM constant." },
+    { q: "Why is the 1,073 / 32 cell (92.8 mWh) higher than 1,073 / 128 (60.6 mWh)?", o: ["Measurement noise", "The 32-token run used thinking mode", "It ran first and had to read the whole prompt; later calls reused Ollama's prompt cache", "Thermal throttling"], a: 2, e: "14.2 s for the first call against 9.1 s for the cached one. Token counts hid it, runtime showed it." },
+    { q: "What did the pilot use as the thinking-mode cap?", o: ["256", "512", "1,024", "2,048"], a: 1, e: "512 in the pilot; 2,048 is the January budget because two of three maths runs hit 512." },
+    { q: "Was the pilot run in random order?", o: ["Yes, as Table 1 says", "No, fixed order; random order is the protocol for the full study", "Only RQ3", "Only RQ1"], a: 1, e: "The fixed order is what exposed the cache effect; random order is the first lesson." },
+    { q: "What is the best short explanation of why answer tokens cost more?", o: ["Answers use more RAM slots", "Decode writes one token at a time and streams all weights for each token; prefill reads the prompt in parallel", "Answer tokens are longer words", "CodeCarbon samples answers more often"], a: 1, e: "Prefill is parallel and compute-bound; decode is sequential and memory-bound: ~81 vs ~21 tokens per second." },
+    { q: "Which reference gives energy per response and per output token, but does not check correctness?", o: ["[1] UNESCO", "[2] Fernandez", "[5] Samsi", "[6] Cobbe"], a: 2, e: "Samsi et al. 2023; dividing by correct answers is our extension." },
+    { q: "In the UNESCO study, halving the prompt and halving the response saved…", o: ["5 % and 54 %", "54 % and 5 %", "44 % and 90 %", "about the same"], a: 0, e: "−5 % for the prompt, −54 % for the response (Llama 3.1 8B, RTX 3090 Ti)." },
+    { q: "Was idle power subtracted from the poster's numbers?", o: ["Yes", "No, they are gross whole-machine estimates", "Only for RQ1", "Only RAM"], a: 1, e: "Idle 18.31 W was measured but not subtracted; idle-subtracted, the ratio would be about 10." },
+    { q: "What may we claim about RQ3 (thinking)?", o: ["Thinking lowers accuracy", "Thinking is 4.29× more expensive and therefore useless", "Nothing yet: its runs were cut off at 512 tokens and n = 6", "Thinking improves maths"], a: 2, e: "RQ2a, RQ2b and RQ3 are planned methods, not findings." },
+    { q: "Why GSM8K?", o: ["It has the longest prompts", "Multi-step problems with one numeric answer: automatic grading, and answer settings show up in accuracy", "It is in German", "It was the only dataset in Ollama"], a: 1, e: "8.5K problems, 2 to 8 steps, graded by the final number." },
+    { q: "With 100 items at about 80 % accuracy, the 95 % interval is roughly…", o: ["±1 point", "±4 points", "±8 points", "±20 points"], a: 2, e: "Standard error √(0.8 × 0.2 / 100) = 0.04, so about ±8 points." }
+  ];
+  if (!state.quiz) state.quiz = {};
+  var quiz = document.getElementById("quiz");
+  function score(){
+    var answered = 0, right = 0;
+    Q.forEach(function(item, i){ if (state.quiz[i] !== undefined){ answered++; if (state.quiz[i] === item.a) right++; } });
+    document.getElementById("quiz-score").textContent = answered ? ("Score: " + right + " of " + answered + " answered, " + Q.length + " questions") : "";
+  }
+  function render(){
+    quiz.innerHTML = "";
+    Q.forEach(function(item, i){
+      var wrap = document.createElement("div"); wrap.className = "q";
+      var fs = document.createElement("fieldset");
+      var lg = document.createElement("legend"); lg.textContent = (i + 1) + ". " + item.q; fs.appendChild(lg);
+      var fb = document.createElement("div"); fb.className = "fb"; fb.setAttribute("aria-live", "polite");
+      item.o.forEach(function(opt, j){
+        var lab = document.createElement("label");
+        var inp = document.createElement("input"); inp.type = "radio"; inp.name = "q" + i; inp.id = "q" + i + "o" + j; inp.value = j;
+        if (state.quiz[i] === j) inp.checked = true;
+        inp.addEventListener("change", function(){ state.quiz[i] = j; save(state); show(); score(); });
+        lab.appendChild(inp); lab.appendChild(document.createTextNode(" " + opt)); fs.appendChild(lab);
+      });
+      function show(){
+        if (state.quiz[i] === undefined){ fb.textContent = ""; fb.className = "fb"; return; }
+        var ok = state.quiz[i] === item.a;
+        fb.className = "fb " + (ok ? "good" : "bad");
+        fb.textContent = (ok ? "Correct. " : "Not quite. Answer: " + item.o[item.a] + ". ") + item.e;
+      }
+      show();
+      fs.appendChild(fb); wrap.appendChild(fs); quiz.appendChild(wrap);
+    });
+    score();
+  }
+  render();
+  document.getElementById("quiz-reset").addEventListener("click", function(){ state.quiz = {}; save(state); render(); });
+})();
+</script>
+
+</main>
+</div>
+
+</html>
